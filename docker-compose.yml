@@ -1,0 +1,73 @@
+services:
+  mongodb:
+    image: mongo
+    container_name: x-mongodb
+    ports:
+      - 37017:27017
+    networks:
+      - node-network
+
+  backend:
+    image: backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    environment:
+      - NODE_ENV=development
+      - JWT_SECRET=verysecretkey
+    container_name: x-backend
+    expose:
+      - 3000
+    ports:
+      - 3000:3000
+      - 9229:9229 # for debugging
+    develop:
+      watch:
+        - action: sync
+          path: ./backend/src
+          target: /app/src
+
+        - action: rebuild
+          path: ./backend/package.json
+          target: /app
+    networks:
+      - node-network
+    depends_on:
+      - mongodb
+    command: pnpm watch
+
+  frontend:
+    image: frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    tmpfs: # for EADDRINUSE: address already in use bug
+      - /tmp
+    environment:
+      - NODE_ENV=development
+      - NUXT_PORT=5173
+      - PORT=5173
+    container_name: x-frontend
+    expose:
+      - 5173
+    ports:
+      - 5173:5173
+      - 24678:24678 # for nuxt hot module replacement
+    develop:
+      watch:
+        - action: sync
+          path: ./frontend
+          target: /app
+
+        - action: rebuild
+          path: ./frontend/package.json
+          target: /app
+    networks:
+      - node-network
+    depends_on:
+      - backend
+    command: pnpm dev
+
+networks:
+  node-network:
+    driver: bridge

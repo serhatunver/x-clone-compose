@@ -1,0 +1,10 @@
+# .dockerignore
+dist
+.gitignore
+dev.Dockerfile
+Dockerfile
+README.md
+.editorconfig
+/.nuxt
+/.output
+/node_modules

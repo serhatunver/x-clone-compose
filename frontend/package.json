@@ -1,0 +1,45 @@
+{
+  "name": "nuxt-app",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.2.1",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "test": "nuxt test",
+    "postinstall": "nuxt prepare",
+    "dev:debug": "nuxt dev --port 5173 --inspect"
+  },
+  "dependencies": {
+    "@nuxt/icon": "1.9.0",
+    "@nuxtjs/color-mode": "3.5.2",
+    "@nuxtjs/tailwindcss": "6.12.2",
+    "@pinia/nuxt": "^0.9.0",
+    "@sidebase/nuxt-auth": "0.10.0",
+    "@vee-validate/zod": "^4.14.7",
+    "@vue/devtools-api": "^7.6.8",
+    "@vueuse/core": "^12.5.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-vue-next": "^0.468.0",
+    "next-auth": "~4.21.1",
+    "nuxt": "^3.14.1592",
+    "pinia": "^2.3.0",
+    "pinia-plugin-persistedstate": "^4.2.0",
+    "radix-vue": "^1.9.10",
+    "shadcn-nuxt": "0.11.3",
+    "tailwind-merge": "^2.5.5",
+    "tailwindcss-animate": "^1.0.7",
+    "vee-validate": "^4.14.7",
+    "vue": "latest",
+    "vue-router": "latest",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "nuxi": "^3.20.0",
+    "typescript": "^5.7.2"
+  }
+}
+
