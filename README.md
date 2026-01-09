@@ -1,6 +1,6 @@
 # X Clone - Full Stack Social Media Application
 
-A full-stack social media application built with modern web technologies, implementing core features similar to X (formerly Twitter). The project consists of a RESTful API backend and a single-page application frontend, containerized with Docker Compose for seamless development and deployment.
+A full-stack social media application with a RESTful API backend and a Nuxt.js frontend. The project is containerized with Docker Compose for development and deployment.
 
 ## Demo
 
@@ -8,11 +8,11 @@ https://github.com/user-attachments/assets/274fadfb-362a-4322-bf7f-c307b41ddbba
 
 ## Architecture
 
-- **Backend**: Express.js REST API with MongoDB database
-- **Frontend**: Nuxt.js 3 SPA with Vue 3 composition API
-- **Containerization**: Docker Compose for orchestration
+- **Backend**: Express.js REST API with MongoDB
+- **Frontend**: Nuxt.js 3 SPA with Vue 3
+- **Containerization**: Docker Compose
 - **Database**: MongoDB with Mongoose ODM
-- **Authentication**: JWT-based authentication with HTTP-only cookies
+- **Authentication**: JWT-based authentication with Bearer tokens
 
 ## Tech Stack
 
@@ -50,29 +50,26 @@ https://github.com/user-attachments/assets/274fadfb-362a-4322-bf7f-c307b41ddbba
 
 ### Authentication
 
-- User registration with email/username validation
-- Secure login with JWT token generation
-- Session management with HTTP-only cookies
-- Protected routes middleware with token verification
-- User profile management and session refresh
+- User registration with email and username validation
+- Login with JWT token generation
+- Protected routes with Bearer token verification
+- Current user endpoint
 
 ### Posts
 
-- CRUD operations for posts
-- Like/unlike functionality with user tracking
-- Comment system with nested reply support
-- Feed filtering (all posts, following-only, user-specific)
-- Post detail pages with full thread view
-- Image attachment support (not implemented yet)
+- Create, read, and delete posts
+- Like/unlike posts
+- Comment on posts (replies stored as posts with replyTo reference)
+- Feed filtering: all posts, following-only, user-specific, and liked posts
+- Post detail pages with comment threads
 
 ### User Management
 
-- User profiles with custom usernames (unique constraint)
-- Follow/unfollow functionality with bidirectional relationships
+- User profiles with unique usernames
+- Follow/unfollow with bidirectional relationships
 - User discovery and suggested users algorithm (not implemented yet)
-- Profile customization (bio, profile image, cover image, link)
-- Follower/following lists with count aggregation
-- User post aggregation
+- Profile fields: bio, profile image, cover image, link
+- Follower and following counts
 
 ### Notifications (not implemented yet)
 
@@ -85,7 +82,7 @@ https://github.com/user-attachments/assets/274fadfb-362a-4322-bf7f-c307b41ddbba
 
 - Docker Desktop (or Docker Engine + Docker Compose)
 - Git
-- pnpm (optional, for local development without Docker)
+- pnpm (for local development without Docker)
 
 ## Installation & Setup
 
@@ -104,7 +101,7 @@ cd x-clone-compose
 docker compose up --build
 ```
 
-This will start:
+This starts:
 
 - MongoDB on port 37017
 - Backend API on port 3000
@@ -201,8 +198,9 @@ The Docker Compose configuration includes hot-reload support:
 
 ### API Development
 
-The backend exposes a Swagger UI at `/api-docs` for interactive API testing and documentation. The API follows RESTful conventions:
+Swagger UI is available at `/api-docs` for API testing and documentation.
 
+API routes:
 - `/api/v1/auth` - Authentication endpoints
 - `/api/v1/user` - User management endpoints
 - `/api/v1/post` - Post management endpoints
@@ -279,7 +277,7 @@ MONGODB_URI=mongodb://mongodb:27017/x-clone
 
 ### Frontend
 
-The frontend uses Nuxt runtime config. Configure in `nuxt.config.ts` or via environment variables:
+Configure in `nuxt.config.ts` or via environment variables:
 
 ```env
 NODE_ENV=development
@@ -291,13 +289,11 @@ PORT=5173
 
 ### Services
 
-- **mongodb**: MongoDB database service
-
+- **mongodb**: MongoDB database
   - Port: 37017 (host) -> 27017 (container)
   - Network: node-network
 
-- **backend**: Express.js API service
-
+- **backend**: Express.js API
   - Ports: 3000 (API), 9229 (debugging)
   - Hot reload: Enabled via Docker Compose watch
   - Depends on: mongodb
@@ -309,7 +305,7 @@ PORT=5173
 
 ### Networks
 
-All services communicate via a Docker bridge network (`node-network`).
+All services communicate via Docker bridge network (`node-network`).
 
 ## API Endpoints
 
@@ -322,26 +318,26 @@ All services communicate via a Docker bridge network (`node-network`).
 
 ### Posts
 
-- `GET /api/v1/post/all` - Get all posts (protected)
-- `GET /api/v1/post/following` - Get posts from followed users (protected)
-- `GET /api/v1/post/user/:username` - Get user's posts (protected)
-- `GET /api/v1/post/likes/:username` - Get user's liked posts (protected)
-- `GET /api/v1/post/:postId` - Get single post (protected)
-- `POST /api/v1/post` - Create new post (protected)
-- `POST /api/v1/post/like/:postId` - Like/unlike post (protected)
-- `POST /api/v1/post/comment/:postId` - Comment on post (protected)
-- `DELETE /api/v1/post/:postId` - Delete post (protected)
+- `GET /api/v1/post/all` - Get all posts
+- `GET /api/v1/post/following` - Get posts from followed users
+- `GET /api/v1/post/user/:username` - Get user's posts
+- `GET /api/v1/post/likes/:username` - Get user's liked posts
+- `GET /api/v1/post/:postId` - Get single post with comments
+- `POST /api/v1/post` - Create new post
+- `POST /api/v1/post/like/:postId` - Like/unlike post
+- `POST /api/v1/post/comment/:postId` - Comment on post
+- `DELETE /api/v1/post/:postId` - Delete post
 
 ### Users
 
-- `GET /api/v1/user/profile/:username` - Get user profile (protected)
-- `GET /api/v1/user/suggested` - Get suggested users to follow (protected)
-- `POST /api/v1/user/follow/:id` - Follow/unfollow user (protected)
-- `POST /api/v1/user/update` - Update user profile (protected)
+- `GET /api/v1/user/profile/:username` - Get user profile
+- `GET /api/v1/user/suggested` - Get suggested users to follow
+- `POST /api/v1/user/follow/:id` - Follow/unfollow user
+- `POST /api/v1/user/update` - Update user profile
 
 ## Database Schema
 
-The application uses MongoDB with Mongoose ODM for schema definition and data modeling. All schemas include automatic timestamps (`createdAt`, `updatedAt`).
+MongoDB with Mongoose ODM. All schemas include automatic timestamps (`createdAt`, `updatedAt`).
 
 ### User Schema
 
@@ -363,10 +359,10 @@ The application uses MongoDB with Mongoose ODM for schema definition and data mo
 
 **Virtual Fields**:
 
-- `followersCount`: Number (computed count)
-- `followingCount`: Number (computed count)
+- `followersCount`: Number (computed)
+- `followingCount`: Number (computed)
 - `posts`: Array of Post documents (computed)
-- `totalPosts`: Number (computed count)
+- `totalPosts`: Number (computed)
 
 **Indexes**:
 
@@ -403,7 +399,7 @@ The application uses MongoDB with Mongoose ODM for schema definition and data mo
 **Relationships**:
 
 - One-to-Many: User → Posts
-- One-to-Many: Post → Comments (self-referential)
+- One-to-Many: Post → Comments (self-referential via replyTo)
 - Many-to-Many: Post ↔ Users (likes)
 
 ### Notification Schema
@@ -427,8 +423,7 @@ The application uses MongoDB with Mongoose ODM for schema definition and data mo
 
 **Relationships**:
 
-- Many-to-One: Notification → User (from)
-- Many-to-One: Notification → User (to)
+- Many-to-One: Notification → User (from and to)
 
 ### Database Relationships Summary
 
@@ -449,9 +444,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Contributing
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
 5. Open a Pull Request
 
 ---
