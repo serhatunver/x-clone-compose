@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { useForm } from "vee-validate";
-import { toTypedSchema } from "@vee-validate/zod";
-import * as z from "zod";
+import { useForm } from 'vee-validate';
+import { toTypedSchema } from '@vee-validate/zod';
+import * as z from 'zod';
 
 const formSchema = toTypedSchema(
 	z.object({
 		username: z.string().min(4),
 		password: z.string().min(6),
-	})
+	}),
 );
 
 const form = useForm({
@@ -26,7 +26,7 @@ const onSubmit = form.handleSubmit(async (values) => {
 				username: values.username,
 				password: values.password,
 			},
-			{ callbackUrl: "/home" }
+			{ callbackUrl: '/home' },
 		);
 	} catch (error) {
 		console.error(error);
@@ -41,9 +41,7 @@ const onSubmit = form.handleSubmit(async (values) => {
 		<form class="grid gap-2" @submit="onSubmit">
 			<Card>
 				<CardHeader class="space-y-1">
-					<CardTitle class="text-2xl">
-						Login to your account
-					</CardTitle>
+					<CardTitle class="text-2xl"> Login to your account </CardTitle>
 					<CardDescription>
 						Enter your credentials below to login to your account
 					</CardDescription>
@@ -66,11 +64,7 @@ const onSubmit = form.handleSubmit(async (values) => {
 						<FormItem>
 							<FormLabel>Password</FormLabel>
 							<FormControl>
-								<Input
-									type="password"
-									placeholder=""
-									v-bind="componentField"
-								/>
+								<Input type="password" placeholder="" v-bind="componentField" />
 							</FormControl>
 							<FormMessage />
 						</FormItem>
@@ -82,12 +76,8 @@ const onSubmit = form.handleSubmit(async (values) => {
 						:disabled="loading"
 						class="flex items-center justify-center w-full rounded-full mb-2"
 					>
-						<Icon
-							v-if="loading"
-							name="svg-spinners:8-dots-rotate"
-							size="18"
-						/>
-						{{ loading ? "Loading" : "Login" }}
+						<Icon v-if="loading" name="svg-spinners:8-dots-rotate" size="18" />
+						{{ loading ? 'Loading' : 'Login' }}
 					</Button>
 					<Separator class="my-2" label="Or" />
 					<div>Don't have an account?</div>

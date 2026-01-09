@@ -10,7 +10,8 @@
     "preview": "nuxt preview",
     "test": "nuxt test",
     "postinstall": "nuxt prepare",
-    "dev:debug": "nuxt dev --port 5173 --inspect"
+    "dev:debug": "nuxt dev --port 5173 --inspect",
+    "prettier": "prettier --write ."
   },
   "dependencies": {
     "@nuxt/icon": "1.9.0",
@@ -42,4 +43,3 @@
     "typescript": "^5.7.2"
   }
 }
-

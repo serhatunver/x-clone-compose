@@ -20,7 +20,7 @@ export const useUserStore = defineStore('user', {
               'Content-Type': 'application/json',
               Authorization: token.value || '',
             },
-          }
+          },
         );
 
         const user = await res.json();

@@ -1,0 +1,19 @@
+# Ignore artifacts:
+build
+coverage
+keys
+logs
+node_modules
+
+# Nuxt dev/build outputs
+.output
+.data
+.nuxt
+.nitro
+.cache
+dist
+
+# Ignore all markdown files:
+*.md
+
+pnpm-lock.yaml

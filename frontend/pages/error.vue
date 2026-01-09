@@ -1,13 +1,12 @@
 <script lang="ts" setup>
 definePageMeta({
-	layout: "none",
-	auth: false,
+  layout: 'none',
+  auth: false,
 });
 </script>
 
 <template>
-	<div>Error</div>
+  <div>Error</div>
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>

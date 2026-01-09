@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import Toaster from "@/components/ui/toast/Toaster.vue";
+import Toaster from '@/components/ui/toast/Toaster.vue';
 </script>
 
 <template>
@@ -13,5 +13,4 @@ import Toaster from "@/components/ui/toast/Toaster.vue";
 	</div>
 </template>
 
-<style>
-</style>
+<style></style>

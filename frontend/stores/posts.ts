@@ -105,7 +105,7 @@ export const usePostsStore = defineStore('posts', {
               'Content-Type': 'application/json',
               Authorization: token.value || '',
             },
-          }
+          },
         );
 
         const userPosts = await res.json();
