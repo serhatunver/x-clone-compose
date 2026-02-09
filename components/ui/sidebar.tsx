@@ -24,6 +24,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { useIsDesktop } from '@/hooks/use-desktop';
 
 const SIDEBAR_COOKIE_NAME = 'sidebar_state';
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
@@ -111,7 +112,9 @@ function SidebarProvider({
 
   // We add a state so that we can do data-state="expanded" or "collapsed".
   // This makes it easier to style the sidebar with Tailwind classes.
-  const state = open ? 'expanded' : 'collapsed';
+  const isDesktop = useIsDesktop();
+  // const state = open ? 'expanded' : 'collapsed';
+  const state = isDesktop ? (open ? 'expanded' : 'collapsed') : 'collapsed';
   // const state = 'collapsed';
 
   const contextValue = React.useMemo<SidebarContextProps>(
