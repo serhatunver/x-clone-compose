@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
-import { AppSidebar } from '@/components/AppSidebar';
+import { AppSidebar } from '@/components/app-sidebar';
+import { RightSidebar } from '@/components/right-sidebar';
 
-import { Separator } from '@/components/ui/separator';
 import {
   SidebarInset,
   SidebarProvider,
@@ -34,16 +34,16 @@ export default function RootLayout({
     <html lang="en">
       {/* add dark class for temporary dark mode */}
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased dark`}
       >
-        <div className="max-w-7xl mx-auto flex h-screen">
-          <SidebarProvider>
+        <div className="max-w-7xl mx-auto border flex h-screen">
+          <SidebarProvider className="">
             <AppSidebar />
             <SidebarInset>
-              <div className="grid auto-rows-min min-h-screen md:grid-cols-3">
-                <main className="col-span-2 border-r">{children}</main>
-                <div className="col-span-1 bg-gray-100"></div>
-                {/* <RightSidebar /> */}
+              <div className="flex min-h-screen gap-4">
+                <main className="border-r w-full max-w-xl">{children}</main>
+                {/* <div className="w-full max-w-sm bg-gray-400 hidden lg:block"></div> */}
+                <RightSidebar />
               </div>
             </SidebarInset>
           </SidebarProvider>
