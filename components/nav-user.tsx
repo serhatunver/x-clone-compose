@@ -24,7 +24,7 @@ export function NavUser({
 }: {
   user: {
     name: string;
-    email: string;
+    username: string;
     avatar: string;
   };
 }) {
@@ -35,17 +35,16 @@ export function NavUser({
       <SidebarMenuItem>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <SidebarMenuButton
-              size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground rounded-full"
-            >
-              <Avatar className="h-8 w-8 rounded-full">
+            <SidebarMenuButton className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground rounded-full px-1 gap-3 group-data-[collapsible=icon]:p-1! h-12">
+              <Avatar className="size-10 rounded-full">
                 <AvatarImage src={user.avatar} alt={user.name} />
-                <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                <AvatarFallback className="rounded-lg">
+                  {user.name}
+                </AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">{user.name}</span>
-                <span className="truncate text-xs">{user.email}</span>
+                <span className="truncate text-xs">@{user.username}</span>
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
             </SidebarMenuButton>
@@ -63,7 +62,7 @@ export function NavUser({
             <DropdownMenuSeparator />
             <DropdownMenuItem>
               <LogOut />
-              Log out @{user.name}
+              Log out @{user.username}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
