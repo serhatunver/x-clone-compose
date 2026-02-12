@@ -1,38 +1,44 @@
 'use client';
 
-import { ChevronRight, type LucideIcon } from 'lucide-react';
+import { type LucideIcon } from 'lucide-react';
 import Link from 'next/link';
 
 import {
   SidebarGroup,
-  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
 } from '@/components/ui/sidebar';
+import { PostDialog } from '@/components/post-dialog';
 
-export function NavMain({
-  items,
-}: {
-  items: {
-    title: string;
-    url: string;
-    icon?: LucideIcon;
-    isActive?: boolean;
-  }[];
-}) {
+import { usePathname } from 'next/navigation';
+
+interface NavItem {
+  title: string;
+  url: string;
+  icon?: LucideIcon;
+}
+
+interface NavMainProps {
+  items: NavItem[];
+}
+
+export function NavMain({ items }: NavMainProps) {
+  const pathname = usePathname();
+
+  const isActive = (navItem: NavItem) =>
+    navItem.url === '/'
+      ? pathname === '/'
+      : pathname === navItem.url || pathname.startsWith(`${navItem.url}/`);
+
   return (
     <SidebarGroup>
-      {/* <SidebarGroupLabel>Platform</SidebarGroupLabel> */}
       <SidebarMenu>
         {items.map((item) => (
           <SidebarMenuItem key={item.title} className="rounded-full">
             <SidebarMenuButton
               className="rounded-full h-12 text-base px-4"
-              // size="lg"
+              isActive={isActive(item)}
               tooltip={item.title}
               asChild
             >
@@ -43,6 +49,7 @@ export function NavMain({
             </SidebarMenuButton>
           </SidebarMenuItem>
         ))}
+        <PostDialog />
       </SidebarMenu>
     </SidebarGroup>
   );
