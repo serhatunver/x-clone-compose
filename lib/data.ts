@@ -2,7 +2,8 @@
 
 export interface Post {
   _id: string;
-  author: string; // user id
+  authorId: string;
+  author?: User; // populated in PostCard for easier access to author details
   content: string;
   media?: string;
   likes: string[]; // user ids
@@ -47,7 +48,58 @@ export const CURRENT_USER: User = {
   following: ['1'],
   followersCount: '2',
   followingCount: '1',
-  posts: [],
+  posts: [
+    {
+      _id: 'p0',
+      authorId: CURRENT_USER_ID,
+      content: 'Hello world! This is my first post.',
+      media: 'https://images.unsplash.com/photo-1503023345310-bd7c1de61c7d',
+      likes: ['1', '2'],
+      repost: [],
+      comments: [],
+      createdAt: '2025-01-01T10:00:00.000Z',
+    },
+    {
+      _id: 'p00',
+      authorId: CURRENT_USER_ID,
+      content: 'Just setting up my profile. Excited to be here!',
+      media: 'https://images.unsplash.com/photo-1491895200222-0fc4a4c35e18',
+      likes: ['1'],
+      repost: ['2'],
+      comments: [],
+      createdAt: '2025-01-05T14:30:00.000Z',
+    },
+    {
+      _id: 'p000',
+      authorId: CURRENT_USER_ID,
+      content: 'Enjoying the platform so far. Loving the community!',
+      media: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce',
+      likes: ['2'],
+      repost: ['1'],
+      comments: [],
+      createdAt: '2025-01-08T18:45:00.000Z',
+    },
+    {
+      _id: 'p0000',
+      authorId: CURRENT_USER_ID,
+      content: 'Looking forward to sharing more updates soon!',
+      media: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d',
+      likes: ['1', '2'],
+      repost: [],
+      comments: [],
+      createdAt: '2025-01-10T12:00:00.000Z',
+    },
+    {
+      _id: 'p00000',
+      authorId: CURRENT_USER_ID,
+      content: 'Just had an amazing brainstorming session with my team!',
+      media: 'https://images.unsplash.com/photo-1492724441997-5dc865305da7',
+      likes: ['1'],
+      repost: ['2'],
+      comments: [],
+      createdAt: '2025-01-12T16:20:00.000Z',
+    },
+  ],
   createdAt: '2024-01-10T10:00:00.000Z',
 };
 
@@ -56,7 +108,7 @@ export const CURRENT_USER: User = {
 export const USER_1_POSTS: Post[] = [
   {
     _id: 'p1',
-    author: '1',
+    authorId: '1',
     content:
       'Building my new social media clone with Next.js 15 + shadcn/ui. Architecture is finally clean.',
     media: 'https://images.unsplash.com/photo-1492724441997-5dc865305da7',
@@ -67,13 +119,67 @@ export const USER_1_POSTS: Post[] = [
   },
   {
     _id: 'p2',
-    author: '1',
+    authorId: '1',
     content:
       'Radix focus management was confusing at first… now it makes perfect sense.',
     likes: ['2'],
     repost: [],
     comments: [],
     createdAt: '2025-02-03T09:30:00.000Z',
+  },
+  {
+    _id: 'p11',
+    authorId: '1',
+    content:
+      'Just had an amazing brainstorming session with my team. Excited for what’s coming next!',
+    media: 'https://images.unsplash.com/photo-1503023345310-bd7c1de61c7d',
+    likes: ['2', '99'],
+    repost: ['2'],
+    comments: [],
+    createdAt: '2025-02-05T16:20:00.000Z',
+  },
+  {
+    _id: 'p12',
+    authorId: '1',
+    content:
+      'Reflecting on my development journey so far. Grateful for all the learning and growth.',
+    media: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce',
+    likes: ['2'],
+    repost: [],
+    comments: [],
+    createdAt: '2025-02-07T14:10:00.000Z',
+  },
+  {
+    _id: 'p13',
+    authorId: '1',
+    content:
+      'Just wrapped up a project! Feeling accomplished and ready for the next challenge!',
+    likes: ['2', '99'],
+    repost: ['2'],
+    comments: [],
+    createdAt: '2025-02-09T11:00:00.000Z',
+  },
+  {
+    _id: 'p14',
+    authorId: '1',
+    content:
+      'Experimenting with new development tools. Loving the flexibility and features they offer!',
+    media: 'https://images.unsplash.com/photo-1491895200222-0fc4a4c35e18',
+    likes: ['2'],
+    repost: [],
+    comments: [],
+    createdAt: '2025-02-11T13:30:00.000Z',
+  },
+  {
+    _id: 'p15',
+    authorId: '1',
+    content:
+      'Consistency in code formatting (Prettier) makes scaling projects easier.',
+    media: 'https://images.unsplash.com/photo-1492724441997-5dc865305da7',
+    likes: ['2', '99'],
+    repost: ['2'],
+    comments: [],
+    createdAt: '2025-02-13T15:45:00.000Z',
   },
 ];
 
@@ -82,13 +188,87 @@ export const USER_1_POSTS: Post[] = [
 export const USER_2_POSTS: Post[] = [
   {
     _id: 'p3',
-    author: '2',
+    authorId: '2',
     content:
       'Consistency in file naming (kebab-case) makes scaling projects easier.',
     likes: ['1', '99'],
     repost: ['1'],
     comments: [],
     createdAt: '2025-02-02T15:45:00.000Z',
+  },
+  {
+    _id: 'p4',
+    authorId: '2',
+    content:
+      'Just launched my portfolio! Check it out and let me know what you think.',
+    media: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d',
+    likes: ['1'],
+    repost: [],
+    comments: [],
+    createdAt: '2025-02-04T11:20:00.000Z',
+  },
+  {
+    _id: 'p5',
+    authorId: '2',
+    content:
+      'Designing with accessibility in mind is crucial for inclusive user experiences.',
+    likes: ['1', '99'],
+    repost: ['1'],
+    comments: [],
+    createdAt: '2025-02-06T17:10:00.000Z',
+  },
+  {
+    _id: 'p6',
+    authorId: '2',
+    content:
+      'Experimenting with new color palettes for my next project. Loving the vibrant tones!',
+    media: 'https://images.unsplash.com/photo-1491895200222-0fc4a4c35e18',
+    likes: ['1'],
+    repost: [],
+    comments: [],
+    createdAt: '2025-02-08T14:00:00.000Z',
+  },
+  {
+    _id: 'p7',
+    authorId: '2',
+    content:
+      'Just had an amazing brainstorming session with my team. Excited for what’s coming next!',
+    likes: ['1', '99'],
+    repost: ['1'],
+    comments: [],
+    createdAt: '2025-02-10T10:30:00.000Z',
+  },
+  {
+    _id: 'p8',
+    authorId: '2',
+    content:
+      'Reflecting on my design journey so far. Grateful for all the learning and growth.',
+    media: 'https://images.unsplash.com/photo-1503023345310-bd7c1de61c7d',
+    likes: ['1'],
+    repost: [],
+    comments: [],
+    createdAt: '2025-02-12T16:20:00.000Z',
+  },
+  {
+    _id: 'p9',
+    authorId: '2',
+    content:
+      'Just wrapped up a project! Feeling accomplished and ready for the next challenge.',
+    likes: ['1', '99'],
+    repost: ['1'],
+    comments: [],
+    createdAt: '2025-02-14T13:15:00.000Z',
+  },
+  {
+    _id: 'p10',
+    authorId: '2',
+    content:
+      'Experimenting with new design tools. Loving the flexibility and features they offer!',
+    media: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce',
+    likes: ['1'],
+    repost: [],
+    comments: [],
+    createdAt: '2025-02-16T11:00:00.000Z',
   },
 ];
 
@@ -135,6 +315,35 @@ export const USERS: User[] = [CURRENT_USER, USER_1, USER_2];
 // get user by username
 export const getUserByUsername = (username: string) =>
   USERS.find((u) => u.username === username);
+
+// get user by id
+export const getUserById = (userId: string) =>
+  USERS.find((u) => u._id === userId);
+
+// get post by id
+export const getPostById = (postId: string) =>
+  USERS.flatMap((u) => u.posts).find((p) => p._id === postId);
+
+// get posts of a user sorted by newest
+export const getPostsByUser = (userId: string) =>
+  USERS.find((u) => u._id === userId)?.posts.sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  ) || [];
+
+// get authenticated user's feed (posts from followed users + own posts) sorted by newest
+export const getFeedPosts = () => {
+  const followedUserIds = CURRENT_USER.following;
+  const feedPosts = USERS.filter(
+    (u) => followedUserIds.includes(u._id) || u._id === CURRENT_USER_ID
+  ).flatMap((u) => u.posts);
+
+  return feedPosts.sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
+};
+
+// get auth user
+export const getCurrentUser = () => CURRENT_USER;
 
 // get posts sorted by newest
 export const getAllPosts = () =>
