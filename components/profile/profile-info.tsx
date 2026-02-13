@@ -5,16 +5,10 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Field } from '@/components/ui/field';
 import Link from 'next/link';
 
+import { User } from '@/lib/data';
+
 interface ProfileInfoProps {
-  user: {
-    username: string;
-    fullname: string;
-    avatar: string;
-    bio?: string;
-    joinedAt: string;
-    followers: number;
-    following: number;
-  };
+  user: User;
 }
 
 export function ProfileInfo({ user }: ProfileInfoProps) {
@@ -27,18 +21,15 @@ export function ProfileInfo({ user }: ProfileInfoProps) {
       </div>
       <div>
         <Avatar className="size-36 rounded-full -mt-36 ring-4 ring-background">
-          <AvatarImage
-            src="https://avatars.githubusercontent.com/u/96500903"
-            alt="Serhat Ünver"
-          />
+          <AvatarImage src={user.avatar} alt={user.fullname} />
           <AvatarFallback className="rounded-lg">CN</AvatarFallback>
         </Avatar>
       </div>
       <div>
-        <h1 className="text-lg font-bold">Serhat Ünver</h1>
-        <p className="text-sm text-muted-foreground">@serhatunver</p>
+        <h1 className="text-lg font-bold">{user.fullname}</h1>
+        <p className="text-sm text-muted-foreground">@{user.username}</p>
       </div>
-      <div>Profile Description here</div>
+      <div>{user.bio}</div>
       <Link href={`${user.username}/about`} className="hover:underline">
         <Field
           orientation="horizontal"
@@ -51,11 +42,11 @@ export function ProfileInfo({ user }: ProfileInfoProps) {
       </Link>
       <Field orientation="horizontal" className="text-sm">
         <Link href={`${user.username}/following`} className="hover:underline">
-          <span className="font-semibold">9</span>
+          <span className="font-semibold">{user.followingCount}</span>
           <span className="text-muted-foreground ml-1">Following</span>
         </Link>
         <Link href={`${user.username}/followers`} className="hover:underline">
-          <span className="font-semibold">0</span>
+          <span className="font-semibold">{user.followersCount}</span>
           <span className="text-muted-foreground ml-1">Followers</span>
         </Link>
       </Field>
