@@ -7,16 +7,10 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Field } from '@/components/ui/field';
+import { User } from '@/lib/data';
 
 interface UserHoverCardProps {
-  user: {
-    username: string;
-    fullname: string;
-    avatar: string;
-    bio?: string;
-    followersCount: number;
-    followingCount: number;
-  };
+  user: User;
   children: React.ReactNode;
 }
 
