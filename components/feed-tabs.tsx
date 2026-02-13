@@ -7,12 +7,16 @@ const tabs = [
   { value: 'following', label: 'Following' },
 ];
 
+import { getAllPosts } from '@/lib/data';
+
 export function FeedTabs() {
+  const posts = getAllPosts();
   return (
     <Tabs defaultValue="feed" className="w-full">
       <TabsList
         variant="line"
-        className="mx-auto w-full sticky top-0 h-13! border-b"
+        // className="mx-auto w-full sticky top-0 h-13! border-b"
+        className="sticky top-0 z-10 w-full border-b h-13! bg-background/80 backdrop-blur-2xl"
       >
         {tabs.map((tab) => (
           <TabsTrigger key={tab.value} value={tab.value}>
@@ -20,19 +24,19 @@ export function FeedTabs() {
           </TabsTrigger>
         ))}
       </TabsList>
-      <TabsContent
-        value="feed"
-        className="max-h-[calc(100vh-36px)] overflow-y-auto"
-      >
-        {/* <div className="sticky top-0 z-10 bg-background"> */}
+      <TabsContent value="feed" className="">
         <CreatePost />
-        {/* </div> */}
-
-        <div className="">
-          {Array.from({ length: 20 }).map((_, index) => (
-            <PostCard key={index} />
-          ))}
-        </div>
+        {posts.length === 0 ? (
+          <div className="p-4 text-center text-muted-foreground">
+            No posts yet.
+          </div>
+        ) : (
+          <div className="">
+            {posts.map((post) => (
+              <PostCard key={post._id} post={post} />
+            ))}
+          </div>
+        )}
       </TabsContent>
       <TabsContent value="following">Following Content</TabsContent>
     </Tabs>
