@@ -26,7 +26,12 @@ export function UserHoverCard({ user, children }: UserHoverCardProps) {
       >
         {/* Header */}
         <div className="flex justify-between">
-          <Link href={`/${user.username}`}>
+          <Link
+            href={`/${user.username}`}
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
+          >
             <Avatar className="size-14">
               <AvatarImage src={user.avatar} alt={user.fullname} />
               <AvatarFallback>{user.fullname.slice(0, 2)}</AvatarFallback>
@@ -43,10 +48,18 @@ export function UserHoverCard({ user, children }: UserHoverCardProps) {
           <Link
             href={`/${user.username}`}
             className="font-semibold hover:underline"
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
           >
             {user.fullname}
           </Link>
-          <Link href={`/${user.username}`}>
+          <Link
+            href={`/${user.username}`}
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
+          >
             <p className="leading-none text-sm text-muted-foreground">
               @{user.username}
             </p>
@@ -61,6 +74,9 @@ export function UserHoverCard({ user, children }: UserHoverCardProps) {
           <Link
             href={`/${user.username}/following`}
             className="hover:underline"
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
           >
             <span className="font-semibold">{user.followingCount}</span>
             <span className="ml-1 text-muted-foreground">Following</span>
@@ -69,6 +85,9 @@ export function UserHoverCard({ user, children }: UserHoverCardProps) {
           <Link
             href={`/${user.username}/followers`}
             className="hover:underline"
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
           >
             <span className="font-semibold">{user.followersCount}</span>
             <span className="ml-1 text-muted-foreground">Followers</span>
