@@ -1,14 +1,12 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
-import { AppSidebar } from '@/components/app-sidebar';
-import { RightSidebar } from '@/components/right-sidebar';
 
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from '@/components/ui/sidebar';
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
+import { AppSidebar } from '@/components/app-sidebar';
+import { RightSidebar } from '@/components/right-sidebar/right-sidebar';
+
+import { MobileNav } from '@/components/mobile-nav';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -32,18 +30,21 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      {/* add dark class for temporary dark mode */}
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased dark`}
       >
-        <div className="max-w-7xl mx-auto border flex h-screen">
-          <SidebarProvider className="">
+        <div className="max-w-5xl xl:max-w-7xl mx-auto flex items-start lg:px-4">
+          <SidebarProvider>
             <AppSidebar />
             <SidebarInset>
-              <div className="flex min-h-screen gap-4">
-                <main className="border-r w-full max-w-xl">{children}</main>
-                {/* <div className="w-full max-w-sm bg-gray-400 hidden lg:block"></div> */}
-                <RightSidebar />
+              <div className="flex w-full gap-4 items-start min-h-screen">
+                <main className="border-x w-full h-full max-w-150 mx-auto lg:mx-0">
+                  {children}
+                  <MobileNav />
+                </main>
+                <div className="hidden lg:block">
+                  <RightSidebar />
+                </div>
               </div>
             </SidebarInset>
           </SidebarProvider>
