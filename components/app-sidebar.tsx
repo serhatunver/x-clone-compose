@@ -1,7 +1,16 @@
 'use client';
 
 import * as React from 'react';
-import { Bell, Bookmark, Home, Search, Settings, User2 } from 'lucide-react';
+import {
+  Bell,
+  Bookmark,
+  Github,
+  Home,
+  Linkedin,
+  Search,
+  Settings,
+  User2,
+} from 'lucide-react';
 import Link from 'next/link';
 
 import { NavMain } from '@/components/nav-main';
@@ -53,12 +62,18 @@ const data = {
       url: '/settings',
       icon: Settings,
     },
+    { title: 'GitHub', url: 'https://github.com/serhatunver', icon: Github },
+    {
+      title: 'LinkedIn',
+      url: 'https://www.linkedin.com/in/serhatunver/',
+      icon: Linkedin,
+    },
   ],
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar collapsible="icon" {...props} className="relative">
+    <Sidebar collapsible="icon" {...props}>
       <SidebarHeader
         className="
        pt-3 group-data-[state=expanded]:px-3 transition-[padding] duration-200 ease-out"
@@ -82,7 +97,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarFooter>
         <NavUser user={data.user} />
       </SidebarFooter>
-      <SidebarRail />
+      {/* <SidebarRail /> */}
     </Sidebar>
   );
 }
