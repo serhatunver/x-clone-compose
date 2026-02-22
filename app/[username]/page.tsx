@@ -1,8 +1,9 @@
-import { UserTabs } from '@/components/user-tabs';
-import { ProfileHeader } from '@/components/profile/profile-header';
-import { ProfileInfo } from '@/components/profile/profile-info';
-
 import Image from 'next/image';
+import { UserTabs } from '@/components/user-tabs';
+import { PageHeader } from '@/components/page-header';
+import { ProfileInfo } from '@/components/profile/profile-info';
+import { ProfileSearch } from '@/components/profile/profile-search';
+import { ImagePreview } from '@/components/image-preview';
 
 type PageProps = {
   params: Promise<{
@@ -23,17 +24,25 @@ export default async function Page({ params }: PageProps) {
 
   return (
     <div>
-      <ProfileHeader username={username} postCount={user.posts.length} />
+      <PageHeader
+        title={user.fullname}
+        description={`${user.posts?.length} posts`}
+        rightAction={
+          <ProfileSearch username={user.username} fullname={user.fullname} />
+        }
+      />
 
-      {/* Cover image */}
-      <div className="relative h-50 w-full">
-        <Image
-          src={user.cover}
-          alt={`${username}'s cover image`}
-          fill
-          className="object-cover w-full h-full"
-        />
-      </div>
+      <ImagePreview src={user.cover} variant="cover">
+        <div className="relative cursor-pointer">
+          <Image
+            src={user.cover}
+            alt={`${username}'s cover image`}
+            width={1200}
+            height={400}
+            className="w-full h-auto aspect-3/1 object-cover"
+          />
+        </div>
+      </ImagePreview>
 
       <ProfileInfo user={user} />
       <UserTabs user={user} />
