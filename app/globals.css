@@ -123,3 +123,72 @@
     @apply bg-background text-foreground;
   }
 }
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-3px);
+  }
+  40% {
+    transform: translateX(3px);
+  }
+  60% {
+    transform: translateX(-3px);
+  }
+  80% {
+    transform: translateX(3px);
+  }
+}
+
+.animate-shake {
+  animation: shake 0.4s ease-in-out;
+}
+
+/* .scrollable {
+  scrollbar-width: thin;
+}
+
+.dark .scrollable {
+  scrollbar-color: var(--color-muted-foreground) var(--color-foreground);
+} */
+
+.scrollable {
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: var(--color-muted-background) var(--color-background);
+}
+
+.scrollable::-webkit-scrollbar {
+  width: 12px;
+}
+
+.scrollable::-webkit-scrollbar-track {
+  background: var(--color-foreground);
+  border-radius: 6px;
+}
+
+.scrollable::-webkit-scrollbar-thumb {
+  background-color: var(--color-muted-foreground);
+  border-radius: 6px;
+  border: 3px solid var(--color-foreground);
+}
+
+.scrollable::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-primary);
+}
+
+/* Dark mod override */
+.dark .scrollable {
+  scrollbar-color: var(--color-muted-foreground) var(--color-foreground); /* Firefox */
+}
+
+.dark .scrollable::-webkit-scrollbar-track {
+  background: var(--color-foreground);
+}
+
+.dark .scrollable::-webkit-scrollbar-thumb {
+  background-color: var(--color-muted-foreground);
+  border-color: var(--color-foreground);
+}
