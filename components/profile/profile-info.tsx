@@ -1,36 +1,44 @@
 import { Button } from '@/components/ui/button';
 import { Calendar, ChevronRight } from 'lucide-react';
-
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { ImagePreview } from '@/components/image-preview';
 import { Field } from '@/components/ui/field';
 import Link from 'next/link';
-
 import { User } from '@/lib/data';
 
-interface ProfileInfoProps {
+type ProfileInfoProps = {
   user: User;
-}
+};
 
 export function ProfileInfo({ user }: ProfileInfoProps) {
   return (
-    <div className="p-4 flex flex-col space-y-3">
-      <div className="flex">
-        <Button variant="outline" className="ml-auto rounded-full">
+    <div className="relative p-4 pt-3 flex flex-col space-y-3">
+      <div className="flex flex-wrap justify-between items-start gap-2">
+        <div className="absolute w-1/4 min-w-12 -mt-[16%]">
+          <ImagePreview src={user.avatar} variant="avatar">
+            <Avatar className="size-full ring-4 ring-background cursor-pointer">
+              <AvatarImage src={user.avatar} alt={user.fullname} />
+              <AvatarFallback>{user.fullname?.[0]}</AvatarFallback>
+            </Avatar>
+          </ImagePreview>
+        </div>
+        <Button className="ml-auto rounded-full mb-3">Follow</Button>
+        <Button variant="outline" className="rounded-full mb-3">
           Set up profile
         </Button>
       </div>
-      <div>
-        <Avatar className="size-36 rounded-full -mt-36 ring-4 ring-background">
-          <AvatarImage src={user.avatar} alt={user.fullname} />
-          <AvatarFallback className="rounded-lg">CN</AvatarFallback>
-        </Avatar>
-      </div>
-      <div>
+
+      {/* NAME */}
+      <div className="mt-1">
         <h1 className="text-lg font-bold">{user.fullname}</h1>
         <p className="text-sm text-muted-foreground">@{user.username}</p>
       </div>
-      <div>{user.bio}</div>
-      <Link href={`${user.username}/about`} className="hover:underline">
+
+      {/* BIO */}
+      {user.bio && <div>{user.bio}</div>}
+
+      {/* JOINED */}
+      <Link href={`/${user.username}/about`} className="hover:underline">
         <Field
           orientation="horizontal"
           className="text-muted-foreground text-sm gap-2"
@@ -40,13 +48,16 @@ export function ProfileInfo({ user }: ProfileInfoProps) {
           <ChevronRight className="size-4" />
         </Field>
       </Link>
-      <Field orientation="horizontal" className="text-sm">
-        <Link href={`${user.username}/following`} className="hover:underline">
-          <span className="font-semibold">{user.followingCount}</span>
+
+      {/* FOLLOW COUNTS */}
+      <Field orientation="horizontal" className="text-sm gap-4">
+        <Link href={`/${user.username}/following`} className="hover:underline">
+          <span className="font-bold">{user.followingCount}</span>
           <span className="text-muted-foreground ml-1">Following</span>
         </Link>
-        <Link href={`${user.username}/followers`} className="hover:underline">
-          <span className="font-semibold">{user.followersCount}</span>
+
+        <Link href={`/${user.username}/followers`} className="hover:underline">
+          <span className="font-bold">{user.followersCount}</span>
           <span className="text-muted-foreground ml-1">Followers</span>
         </Link>
       </Field>
