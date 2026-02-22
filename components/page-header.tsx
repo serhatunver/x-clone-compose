@@ -1,4 +1,8 @@
+'use client';
+
 import { BackButton } from '@/components/back-button';
+import { useSmartHeader } from '@/hooks/use-smart-header';
+import { cn } from '@/lib/utils';
 
 interface PageHeaderProps {
   title: string;
@@ -11,8 +15,15 @@ export function PageHeader({
   description,
   rightAction,
 }: PageHeaderProps) {
+  const headerVisible = useSmartHeader();
+
   return (
-    <div className="sticky top-0 z-10 flex items-center gap-4 border-b px-4 h-13 bg-background/65 backdrop-blur-md">
+    <div
+      className={cn(
+        'sticky top-0 z-10 flex items-center gap-4 border-b px-4 h-13 bg-background/65 backdrop-blur-md transition-transform duration-300',
+        headerVisible ? 'translate-y-0' : '-translate-y-full'
+      )}
+    >
       <BackButton />
 
       <div className="flex flex-col flex-1">
