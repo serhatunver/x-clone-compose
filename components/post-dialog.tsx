@@ -15,6 +15,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { CreatePost } from '@/components/create-post';
+
 import { SquarePen, X } from 'lucide-react';
 
 import { useSidebar } from '@/components/ui/sidebar';
@@ -66,7 +67,7 @@ export function PostDialog() {
           <TooltipContent>Close</TooltipContent>
         </Tooltip>
 
-        <CreatePost className="px-0 border-none" />
+        <CreatePost variant="postDialog" className="px-0 pb-0" />
       </DialogContent>
     </Dialog>
   );
