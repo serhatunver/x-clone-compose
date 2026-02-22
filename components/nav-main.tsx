@@ -13,7 +13,7 @@ import { PostDialog } from '@/components/post-dialog';
 
 import { usePathname } from 'next/navigation';
 
-interface NavItem {
+export interface NavItem {
   title: string;
   url: string;
   icon?: LucideIcon;
@@ -43,7 +43,7 @@ export function NavMain({ items }: NavMainProps) {
               asChild
             >
               <Link href={item.url}>
-                {item.icon && <item.icon className="size-4" />}
+                {item.icon && <item.icon />}
                 <span className="">{item.title}</span>
               </Link>
             </SidebarMenuButton>
