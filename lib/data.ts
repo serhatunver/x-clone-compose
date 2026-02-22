@@ -8,7 +8,7 @@ export interface Post {
   media?: string;
   likes: string[]; // user ids
   repost: string[]; // user ids
-  comments: string[]; // comment ids (mock)
+  comments: Post[];
   createdAt: string;
 }
 
@@ -28,9 +28,9 @@ export interface User {
 
   isFollowing?: boolean; // relative to CURRENT_USER
 
-  posts: Post[];
+  posts?: Post[];
 
-  createdAt: string;
+  createdAt?: string;
 }
 
 /* ================= CURRENT AUTH USER ================= */
@@ -114,7 +114,17 @@ export const USER_1_POSTS: Post[] = [
     media: 'https://images.unsplash.com/photo-1492724441997-5dc865305da7',
     likes: ['2', '99'],
     repost: ['2'],
-    comments: ['c1', 'c2'],
+    comments: [
+      {
+        _id: 'c0',
+        authorId: '2',
+        content: 'This is a comment on the first post.',
+        likes: ['1'],
+        repost: [],
+        comments: [],
+        createdAt: '2025-02-01T13:00:00.000Z',
+      },
+    ],
     createdAt: '2025-02-01T12:00:00.000Z',
   },
   {
@@ -263,11 +273,50 @@ export const USER_2_POSTS: Post[] = [
     _id: 'p10',
     authorId: '2',
     content:
-      'Experimenting with new design tools. Loving the flexibility and features they offer!',
-    media: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce',
+      'Experimenting with new design tools. Loving the flexibility and features they offer for creating stunning visuals and prototypes that bring my ideas to life! Experimenting with new design tools. Loving the flexibility and features they offer for creating stunning visuals and prototypes that bring my ideas to life!',
+    media:
+      'https://images.unsplash.com/photo-1510519138101-570d1dca3d66?q=80&w=1147&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     likes: ['1'],
     repost: [],
-    comments: [],
+    comments: [
+      {
+        _id: 'c1',
+        authorId: '2',
+        content: 'Great post! I totally agree with your points.',
+        likes: ['1'],
+        repost: [],
+        comments: [],
+        createdAt: '2025-02-16T10:00:00.000Z',
+      },
+      {
+        _id: 'c2',
+        authorId: '1',
+        content:
+          'Thanks for sharing your insights! Looking forward to more posts like this.',
+        likes: ['1', '99'],
+        repost: [],
+        comments: [],
+        createdAt: '2025-02-16T11:00:00.000Z',
+      },
+      {
+        _id: 'c3',
+        authorId: '99',
+        content: 'This is a comment that will be ignored in the UI.',
+        likes: [],
+        repost: [],
+        comments: [],
+        createdAt: '2025-02-16T12:00:00.000Z',
+      },
+      {
+        _id: 'c4',
+        authorId: '1',
+        content: 'Another comment that will be ignored in the UI.',
+        likes: [],
+        repost: [],
+        comments: [],
+        createdAt: '2025-02-16T13:00:00.000Z',
+      },
+    ],
     createdAt: '2025-02-16T11:00:00.000Z',
   },
 ];
