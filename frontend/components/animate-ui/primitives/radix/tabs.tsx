@@ -106,6 +106,7 @@ function TabsContent({
           data-slot="tabs-content"
           layout
           layoutDependency={value}
+          className="data-[state=inactive]:hidden outline-none"
           initial={{ opacity: 0, filter: 'blur(4px)' }}
           animate={{ opacity: 1, filter: 'blur(0px)' }}
           exit={{ opacity: 0, filter: 'blur(4px)' }}
