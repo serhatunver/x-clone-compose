@@ -13,6 +13,7 @@ export function CloseButton({ className }: CloseButtonProps) {
     <AppTooltip content="Close">
       <DialogClose asChild>
         <Button
+          data-interactive
           variant="ghost"
           size="icon-lg"
           className={cn('rounded-full', className)}
