@@ -2,12 +2,8 @@
 
 import Link from 'next/link';
 import { SearchIcon } from 'lucide-react';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
-import { Button } from '@/components/ui/button';
+import { AppTooltip } from '@/components/app-tooltip';
+import { Button } from '@/components/animate-ui/components/buttons/button';
 
 interface ProfileSearchProps {
   username: string;
@@ -16,15 +12,12 @@ interface ProfileSearchProps {
 
 export function ProfileSearch({ username, fullname }: ProfileSearchProps) {
   return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <Link href={`/explore`} onClick={(e) => e.stopPropagation()}>
-          <Button variant="ghost" size="icon" className="rounded-full">
-            <SearchIcon />
-          </Button>
+    <AppTooltip content={`Search in ${fullname}'s profile`} side="right">
+      <Button variant="ghost" size="icon" className="rounded-full" asChild>
+        <Link href={`/explore`}>
+          <SearchIcon />
         </Link>
-      </TooltipTrigger>
-      <TooltipContent>Search in {fullname}&apos;s profile</TooltipContent>
-    </Tooltip>
+      </Button>
+    </AppTooltip>
   );
 }
