@@ -1,7 +1,6 @@
 'use client';
 
 import Image from 'next/image';
-import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -10,18 +9,13 @@ import {
   DialogTitle,
   DialogDescription,
   DialogClose,
-} from '@/components/ui/dialog';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
-import { X } from 'lucide-react';
+} from '@/components/animate-ui/components/radix/dialog';
 
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 
 import { PostFooter } from '@/components/post-card/post-footer';
+import { CloseButton } from '@/components/close-button';
 
 interface Props {
   src: string;
@@ -64,22 +58,7 @@ export function ImagePreview({ src, variant = 'post', children }: Props) {
           </DialogDescription>
         </DialogHeader>
 
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <DialogClose asChild>
-              <Button
-                variant="ghost"
-                size="icon-lg"
-                className="absolute top-3 left-3 rounded-full"
-              >
-                <X className="size-5" />
-              </Button>
-            </DialogClose>
-          </TooltipTrigger>
-          <TooltipContent side="bottom">
-            <p>Close</p>
-          </TooltipContent>
-        </Tooltip>
+        <CloseButton className="absolute top-3 left-3" />
 
         <Image
           src={src}
@@ -92,7 +71,7 @@ export function ImagePreview({ src, variant = 'post', children }: Props) {
               ? 'w-full h-auto m-4 max-w-sm object-contain rounded-full'
               : variant === 'cover'
                 ? 'w-full h-auto aspect-3/1 object-cover'
-                : 'h-auto max-h-[80vh] object-contain'
+                : 'h-auto max-h-[90vh] object-contain'
           )}
           onClick={(e) => e.stopPropagation()}
         />
