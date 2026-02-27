@@ -1,9 +1,16 @@
 'use client';
 
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { useMemo } from 'react';
+
+import {
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+} from '@/components/animate-ui/components/radix/tabs';
 import { PostCard } from '@/components/post-card/post-card';
 import { CreatePost } from '@/components/create-post';
-
+import { VirtualList } from '@/components/virtual-list';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
@@ -15,10 +22,10 @@ const tabs = [
   { value: 'following', label: 'Following' },
 ];
 
-import { getAllPosts } from '@/lib/data';
+import { type Post, getFeedPosts } from '@/lib/data';
 
 export function FeedTabs() {
-  const posts = getAllPosts();
+  const posts = useMemo(() => getFeedPosts(), []);
   const headerVisible = useSmartHeader();
 
   if (posts.length === 0) {
@@ -29,16 +36,15 @@ export function FeedTabs() {
 
   return (
     <Tabs defaultValue="feed" className="w-full">
-      <TabsList
-        variant="line"
+      <div
         className={cn(
-          'flex flex-col sticky top-0 z-10 w-full border-b h-26! gap-0 bg-background/65 backdrop-blur-md transition-transform duration-300 md:translate-y-0',
+          'sticky top-0 z-20 w-full bg-background/65 backdrop-blur-md border-b transition-transform duration-300',
           headerVisible ? 'translate-y-0' : '-translate-y-full',
-          'md:h-13!'
+          'md:translate-y-0'
         )}
       >
-        <header className="h-13 px-4 z-10 flex w-full items-center md:hidden">
-          <SidebarTrigger>
+        <header className="px-4 py-2 flex items-center md:hidden">
+          <SidebarTrigger className="rounded-full">
             <Avatar className="size-8 rounded-full">
               <AvatarImage
                 src="https://avatars.githubusercontent.com/u/96500903"
@@ -48,40 +54,30 @@ export function FeedTabs() {
             </Avatar>
           </SidebarTrigger>
         </header>
-        <div className="flex w-full h-13">
+
+        <TabsList variant="line" className="w-full justify-start border-none">
           {tabs.map((tab) => (
             <TabsTrigger key={tab.value} value={tab.value}>
               {tab.label}
             </TabsTrigger>
           ))}
-        </div>
-      </TabsList>
+        </TabsList>
+      </div>
+
       <CreatePost className="border-b" />
-      <TabsContent value="feed" className="">
-        {posts.length === 0 ? (
-          <div className="p-4 text-center text-muted-foreground">
-            No posts yet.
-          </div>
-        ) : (
-          <div className="">
-            {posts.map((post) => (
-              <PostCard key={post._id} post={post} />
-            ))}
-          </div>
-        )}
+      <TabsContent value="feed">
+        <VirtualList
+          key="feed-list"
+          items={posts}
+          renderItemComponent={PostCard}
+        />
       </TabsContent>
       <TabsContent value="following">
-        {posts.length === 0 ? (
-          <div className="p-4 text-center text-muted-foreground">
-            No posts yet.
-          </div>
-        ) : (
-          <div className="">
-            {posts.map((post) => (
-              <PostCard key={post._id} post={post} />
-            ))}
-          </div>
-        )}
+        <VirtualList
+          key="following-list"
+          items={posts}
+          renderItemComponent={PostCard}
+        />
       </TabsContent>
     </Tabs>
   );
