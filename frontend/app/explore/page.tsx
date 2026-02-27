@@ -1,4 +1,9 @@
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import {
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+} from '@/components/animate-ui/components/radix/tabs';
 import { SearchBar } from '@/components/search-bar';
 
 const tabs = [

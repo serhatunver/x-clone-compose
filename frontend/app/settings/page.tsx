@@ -1,6 +1,11 @@
 'use client';
 
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import {
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+} from '@/components/animate-ui/components/radix/tabs';
 
 const tabs = [
   { value: 'profile', label: 'Profile' },

@@ -1,5 +1,10 @@
 import { PageHeader } from '@/components/page-header';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import {
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+} from '@/components/animate-ui/components/radix/tabs';
 
 export default function Notifications() {
   return (
