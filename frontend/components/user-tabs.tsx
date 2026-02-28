@@ -1,5 +1,11 @@
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import {
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+} from '@/components/animate-ui/components/radix/tabs';
 import { PostCard } from '@/components/post-card/post-card';
+import { VirtualList } from '@/components/virtual-list';
 
 const tabs = [
   { value: 'posts', label: 'Posts' },
@@ -20,16 +26,15 @@ export function UserTabs({ user }: { user: User }) {
         ))}
       </TabsList>
       <TabsContent value="posts">
-        {user.posts.length === 0 ? (
+        {user.posts?.length === 0 ? (
           <div className="p-4 text-center text-muted-foreground">
             No posts yet.
           </div>
         ) : (
-          <div className="">
-            {user.posts.map((post) => (
-              <PostCard key={post._id} post={post} />
-            ))}
-          </div>
+          <VirtualList
+            items={user.posts || []}
+            renderItemComponent={PostCard}
+          />
         )}
       </TabsContent>
       <TabsContent value="replies">Replies</TabsContent>
