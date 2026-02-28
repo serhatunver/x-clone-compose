@@ -14,11 +14,13 @@ export function ProfileInfo({ user }: ProfileInfoProps) {
   return (
     <div className="relative p-4 pt-3 flex flex-col space-y-3">
       <div className="flex flex-wrap justify-between items-start gap-2">
-        <div className="absolute w-1/4 min-w-12 -mt-[16%]">
+        <div className="absolute w-1/4 min-w-12 -mt-[16%] aspect-square">
           <ImagePreview src={user.avatar} variant="avatar">
             <Avatar className="size-full ring-4 ring-background cursor-pointer">
               <AvatarImage src={user.avatar} alt={user.fullname} />
-              <AvatarFallback>{user.fullname?.[0]}</AvatarFallback>
+              <AvatarFallback className="text-3xl font-semibold">
+                {user.fullname[0]}
+              </AvatarFallback>
             </Avatar>
           </ImagePreview>
         </div>
