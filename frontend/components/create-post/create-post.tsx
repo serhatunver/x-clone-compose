@@ -32,7 +32,7 @@ export function CreatePost({
   return (
     <Card
       className={cn(
-        'flex flex-row gap-0 px-4 min-w-0 max-h-[calc(100vh-10rem)] scrollable overflow-auto',
+        'flex flex-row gap-0 px-4 min-w-0 sm:max-h-[calc(100vh-10rem)] scrollable overflow-auto',
         className
       )}
     >
