@@ -2,9 +2,9 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { Post } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import { ImagePreview } from '@/components/image-preview';
+import type { Post } from '@/lib/data';
 
 interface PostContentProps {
   post: Post;
