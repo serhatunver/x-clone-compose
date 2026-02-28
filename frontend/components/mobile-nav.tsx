@@ -5,7 +5,8 @@ import { useSmartHeader } from '@/hooks/use-smart-header';
 import type { NavItem } from '@/components/nav-main';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
+// import { Button } from '@/components/ui/button';
+import { Button } from '@/components/animate-ui/components/buttons/button';
 
 import { Home, Search, Bell, User2, Bookmark } from 'lucide-react';
 
