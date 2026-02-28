@@ -47,7 +47,7 @@ type DialogOverlayProps = DialogOverlayPrimitiveProps;
 function DialogOverlay({ className, ...props }: DialogOverlayProps) {
   return (
     <DialogOverlayPrimitive
-      className={cn('fixed inset-0 z-50 bg-black/50', className)}
+      className={cn('fixed inset-0 z-50 bg-black/70', className)}
       {...props}
     />
   );
@@ -65,11 +65,11 @@ function DialogContent({
 }: DialogContentProps) {
   return (
     <DialogPortalPrimitive>
-      <DialogOverlay />
+      <DialogOverlay data-interactive />
       <DialogContentPrimitive
         className={cn(
           'bg-background fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border p-6 shadow-lg sm:max-w-lg',
-          className,
+          className
         )}
         {...props}
       >
@@ -103,7 +103,7 @@ function DialogFooter({ className, ...props }: DialogFooterProps) {
     <DialogFooterPrimitive
       className={cn(
         'flex flex-col-reverse gap-2 sm:flex-row sm:justify-end',
-        className,
+        className
       )}
       {...props}
     />
