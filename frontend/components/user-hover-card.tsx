@@ -3,7 +3,7 @@ import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
-} from '@/components/ui/hover-card';
+} from '@/components/animate-ui/components/radix/hover-card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Field } from '@/components/ui/field';
@@ -21,7 +21,7 @@ export function UserHoverCard({ user, children }: UserHoverCardProps) {
 
       <HoverCardContent
         side="bottom"
-        align="start"
+        align="center"
         className="w-75 p-4 rounded-lg"
       >
         {/* Header */}
