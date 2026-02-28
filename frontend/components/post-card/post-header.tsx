@@ -31,13 +31,12 @@ export function PostHeader({
           <UserHoverCard user={author}>
             <Link
               href={`/${author.username}`}
+              className="truncate hover:underline font-semibold text-foreground"
               onClick={(e) => {
                 e.stopPropagation();
               }}
             >
-              <span className="font-semibold text-foreground">
-                {author.fullname}
-              </span>
+              {author.fullname}
             </Link>
           </UserHoverCard>
           <UserHoverCard user={author}>
