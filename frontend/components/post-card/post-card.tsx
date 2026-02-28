@@ -1,41 +1,3 @@
-// 'use client';
-
-// import { Card } from '@/components/ui/card';
-// import { PostAvatar } from '@/components/post-card/post-avatar';
-// import { PostHeader } from '@/components/post-card/post-header';
-// import { PostContent } from '@/components/post-card/post-content';
-// import { PostFooter } from '@/components/post-card/post-footer';
-
-// import { Post } from '@/lib/data';
-// import { getUserById } from '@/lib/data';
-
-// import { useRouter } from 'next/navigation';
-
-// export function PostCard({ post }: { post: Post }) {
-//   const router = useRouter();
-
-//   const author = getUserById(post.authorId);
-
-//   if (!author) {
-//     return null; // or some fallback UI
-//   }
-//   return (
-//     <Card
-//       onClick={() => router.push(`/${author.username}/status/${post._id}`)}
-//       className="border-b px-4 py-3 hover:bg-secondary/50 transition-colors duration-200"
-//     >
-//       <div className="flex gap-3">
-//         <PostAvatar author={author} />
-//         <div className="flex flex-col flex-1 gap-1">
-//           <PostHeader post={post} />
-//           <PostContent post={post} />
-//           <PostFooter post={post} />
-//         </div>
-//       </div>
-//     </Card>
-//   );
-// }
-
 'use client';
 
 import { Card, CardContent } from '@/components/ui/card';
@@ -71,14 +33,19 @@ export function PostCard({
     return null; // or some fallback UI
   }
 
-  const handleClick = () => {
+  const handleClick = (e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+
+    if (target.closest('[data-interactive]')) {
+      return;
+    }
     if (!isClickable) return;
     router.push(`/${author.username}/status/${post._id}`);
   };
 
   if (variant === 'reply') {
     return (
-      <Card className={cn('pb-0', className)}>
+      <Card className={cn('py-0', className)}>
         <CardContent className="flex gap-3 px-0">
           <div className="flex flex-col h-full gap-3 items-center">
             <PostAvatar author={author} />
@@ -116,7 +83,7 @@ export function PostCard({
       )}
       onClick={handleClick}
     >
-      <PostHeader post={post} />
+      <PostHeader post={post} avatarSize="lg" />
       <PostContent post={post} truncate={isClickable} />
       <PostFooter post={post} />
     </Card>
