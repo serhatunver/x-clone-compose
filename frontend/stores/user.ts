@@ -1,3 +1,6 @@
+const config = useRuntimeConfig();
+const apiBase = config.public.apiBase;
+
 export const useUserStore = defineStore('user', {
   state: (): IState => ({
     user: null as IUser | null,
@@ -9,26 +12,19 @@ export const useUserStore = defineStore('user', {
   },
   actions: {
     async fetchUser(username: string) {
-      console.log('fetchUser ~ username:', username);
       try {
         const { token } = useAuth();
-        const res = await fetch(
-          `http://localhost:3000/api/v1/user/profile/${username}`,
-          {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: token.value || '',
-            },
+        const res = await fetch(`${apiBase}/user/profile/${username}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: token.value || '',
           },
-        );
+        });
 
         const user = await res.json();
-        console.log('fetchUser ~ user:', user);
 
         this.user = user;
-
-        console.log('fetchUser ~ this.user:', this.user);
       } catch (error) {
         console.error('Fetch posts error:', error);
       }
