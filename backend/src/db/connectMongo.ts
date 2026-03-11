@@ -9,7 +9,9 @@ const connectMongo = async () => {
     mongoose.connection.on('disconnecting', () => console.log('disconnecting'));
     mongoose.connection.on('close', () => console.log('close'));
 
-    await mongoose.connect('mongodb://mongodb:27017/twitter');
+    const mongoUri = process.env.MONGO_URI || 'mongodb://mongodb:27017/twitter';
+
+    await mongoose.connect(mongoUri);
   } catch (err) {
     console.log(err);
   }
