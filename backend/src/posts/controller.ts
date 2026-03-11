@@ -16,14 +16,11 @@ import { ReasonPhrases, StatusCodes } from 'http-status-codes';
 export const createPost = async (req: Request, res: Response) => {
   try {
     const { content, image } = req.body;
-    console.log('req.user:', req.user);
-    console.log('req.body:', content, image);
     const userId: mongoose.Types.ObjectId = req.user._id;
 
     const post: IPost = await Post.create({ user: userId, content, image, isPost: true });
 
     if (post) {
-      console.log('postController:', post);
       return res.status(201).json(post);
     }
   } catch (error) {
@@ -64,8 +61,6 @@ export const deletePost = async (req: Request, res: Response) => {
     // disable autopopulate
     const post = await Post.findById(postId, {}, { autopopulate: false });
 
-    console.log(post);
-
     if (!post) {
       return res.status(404).json({ error: 'Post not found' });
     }
@@ -88,8 +83,6 @@ export const getFollowingPosts = async (req: Request, res: Response) => {
     const userId = req.user._id;
 
     const user = await User.findById(userId);
-
-    console.log(user);
 
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
@@ -133,8 +126,6 @@ export const getUserLikedPosts = async (req: Request, res: Response) => {
       populate: { path: 'user', select: 'username' },
     });
 
-    console.log(user);
-
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -161,8 +152,6 @@ export const getUserPosts = async (req: Request, res: Response) => {
       path: 'user',
       select: '-password',
     });
-
-    console.log(posts);
 
     // const posts = await User.findOne({ username })
     //   .select('-password')

@@ -66,7 +66,6 @@ const login = async (req: Request, res: Response) => {
   console.log('Username and Password already present');
   try {
     const user = await User.findOne({ username });
-    console.log(user);
     if (!user) {
       return res.status(401).json({ message: 'user not found' });
     }
