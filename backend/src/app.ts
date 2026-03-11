@@ -15,7 +15,7 @@ import swaggerOutput from '../swagger_output.json';
 const app = express();
 app.use(
   cors({
-    origin: 'http://localhost:5173',
+    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
     credentials: true,
   }),
 );
@@ -36,7 +36,9 @@ app.get('/', (req, res) => {
   res.send('Hello world');
 });
 
-app.listen(3000, '0.0.0.0', async () => {
+const PORT: number = parseInt(process.env.PORT || '3000', 10);
+
+app.listen(PORT, '0.0.0.0', async () => {
   await connectMongo();
   console.log('Server is running on port 3000');
 });
