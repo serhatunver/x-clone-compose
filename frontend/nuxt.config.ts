@@ -18,9 +18,14 @@ export default defineNuxtConfig({
     'pinia-plugin-persistedstate/nuxt',
     '@sidebase/nuxt-auth',
   ],
+  runtimeConfig: {
+    public: {
+      apiBase: process.env.NUXT_PUBLIC_API_BASE_URL,
+    },
+  },
   auth: {
     isEnabled: true,
-    baseURL: 'http://localhost:3000/api/v1/auth',
+    baseURL: process.env.NUXT_PUBLIC_API_BASE_URL + '/auth',
     provider: {
       type: 'local',
       pages: {
