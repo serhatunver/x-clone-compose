@@ -48,13 +48,6 @@ const bottomNavItems: Item[] = [
 		activeIcon: 'si:bookmark-fill',
 		variant: 'ghost',
 	},
-	{
-		title: 'Communities',
-		href: '/communities',
-		icon: 'bi:people',
-		activeIcon: 'bi:people-fill',
-		variant: 'ghost',
-	},
 ];
 </script>
 
