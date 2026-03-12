@@ -32,6 +32,13 @@ export const getPost = async (req: Request, res: Response) => {
   try {
     const { postId } = req.params;
 
+    if (!mongoose.Types.ObjectId.isValid(postId)) {
+      console.log('Invalid post ID:', postId);
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        error: 'Invalid post ID',
+      });
+    }
+
     const post = await Post.findById(postId).populate({
       path: 'comments',
       // select: 'content',
@@ -48,7 +55,9 @@ export const getPost = async (req: Request, res: Response) => {
 
     res.status(StatusCodes.OK).json(post);
   } catch (error) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error });
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      error: (error as Error).message || 'Internal server error',
+    });
   }
 };
 
