@@ -1,42 +1,22 @@
-<script lang="ts" setup>
-import { ref, computed, watch } from 'vue';
+<script setup lang="ts">
+import { computed, watch } from 'vue';
 
-const userStore = useUserStore();
-const postsStore = usePostsStore();
-const { data } = useAuth();
 const route = useRoute();
+const { data } = useAuth();
 
-const loading = ref(false);
-const error = ref('');
-
-interface Post {
-	_id: string;
-}
-
-interface UserRef {
-	_id: string;
-	username: string;
-}
-
-interface User {
-	_id: string;
-	username: string;
-	createdAt: string;
-	posts: Post[];
-	following: UserRef[];
-	followers: UserRef[];
-	totalPosts: number;
-	coverImg?: string;
-	profileImg?: string;
-}
+const profileStore = useProfileStore();
+const postsStore = usePostsStore();
 
 const username = computed(() => String(route.params.username || ''));
-const user = computed<User | null>(() => userStore.user);
+
+const profile = computed(() => profileStore.profile);
+const isLoading = computed(() => profileStore.loading || postsStore.loading);
+const error = computed(() => profileStore.error || postsStore.error);
 
 const formattedCreatedAt = computed(() => {
-	if (!user.value?.createdAt) return '';
-	const date = new Date(user.value.createdAt);
-	return date.toLocaleDateString('en-US', {
+	if (!profile.value?.createdAt) return '';
+
+	return new Date(profile.value.createdAt).toLocaleDateString('en-US', {
 		year: 'numeric',
 		month: 'long',
 	});
@@ -47,19 +27,13 @@ watch(
 	async (newUsername) => {
 		if (!newUsername) return;
 
-		loading.value = true;
-		error.value = '';
-
 		try {
 			await Promise.all([
-				userStore.fetchUser(newUsername),
+				profileStore.fetchProfile(newUsername),
 				postsStore.fetchUserPosts(newUsername),
 			]);
-		} catch (err) {
-			console.error(err);
-			error.value = 'Failed to load profile.';
-		} finally {
-			loading.value = false;
+		} catch (error) {
+			console.error(error);
 		}
 	},
 	{ immediate: true },
@@ -69,7 +43,7 @@ watch(
 <template>
 	<div class="flex lg:w-[920px] min-[1084px]:w-[990px] min-[1384px]:w-[1050px]">
 		<div
-			v-if="loading"
+			v-if="isLoading"
 			class="flex w-full min-h-screen justify-center items-center mx-auto"
 		>
 			<Icon name="svg-spinners:90-ring" size="32" class="text-blue-500" />
@@ -79,33 +53,36 @@ watch(
 			{{ error }}
 		</div>
 
-		<div v-else-if="!user" class="p-4">User not found.</div>
+		<div v-else-if="!profile" class="p-4">User not found.</div>
 
 		<main
 			v-else
 			class="flex lg:w-[920px] min-[1084px]:w-[990px] min-[1384px]:w-[1050px] justify-between"
 		>
 			<div class="flex flex-col w-full min-[684px]:w-[600px] border-x-[1px]">
-				<HeaderNav :totalPosts="user.totalPosts ?? 0" />
+				<HeaderNav :totalPosts="profile.totalPosts ?? 0" />
 
-				<img
-					:src="user.coverImg || '/default-cover.png'"
-					alt="Cover image"
-					class="w-full h-[200px] object-cover object-center"
-				/>
+				<div class="w-full h-[200px] bg-muted">
+					<img
+						v-if="profile.coverImg"
+						:src="profile.coverImg"
+						:alt="`${profile.username}'s cover image`"
+						class="w-full h-full object-cover object-center"
+					/>
+				</div>
 
 				<div class="flex flex-col gap-4 px-4 py-3">
 					<div class="flex justify-between items-center">
 						<div>
 							<img
 								class="w-36 h-36 rounded-full ring ring-accent-foreground -mt-20 relative object-cover object-center"
-								:src="user.profileImg || '/default-avatar.png'"
-								:alt="user.username"
+								:src="profile.profileImg || '/default-avatar.png'"
+								:alt="profile.username"
 							/>
 						</div>
 
 						<Button
-							v-if="user.username !== data?.username"
+							v-if="profile.username !== data?.username"
 							class="rounded-full bg-sky-600"
 						>
 							Follow
@@ -114,9 +91,9 @@ watch(
 
 					<div>
 						<div class="font-bold">
-							{{ user.username }}
+							{{ profile.username }}
 						</div>
-						<div>@{{ user._id }}</div>
+						<div>@{{ profile._id }}</div>
 					</div>
 
 					<div class="flex items-center gap-1">
@@ -126,11 +103,11 @@ watch(
 
 					<div class="flex gap-4">
 						<div>
-							<b>{{ user.following?.length ?? 0 }}</b>
+							<b>{{ profile.following?.length ?? 0 }}</b>
 							following
 						</div>
 						<div>
-							<b>{{ user.followers?.length ?? 0 }}</b>
+							<b>{{ profile.followers?.length ?? 0 }}</b>
 							followers
 						</div>
 					</div>
