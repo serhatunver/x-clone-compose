@@ -1,5 +1,4 @@
 import { defineStore } from 'pinia';
-import { useUserStore } from './user';
 
 export interface Post {
   _id: string;
@@ -9,7 +8,7 @@ export interface Post {
   replyTo?: string | null;
   likes: string[];
   reposts: string[];
-  comments: string[];
+  comments: Post[];
   createdAt: string;
   updatedAt: string;
 }
@@ -17,7 +16,7 @@ export interface Post {
 interface PostsState {
   posts: Post[];
   userPosts: Post[];
-  post: Post | null;
+  selectedPost: Post | null;
   loading: boolean;
   error: string | null;
 }
@@ -26,7 +25,7 @@ export const usePostsStore = defineStore('posts', {
   state: (): PostsState => ({
     posts: [],
     userPosts: [],
-    post: null,
+    selectedPost: null,
     loading: false,
     error: null,
   }),
@@ -34,55 +33,20 @@ export const usePostsStore = defineStore('posts', {
   getters: {
     hasPosts: (state) => state.posts.length > 0,
     hasUserPosts: (state) => state.userPosts.length > 0,
+    hasSelectedPost: (state) => !!state.selectedPost?._id,
   },
 
   actions: {
-    getAuthHeaders() {
-      const { token } = useAuth();
-
-      return {
-        Accept: 'application/json',
-        ...(token.value ? { Authorization: `${token.value}` } : {}),
-      };
-    },
-
-    getApiBase() {
-      const config = useRuntimeConfig();
-      return config.public.apiBase;
-    },
-
-    async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-      const apiBase = this.getApiBase();
-
-      const res = await fetch(`${apiBase}${endpoint}`, {
-        ...options,
-        headers: {
-          ...this.getAuthHeaders(),
-          ...(options.headers || {}),
-        },
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json().catch(() => null);
-        throw new Error(errorData?.message || 'Request failed');
-      }
-
-      return res.json();
-    },
-
     async fetchPosts() {
+      const api = useApiClient();
+
       this.loading = true;
       this.error = null;
 
       try {
-        const posts = await this.request<Post[]>('/post/all', {
-          method: 'GET',
-        });
-
-        this.posts = posts;
+        this.posts = await api.get<Post[]>('/post/all');
       } catch (error: any) {
         this.error = error?.message || 'Failed to fetch posts';
-        console.error('Fetch posts error:', error);
         throw error;
       } finally {
         this.loading = false;
@@ -92,22 +56,18 @@ export const usePostsStore = defineStore('posts', {
     async fetchPost(postId: string) {
       if (!postId) return;
 
+      const api = useApiClient();
+
       this.loading = true;
       this.error = null;
 
       try {
-        const post = await this.request<Post>(
+        this.selectedPost = await api.get<Post>(
           `/post/${encodeURIComponent(postId)}`,
-          {
-            method: 'GET',
-          },
         );
-
-        this.post = post;
       } catch (error: any) {
+        this.selectedPost = null;
         this.error = error?.message || 'Failed to fetch post';
-        console.error('Fetch post error:', error);
-        this.post = null;
         throw error;
       } finally {
         this.loading = false;
@@ -117,48 +77,41 @@ export const usePostsStore = defineStore('posts', {
     async fetchUserPosts(username: string) {
       if (!username) return;
 
+      const api = useApiClient();
+
       this.loading = true;
       this.error = null;
 
       try {
-        const userPosts = await this.request<Post[]>(
+        this.userPosts = await api.get<Post[]>(
           `/post/user/${encodeURIComponent(username)}`,
-          {
-            method: 'GET',
-          },
         );
-
-        this.userPosts = userPosts;
       } catch (error: any) {
-        this.error = error?.message || 'Failed to fetch user posts';
-        console.error('Fetch user posts error:', error);
         this.userPosts = [];
+        this.error = error?.message || 'Failed to fetch user posts';
         throw error;
       } finally {
         this.loading = false;
       }
     },
 
-    async deletePost(postId: string) {
+    async deletePost(postId: string, username?: string) {
       if (!postId) return;
+
+      const api = useApiClient();
 
       this.loading = true;
       this.error = null;
 
       try {
-        await this.request<void>(`/post/${encodeURIComponent(postId)}`, {
-          method: 'DELETE',
-        });
+        await api.del<void>(`/post/${encodeURIComponent(postId)}`);
 
         this.posts = this.posts.filter((post) => post._id !== postId);
         this.userPosts = this.userPosts.filter((post) => post._id !== postId);
 
-        if (this.post?._id === postId) {
-          this.post = null;
+        if (this.selectedPost?._id === postId) {
+          this.selectedPost = null;
         }
-
-        const userStore = useUserStore();
-        const username = userStore.user?.username;
 
         await this.fetchPosts();
 
@@ -167,25 +120,24 @@ export const usePostsStore = defineStore('posts', {
         }
       } catch (error: any) {
         this.error = error?.message || 'Failed to delete post';
-        console.error('Delete post error:', error);
         throw error;
       } finally {
         this.loading = false;
       }
     },
 
-    clearPost() {
-      this.post = null;
+    clearSelectedPost() {
+      this.selectedPost = null;
     },
 
-    clearPostsError() {
+    clearError() {
       this.error = null;
     },
 
-    resetPostsState() {
+    reset() {
       this.posts = [];
       this.userPosts = [];
-      this.post = null;
+      this.selectedPost = null;
       this.loading = false;
       this.error = null;
     },
