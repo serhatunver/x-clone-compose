@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import express from 'express';
+import mongoose from 'mongoose';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import connectMongo from './db/connectMongo';
@@ -32,13 +33,29 @@ app.use('/api/v1/auth', authRoutes);
 // auto for now
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerOutput));
 
-app.get('/', (req, res) => {
-  res.send('Hello world');
+// Health check endpoint
+app.get('/health', async (req, res) => {
+  const dbState = mongoose.connection.readyState; // 1 = connected
+  const dbStatus = dbState === 1 ? 'connected' : 'disconnected';
+  res.status(200).json({
+    status: 'ok',
+    db: dbStatus,
+    timestamp: new Date().toISOString(),
+  });
 });
 
 const PORT: number = parseInt(process.env.PORT || '3000', 10);
 
-app.listen(PORT, '0.0.0.0', async () => {
-  await connectMongo();
-  console.log('Server is running on port 3000');
-});
+async function startServer() {
+  try {
+    await connectMongo();
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`Server is running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error('Failed to connect to MongoDB', error);
+    process.exit(1);
+  }
+}
+
+startServer();
