@@ -3,14 +3,16 @@ import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import connectMongo from './db/connectMongo';
-import userRoutes from './users/routes';
-import postRoutes from './posts/routes';
-import authRoutes from './auth/routes';
+import connectMongo from './db/connectMongo.js';
+import userRoutes from './users/routes.js';
+import postRoutes from './posts/routes.js';
+import authRoutes from './auth/routes.js';
+import followsRoutes from './follows/routes.js';
 
 // swagger
 import swaggerUi from 'swagger-ui-express';
-import swaggerOutput from '../swagger_output.json';
+import swaggerOutput from '../swagger_output.json' with { type: 'json' };
+// import swaggerUi from 'swagger-ui-express';
 // import swaggerDocument from './swagger';
 
 const app = express();
@@ -27,6 +29,7 @@ app.use(cookieParser());
 app.use('/api/v1/user', userRoutes);
 app.use('/api/v1/post', postRoutes);
 app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/follows', followsRoutes);
 
 // app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
