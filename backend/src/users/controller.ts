@@ -1,8 +1,7 @@
 import { comparePassword } from '../lib/utils/crypto.js';
-import mongoose from 'mongoose';
 import type { Request, Response } from 'express';
-import User, { type IUser } from './model.js';
-import Notification from '../notifications/model.js';
+import User from './model.js';
+import Follow from '../follows/model.js';
 
 const getUserProfile = async (req: Request, res: Response) => {
   const { username } = req.params;
@@ -17,78 +16,20 @@ const getUserProfile = async (req: Request, res: Response) => {
   }
 };
 
-const followUnfollowUser = async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-    const newId = new mongoose.Types.ObjectId(id);
-
-    // if (newId.equals(req.user._id)) {
-    // if (id === req.user._id.toString()) {
-    if (req.user._id.equals(id)) {
-      return res.status(400).json({ error: "You can't follow/unfollow yourself" });
-    }
-
-    const userToModify = await User.findById(id);
-    const currentUser = await User.findById(req.user._id);
-
-    if (!userToModify || !currentUser) {
-      return res.status(400).json({ error: 'User not found' });
-    }
-
-    const isFollowing = currentUser.following.includes(newId);
-    if (isFollowing) {
-      // unfollow user
-      await User.findByIdAndUpdate(id, { $pull: { followers: req.user._id } });
-      await User.findByIdAndUpdate(req.user._id, { $pull: { following: id } });
-      return res.status(200).json({ message: 'User unfollowed successfully' });
-    } else {
-      // follow user
-      await User.findByIdAndUpdate(id, { $push: { followers: req.user._id } });
-      await User.findByIdAndUpdate(req.user._id, { $push: { following: id } });
-
-      await Notification.create({
-        from: currentUser._id,
-        to: userToModify._id,
-        type: 'follow',
-      });
-
-      // TODO return the id of the user as a response
-      return res.status(200).json({ message: 'User followed successfully' });
-    }
-  } catch (error) {
-    return res.status(500).json({ error: error });
-  }
-};
-
 const getSuggestedUsers = async (req: Request, res: Response) => {
   try {
-    const userId = req.user._id;
+    const currentUserId = req.user._id;
+    const following = await Follow.find({ follower: currentUserId }).select('following');
+    const followingIds = following.map((f) => f.following);
+    followingIds.push(currentUserId); // Exclude self as well
 
-    const usersFollowedByMe = await User.findById(userId).select('following');
-    if (!usersFollowedByMe) {
-      return res.status(404);
-    }
+    const suggestedUsers = await User.find({ _id: { $nin: followingIds } })
+      .select('-password')
+      .limit(10);
 
-    const users = await User.aggregate([
-      {
-        $match: {
-          _id: { $ne: userId },
-        },
-      },
-      {
-        $sample: { size: 10 },
-      },
-    ]);
-
-    // TODO
-    const followedUserIds = usersFollowedByMe.following.map((userId: mongoose.Types.ObjectId) => userId.toString());
-    const filteredUsers = users.filter((user: IUser) => !followedUserIds.includes(user._id.toString()));
-    const suggestedUsers = filteredUsers.slice(0, 4);
-
-    suggestedUsers.forEach((user: IUser) => (user.password = ''));
     return res.status(200).json(suggestedUsers);
   } catch (error) {
-    return res.status(400);
+    return res.status(500).json({ error: error });
   }
 };
 
@@ -154,4 +95,4 @@ const updateUserProfile = async (req: Request, res: Response) => {
   }
 };
 
-export { getUserProfile, getSuggestedUsers, followUnfollowUser, updateUserProfile };
+export { getUserProfile, getSuggestedUsers, updateUserProfile };

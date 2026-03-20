@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import Post from './model.js';
 import type { IPost } from './model.js';
 import User from '../users/model.js';
+import Follow from '../follows/model.js';
 
 import { ReasonPhrases, StatusCodes } from 'http-status-codes';
 
@@ -87,25 +88,18 @@ export const deletePost = async (req: Request, res: Response) => {
   }
 };
 
-// TODO Should return only latest post (not comments) from following users
 export const getFollowingPosts = async (req: Request, res: Response) => {
   try {
     const userId = req.user._id;
+    const following = await Follow.find({ follower: userId }).select('following');
+    const followingIds = following.map((f) => f.following);
 
-    const user = await User.findById(userId);
+    const posts = await Post.find({ user: { $in: followingIds } }, {}, { autopopulate: false })
+      .populate({ path: 'user', select: 'username profileImg' })
+      .sort({ createdAt: -1 })
+      .limit(20);
 
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    const followingPosts = await Post.find({ user: { $in: user.following } }, {}, { autopopulate: false })
-      .sort({
-        createdAt: -1,
-      })
-      .select('content')
-      .limit(5);
-
-    return res.status(200).json(followingPosts);
+    return res.status(200).json(posts);
   } catch (error) {
     return res.status(500).json({ error: error });
   }

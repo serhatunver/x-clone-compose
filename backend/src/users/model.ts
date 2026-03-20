@@ -6,8 +6,6 @@ interface IUser {
   username: string;
   password: string;
   email: string;
-  followers: Array<Types.ObjectId>;
-  following: Array<Types.ObjectId>;
   profileImg: string;
   coverImg: string;
   bio: string;
@@ -36,18 +34,6 @@ const userSchema = new Schema<IUser>(
       required: true,
       unique: true,
     },
-    followers: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: 'User',
-      },
-    ],
-    following: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: 'User',
-      },
-    ],
     profileImg: {
       type: String,
       default: '',
@@ -101,20 +87,6 @@ userSchema.pre('save', async function (next) {
     }
   }
 });
-
-// userSchema.virtual('followersCount', {
-//   ref: 'User',
-//   localField: '_id',
-//   foreignField: 'followers',
-//   count: true,
-// });
-
-// userSchema.virtual('followingCount', {
-//   ref: 'User',
-//   localField: '_id',
-//   foreignField: 'following',
-//   count: true,
-// });
 
 userSchema.virtual('followersCount', {
   ref: 'Follow',
