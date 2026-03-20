@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import protectRoute from '../middleware/protectRoute';
+import protectRoute from '../middleware/protectRoute.js';
 import {
   createPost,
   getPost,
@@ -10,7 +10,7 @@ import {
   likeUnlikePost,
   commentOnPost,
   deletePost,
-} from './controller';
+} from './controller.js';
 
 const router = Router();
 
