@@ -1,30 +1,31 @@
 import type { Request, Response } from 'express';
 import mongoose from 'mongoose';
-import Post from './model';
-import type { IPost } from './model';
-import User from '../users/model';
+import Post from './model.js';
+import type { IPost } from './model.js';
+import User from '../users/model.js';
 
 import { ReasonPhrases, StatusCodes } from 'http-status-codes';
-
-// createPost jsdoc
-/**
- * @param {Request} req
- * @param {Response} res
- * @returns {Promise<Response>}
- */
 
 export const createPost = async (req: Request, res: Response) => {
   try {
     const { content, image } = req.body;
     const userId: mongoose.Types.ObjectId = req.user._id;
 
+    // 1. content or image is required to create a post
+    if (!content && !image) {
+      return res.status(400).json({ error: 'Content or image is required to create a post' });
+    }
+
+    // 2. content must be less than 280 characters
+    if (content && content.length > 280) {
+      return res.status(400).json({ error: 'Text must be less than 280 characters' });
+    }
+
     const post: IPost = await Post.create({ user: userId, content, image, isPost: true });
 
-    if (post) {
-      return res.status(201).json(post);
-    }
+    return res.status(201).json(post);
   } catch (error) {
-    res.status(500).json({ error: error });
+    return res.status(500).json({ error: error });
   }
 };
 
@@ -53,9 +54,9 @@ export const getPost = async (req: Request, res: Response) => {
       });
     }
 
-    res.status(StatusCodes.OK).json(post);
+    return res.status(StatusCodes.OK).json(post);
   } catch (error) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       error: (error as Error).message || 'Internal server error',
     });
   }
@@ -80,9 +81,9 @@ export const deletePost = async (req: Request, res: Response) => {
 
     await Post.findByIdAndDelete(post._id);
 
-    res.status(200).json({ message: 'Post deleted successfully' });
+    return res.status(200).json({ message: 'Post deleted successfully' });
   } catch (error) {
-    res.status(500).json({ error: error });
+    return res.status(500).json({ error: error });
   }
 };
 
@@ -104,9 +105,9 @@ export const getFollowingPosts = async (req: Request, res: Response) => {
       .select('content')
       .limit(5);
 
-    res.status(200).json(followingPosts);
+    return res.status(200).json(followingPosts);
   } catch (error) {
-    res.status(500).json({ error: error });
+    return res.status(500).json({ error: error });
   }
 };
 
@@ -120,9 +121,9 @@ export const getAllPosts = async (req: Request, res: Response) => {
       .sort({ createdAt: -1 })
       .limit(20);
 
-    res.status(200).json(posts);
+    return res.status(200).json(posts);
   } catch (error) {
-    res.status(500).json({ error: error });
+    return res.status(500).json({ error: error });
   }
 };
 
@@ -145,9 +146,9 @@ export const getUserLikedPosts = async (req: Request, res: Response) => {
     //     createdAt: -1,
     //   });
 
-    res.status(200).json(user.likedPosts);
+    return res.status(200).json(user.likedPosts);
   } catch (error) {
-    res.status(500).json({ error: error });
+    return res.status(500).json({ error: error });
   }
 };
 
@@ -197,15 +198,15 @@ export const likeUnlikePost = async (req: Request, res: Response) => {
       await User.findByIdAndUpdate(userId, { $pull: { likedPosts: postId } });
       await Post.findByIdAndUpdate(postId, { $pull: { likes: userId } });
 
-      res.status(200).json({ message: 'Post unliked successfully' });
+      return res.status(200).json({ message: 'Post unliked successfully' });
     } else {
       await User.findByIdAndUpdate(userId, { $push: { likedPosts: postId } });
       await Post.findByIdAndUpdate(postId, { $push: { likes: userId } });
 
-      res.status(200).json({ message: 'Post liked successfully' });
+      return res.status(200).json({ message: 'Post liked successfully' });
     }
   } catch (error) {
-    res.status(500).json({ error: error });
+    return res.status(500).json({ error: error });
   }
 };
 
@@ -220,8 +221,8 @@ export const commentOnPost = async (req: Request, res: Response) => {
 
     await Post.findByIdAndUpdate(postId, { $push: { comments: comment._id } });
 
-    res.status(200).json({ comment });
+    return res.status(200).json({ comment });
   } catch (error) {
-    res.status(500).json({ error: error });
+    return res.status(500).json({ error: error });
   }
 };
