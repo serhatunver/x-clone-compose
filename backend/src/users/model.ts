@@ -1,4 +1,5 @@
 import { Schema, model, Types } from 'mongoose';
+import { hashPassword } from '../lib/utils/crypto.js';
 
 interface IUser {
   _id: Types.ObjectId;
@@ -28,6 +29,7 @@ const userSchema = new Schema<IUser>(
     password: {
       type: String,
       required: true,
+      select: false, // Don't return password by default
     },
     email: {
       type: String,
@@ -38,14 +40,12 @@ const userSchema = new Schema<IUser>(
       {
         type: Schema.Types.ObjectId,
         ref: 'User',
-        default: [],
       },
     ],
     following: [
       {
         type: Schema.Types.ObjectId,
         ref: 'User',
-        default: [],
       },
     ],
     profileImg: {
@@ -68,40 +68,65 @@ const userSchema = new Schema<IUser>(
       {
         type: Schema.Types.ObjectId,
         ref: 'Post',
-        default: [],
       },
     ],
   },
   {
     timestamps: true,
-    toJSON: { virtuals: true },
+    toJSON: {
+      virtuals: true,
+      transform: (_doc, ret) => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { password: _password, ...userWithoutPassword } = ret;
+        return userWithoutPassword;
+      },
+    },
+    toObject: {
+      virtuals: true,
+    },
   },
 );
 
-// userSchema.pre('save', async function (next) {
-//   if (this.isModified('password')) {
-//     this.password = await bcrypt.hash(this.password, 10);
-//   }
-//   next();
+userSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) return next();
+
+  try {
+    this.password = await hashPassword(this.password);
+    next();
+  } catch (err) {
+    if (err instanceof Error) {
+      next(err);
+    } else {
+      next(new Error('An unknown error occurred while hashing the password'));
+    }
+  }
+});
+
+// userSchema.virtual('followersCount', {
+//   ref: 'User',
+//   localField: '_id',
+//   foreignField: 'followers',
+//   count: true,
 // });
 
-// userSchema.methods.toJSON = function () {
-//   const user = this.toObject();
-//   delete user.password;
-//   return user;
-// };
+// userSchema.virtual('followingCount', {
+//   ref: 'User',
+//   localField: '_id',
+//   foreignField: 'following',
+//   count: true,
+// });
 
 userSchema.virtual('followersCount', {
-  ref: 'User',
+  ref: 'Follow',
   localField: '_id',
-  foreignField: 'followers',
+  foreignField: 'following',
   count: true,
 });
 
 userSchema.virtual('followingCount', {
-  ref: 'User',
+  ref: 'Follow',
   localField: '_id',
-  foreignField: 'following',
+  foreignField: 'follower',
   count: true,
 });
 

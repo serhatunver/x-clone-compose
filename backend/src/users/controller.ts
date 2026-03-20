@@ -1,44 +1,9 @@
-import bcrypt from 'bcrypt';
+import { comparePassword } from '../lib/utils/crypto.js';
 import mongoose from 'mongoose';
 import type { Request, Response } from 'express';
-import User, { type IUser } from './model';
-import Notification from '../notifications/model';
+import User, { type IUser } from './model.js';
+import Notification from '../notifications/model.js';
 
-/**
- * @swagger
- * user/profile/{username}:
- *   get:
- *     summary: Get user profile
- *     description: Get user profile
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - id
- *               - name
- *             properties:
- *               id:
- *                 type: string
- *                 description:
- *               name:
- *                 type: string
- *                 description:
- *     parameters:
- *       in: path
- *       name: username
- *       schema:
- *         type: string
- *       required: true
- *     example: 'john_doe'
- *     responses:
- *       200:
- *         description: User profile
- *       500:
- *         description: Internal server error
- */
 const getUserProfile = async (req: Request, res: Response) => {
   const { username } = req.params;
   try {
@@ -46,42 +11,12 @@ const getUserProfile = async (req: Request, res: Response) => {
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
-    res.status(200).json(user);
+    return res.status(200).json(user);
   } catch (error) {
-    res.status(500).json({ error: error });
+    return res.status(500).json({ error: error });
   }
 };
 
-/**
- * @swagger
- * /items:
- *   post:
- *     summary:
- *     description:
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - id
- *               - name
- *             properties:
- *               id:
- *                 type: string
- *                 description:
- *               name:
- *                 type: string
- *                 description:
- *     responses:
- *       201:
- *         description:
- *       400:
- *         description:
- *       500:
- *         description:
- */
 const followUnfollowUser = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
@@ -105,7 +40,7 @@ const followUnfollowUser = async (req: Request, res: Response) => {
       // unfollow user
       await User.findByIdAndUpdate(id, { $pull: { followers: req.user._id } });
       await User.findByIdAndUpdate(req.user._id, { $pull: { following: id } });
-      res.status(200).json({ message: 'User unfollowed successfully' });
+      return res.status(200).json({ message: 'User unfollowed successfully' });
     } else {
       // follow user
       await User.findByIdAndUpdate(id, { $push: { followers: req.user._id } });
@@ -118,10 +53,10 @@ const followUnfollowUser = async (req: Request, res: Response) => {
       });
 
       // TODO return the id of the user as a response
-      res.status(200).json({ message: 'User followed successfully' });
+      return res.status(200).json({ message: 'User followed successfully' });
     }
   } catch (error) {
-    res.status(500).json({ error: error });
+    return res.status(500).json({ error: error });
   }
 };
 
@@ -151,9 +86,9 @@ const getSuggestedUsers = async (req: Request, res: Response) => {
     const suggestedUsers = filteredUsers.slice(0, 4);
 
     suggestedUsers.forEach((user: IUser) => (user.password = ''));
-    res.status(200).json(suggestedUsers);
+    return res.status(200).json(suggestedUsers);
   } catch (error) {
-    res.status(400);
+    return res.status(400);
   }
 };
 
@@ -164,23 +99,30 @@ const updateUserProfile = async (req: Request, res: Response) => {
   const userId = req.user._id;
 
   try {
-    const user = await User.findById(userId);
-    if (!user) return res.status(404).json({ message: 'user not found' });
+    // Need to explicitly select +password since it's hidden by default in the model
+    const user = await User.findById(userId).select('+password');
+    if (!user) return res.status(404).json({ message: 'User not found' });
 
-    if ((!newPassword && currentPassword) || (!currentPassword && newPassword)) {
-      // if (!newPassword || !currentPassword) {
-      return res.status(400).json({ message: 'please provie both current and new password' });
-    }
-
-    if (newPassword && currentPassword && newPassword !== currentPassword) {
-      const isMatch = await bcrypt.compare(currentPassword, user.password);
-      if (!isMatch) return res.status(400).json({ message: 'Incorrect password' });
-      if (newPassword.length < 6) {
-        return res.status(400).json({ message: 'Password must be at least 6 characters long' });
+    // 1. Password update logic
+    if (newPassword && currentPassword) {
+      if (!newPassword || !currentPassword) {
+        return res.status(400).json({ message: 'Please provide both current and new password' });
       }
 
-      const salt = await bcrypt.genSalt(10);
-      user.password = await bcrypt.hash(newPassword, salt);
+      // Verify existing password
+      const isMatch = await comparePassword(currentPassword, user.password);
+      if (!isMatch) return res.status(400).json({ message: 'Current password incorrect' });
+
+      if (newPassword === currentPassword) {
+        return res.status(400).json({ message: 'New password cannot be the same as old' });
+      }
+
+      if (newPassword.length < 6) {
+        return res.status(400).json({ message: 'Password must be at least 6 characters' });
+      }
+
+      // Assign plain password; the pre-save hook in the model will handle hashing automatically
+      user.password = newPassword;
     }
 
     //TODO cloudinary
@@ -191,6 +133,7 @@ const updateUserProfile = async (req: Request, res: Response) => {
       //
     }
 
+    // 2. Update other profile fields
     user.email = email || user.email;
     user.username = username || user.username;
     user.bio = bio || user.bio;
@@ -198,13 +141,16 @@ const updateUserProfile = async (req: Request, res: Response) => {
     user.profileImg = profileImg || user.profileImg;
     user.coverImg = coverImg || user.coverImg;
 
+    // 3. Save changes (triggers pre-save hook to hash password if it was changed)
     await user.save();
 
-    user.password = '';
+    // 4. Return updated user profile (excluding password)
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...userWithoutPassword } = user.toObject();
 
-    res.status(200).json(user);
+    return res.status(200).json(userWithoutPassword);
   } catch (error) {
-    res.status(500).json({ error: error });
+    return res.status(500).json({ error: error });
   }
 };
 
