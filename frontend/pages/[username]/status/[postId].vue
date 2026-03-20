@@ -50,7 +50,7 @@ watch(
 		</div>
 
 		<div v-else class="border-x w-full min-[684px]:w-[600px]">
-			<HeaderNav :content="'Post'" />
+			<ProfileHeaderNav :content="'Post'" />
 
 			<PostDetail :post="post" class="flex flex-col w-full" />
 

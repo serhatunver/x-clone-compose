@@ -60,7 +60,7 @@ watch(
 			class="flex lg:w-[920px] min-[1084px]:w-[990px] min-[1384px]:w-[1050px] justify-between"
 		>
 			<div class="flex flex-col w-full min-[684px]:w-[600px] border-x-[1px]">
-				<HeaderNav :totalPosts="profile.totalPosts ?? 0" />
+				<ProfileHeaderNav :totalPosts="profile.totalPosts ?? 0" />
 
 				<div class="w-full h-[200px] bg-muted">
 					<img

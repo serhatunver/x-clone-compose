@@ -56,7 +56,7 @@ const deletePost = async () => {
 							size="icon"
 							class="rounded-full hover:bg-sky-100 hover:text-sky-500"
 						>
-							<Dropdown
+							<PostActionsDropdown
 								@delete-post="deletePost"
 								icon="ri:more-fill"
 								:username="post.user?.username"
@@ -172,7 +172,7 @@ const deletePost = async () => {
 											size="icon"
 											class="flex p-0 rounded-full hover:bg-sky-100 hover:text-sky-500"
 										>
-											<Dropdown icon="ri:share-2-line" />
+											<PostActionsDropdown icon="ri:share-2-line" />
 										</Button>
 									</TooltipTrigger>
 									<TooltipContent

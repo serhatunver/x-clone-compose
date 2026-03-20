@@ -51,7 +51,7 @@ const props = defineProps(['post']);
 						size="icon"
 						class="rounded-full hover:bg-sky-100 hover:text-sky-500"
 					>
-						<Dropdown icon="ri:more-fill" />
+						<PostActionsDropdown icon="ri:more-fill" />
 					</Button>
 				</div>
 			</div>
@@ -193,7 +193,7 @@ const props = defineProps(['post']);
 										size="icon"
 										class="flex rounded-full hover:bg-sky-100 hover:text-sky-500"
 									>
-										<Dropdown icon="ri:share-2-line" />
+										<PostActionsDropdown icon="ri:share-2-line" />
 									</Button>
 								</TooltipTrigger>
 								<TooltipContent
