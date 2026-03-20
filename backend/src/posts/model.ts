@@ -57,7 +57,8 @@ const postSchema: Schema = new Schema<IPost>(
     timestamps: true,
   },
 );
-postSchema.plugin(autopopulate);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+postSchema.plugin(autopopulate as any);
 
 const Post = model<IPost>('Post', postSchema);
 export default Post;
