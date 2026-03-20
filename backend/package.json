@@ -9,8 +9,8 @@
     "node": ">=24.7.0 <25.0.0"
   },
   "scripts": {
-    "start": "node ./dist/app.js",
-    "dev": "tsx watch ./src/app.ts",
+    "start": "node --env-file=.env ./dist/app.js",
+    "dev": "tsx watch --env-file=.env ./src/app.ts",
     "build": "tsc",
     "debug": "tsx watch --inspect=0.0.0.0:9229 ./src/app.ts",
     "tsx-debug": "tsx watch --exclude '*.json' --inspect=0.0.0.0:9229 --nolazy ./src/app.ts",
@@ -26,7 +26,6 @@
     "bcrypt": "^6.0.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
-    "dotenv": "^16.4.5",
     "express": "^4.21.1",
     "http-status-codes": "^2.3.0",
     "jsonwebtoken": "^9.0.2",
