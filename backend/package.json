@@ -8,6 +8,12 @@
   "engines": {
     "node": ">=24.7.0 <25.0.0"
   },
+  "imports": {
+    "#/*": {
+      "development": "./src/*",
+      "default": "./dist/*"
+    }
+  },
   "scripts": {
     "start": "node --env-file-if-exists=.env ./dist/app.js",
     "dev": "tsx watch --env-file=.env ./src/app.ts",
