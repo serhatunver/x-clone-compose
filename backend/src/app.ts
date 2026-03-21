@@ -1,4 +1,5 @@
 import express from 'express';
+import { config } from '#/config/config.js';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
@@ -22,8 +23,8 @@ setupSecurity(app);
 
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-    credentials: true,
+    origin: config.cors.origin,
+    credentials: config.cors.credentials,
   }),
 );
 
@@ -52,13 +53,11 @@ app.get('/health', async (req, res) => {
   });
 });
 
-const PORT: number = parseInt(process.env.PORT || '3000', 10);
-
 async function startServer() {
   try {
     await connectMongo();
-    app.listen(PORT, '0.0.0.0', () => {
-      console.log(`Server is running on port ${PORT}`);
+    app.listen(config.app.port, '0.0.0.0', () => {
+      console.log(`Server is running on port ${config.app.port} in ${config.app.nodeEnv} mode`);
     });
   } catch (error) {
     console.error('Failed to connect to MongoDB', error);
