@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { config } from '#/config/config.js';
 
 const connectMongo = async () => {
   try {
@@ -9,9 +10,7 @@ const connectMongo = async () => {
     mongoose.connection.on('disconnecting', () => console.log('disconnecting'));
     mongoose.connection.on('close', () => console.log('close'));
 
-    const mongoUri = process.env.MONGO_URI || 'mongodb://mongodb:27017/twitter';
-
-    await mongoose.connect(mongoUri);
+    await mongoose.connect(config.db.mongoUri);
   } catch (err) {
     console.log(err);
   }
