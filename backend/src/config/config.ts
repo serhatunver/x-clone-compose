@@ -12,7 +12,7 @@ export const config = {
   },
   auth: {
     jwtSecret: env.JWT_SECRET,
-    jwtExpiresIn: '1d',
+    jwtExpiresIn: env.JWT_EXPIRES_IN,
   },
   cors: {
     origin: env.CORS_ORIGIN,
