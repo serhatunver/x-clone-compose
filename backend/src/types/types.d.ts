@@ -1,16 +1,18 @@
+import { Types } from 'mongoose';
 import { IUser } from '../users/model';
 
 declare global {
   namespace Express {
     interface Request {
-      user: IUser;
+      user: Pick<IUser, '_id' | 'username'>;
     }
   }
 }
 
 declare module 'jsonwebtoken' {
   export interface JwtPayload {
-    userId: string;
+    userId: Types.ObjectId;
+    username: string;
   }
 }
 
