@@ -3,9 +3,7 @@ import { config } from '#/config/config.js';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import connectMongo from './db/connectMongo.js';
 import { setupSecurity } from './middleware/security.js';
-
 import userRoutes from './users/routes.js';
 import postRoutes from './posts/routes.js';
 import authRoutes from './auth/routes.js';
@@ -14,55 +12,32 @@ import followsRoutes from './follows/routes.js';
 // swagger
 import swaggerUi from 'swagger-ui-express';
 import swaggerOutput from '../swagger_output.json' with { type: 'json' };
-// import swaggerUi from 'swagger-ui-express';
-// import swaggerDocument from './swagger';
 
 const app = express();
 
 setupSecurity(app);
 
-app.use(
-  cors({
-    origin: config.cors.origin,
-    credentials: config.cors.credentials,
-  }),
-);
-
+// CORS, JSON parsing, URL-encoded data parsing, cookie parsing
+app.use(cors({ origin: config.cors.origin, credentials: config.cors.credentials }));
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+// Routes
 app.use('/api/v1/user', userRoutes);
 app.use('/api/v1/post', postRoutes);
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/follows', followsRoutes);
-
-// app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-
-// auto for now
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerOutput));
 
-// Health check endpoint
+// Health check
 app.get('/health', async (req, res) => {
-  const dbState = mongoose.connection.readyState; // 1 = connected
-  const dbStatus = dbState === 1 ? 'connected' : 'disconnected';
+  const dbState = mongoose.connection.readyState;
   res.status(200).json({
     status: 'ok',
-    db: dbStatus,
+    db: dbState === 1 ? 'connected' : 'disconnected',
     timestamp: new Date().toISOString(),
   });
 });
 
-async function startServer() {
-  try {
-    await connectMongo();
-    app.listen(config.app.port, '0.0.0.0', () => {
-      console.log(`Server is running on port ${config.app.port} in ${config.app.nodeEnv} mode`);
-    });
-  } catch (error) {
-    console.error('Failed to connect to MongoDB', error);
-    process.exit(1);
-  }
-}
-
-startServer();
+export default app;
