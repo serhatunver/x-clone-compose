@@ -1,3 +1,4 @@
+import { config } from '#/config/config.js';
 import { comparePassword } from '../lib/utils/crypto.js';
 import User from '../users/model.js';
 import type { Request, Response } from 'express';
@@ -81,7 +82,7 @@ const logout = async (req: Request, res: Response) => {
   try {
     res.cookie('jwt', '', {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: config.app.isProduction,
       sameSite: 'strict',
       expires: new Date(0),
       maxAge: 0,

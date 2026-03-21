@@ -1,3 +1,4 @@
+import { config } from '#/config/config.js';
 import type { Request, Response, NextFunction } from 'express';
 import { Types } from 'mongoose';
 import jwt from 'jsonwebtoken';
@@ -13,10 +14,7 @@ const protectRoute = async (req: Request, res: Response, next: NextFunction) => 
       return res.status(401).json({ error: 'Unauthorized: No Token Provided' });
     }
 
-    const jwt_secret = process.env.JWT_SECRET;
-    if (!jwt_secret) {
-      throw new Error('JWT_SECRET is not defined in environment variables');
-    }
+    const jwt_secret = config.auth.jwtSecret;
 
     const decoded = jwt.verify(token, jwt_secret) as JwtPayload;
 
