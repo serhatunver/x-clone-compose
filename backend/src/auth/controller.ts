@@ -1,24 +1,24 @@
 import { comparePassword } from '../lib/utils/crypto.js';
 import User from '../users/model.js';
 import type { Request, Response } from 'express';
-import generateTokenAndSetCookie from '../lib/utils/generateToken.js';
+import generateToken from '../lib/utils/generateToken.js';
 
 const register = async (req: Request, res: Response) => {
-  const { username, email, password } = req.body;
-  // validate email here
-  if (password.length < 6) {
-    return res.status(400).json({ message: 'Password less than 6 characters' });
-  }
-  const existingUser = await User.findOne({ username });
-  if (existingUser) {
-    return res.status(400).json({ error: 'Username is already exist.' });
-  }
-  const existingEmail = await User.findOne({ email });
-  if (existingEmail) {
-    return res.status(400).json({ error: 'Email is already exist.' });
-  }
-
   try {
+    const { username, email, password } = req.body;
+
+    if (password.length < 6) {
+      return res.status(400).json({ message: 'Password less than 6 characters' });
+    }
+    const existingUser = await User.findOne({ username });
+    if (existingUser) {
+      return res.status(400).json({ error: 'Username is already exist.' });
+    }
+    const existingEmail = await User.findOne({ email });
+    if (existingEmail) {
+      return res.status(400).json({ error: 'Email is already exist.' });
+    }
+
     const user = await User.create({
       username,
       email,
@@ -26,13 +26,10 @@ const register = async (req: Request, res: Response) => {
     });
 
     if (user) {
-      await generateTokenAndSetCookie(user?._id, res);
       return res.status(201).json({
         _id: user._id,
         username: user.username,
         email: user.email,
-        followers: user.followers,
-        following: user.following,
         profileImg: user.profileImg,
         coverImg: user.coverImg,
         bio: user.bio,
@@ -51,34 +48,30 @@ const register = async (req: Request, res: Response) => {
 };
 
 const login = async (req: Request, res: Response) => {
-  const { username, password } = req.body;
-  // Check if username and password is provided
-  if (!username || !password) {
-    console.log('Username or Password not present');
-    return res.status(400).json({
-      message: 'Username or Password not present',
-    });
-  }
   try {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+      return res.status(400).json({
+        message: 'Username and password are required',
+      });
+    }
+
     const user = await User.findOne({ username }).select('+password');
-    if (!user) {
-      return res.status(401).json({ message: 'user not found' });
+
+    if (!user || !(await comparePassword(password, user.password))) {
+      return res.status(401).json({ message: 'Invalid username or password' });
     }
 
-    const isPasswordCorrect = await comparePassword(password, user.password);
-    if (!isPasswordCorrect) {
-      return res.status(401).json({ message: 'Invalid password' });
-    }
-
-    const token = await generateTokenAndSetCookie(user._id, res);
+    const token = await generateToken(user._id, user.username);
 
     return res.status(200).json({
       user,
       token,
     });
   } catch (error) {
-    return res.status(401).json({
-      message: 'User not logged in',
+    return res.status(500).json({
+      message: 'Login error',
       error: (error as Error).message,
     });
   }
@@ -86,12 +79,19 @@ const login = async (req: Request, res: Response) => {
 
 const logout = async (req: Request, res: Response) => {
   try {
-    res.cookie('jwt', '', { maxAge: 0 });
-    return res.status(200).json('logout successfully');
+    res.cookie('jwt', '', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      expires: new Date(0),
+      maxAge: 0,
+    });
+
+    return res.status(200).json({ message: 'Logged out successfully' });
   } catch (error) {
     return res.status(500).json({
       message: 'Logout error',
-      error: error,
+      error: error instanceof Error ? error.message : 'An unknown error occurred',
     });
   }
 };
