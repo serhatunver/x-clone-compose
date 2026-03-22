@@ -25,9 +25,15 @@ async function startServer() {
       }, 5000);
 
       try {
-        await new Promise<void>((resolve, reject) => {
+        const closePromise = new Promise<void>((resolve, reject) => {
           server.close((err) => (err ? reject(err) : resolve()));
         });
+
+        if (server.closeIdleConnections) {
+          server.closeIdleConnections();
+        }
+
+        await closePromise;
         console.log('HTTP server closed.');
 
         if (mongoose.connection.readyState !== 0) {
