@@ -11,7 +11,12 @@ async function startServer() {
       console.log(`Server is running on port ${config.app.port} in ${config.app.nodeEnv} mode`);
     });
 
+    let isShuttingDown = false;
+
     const gracefulShutdown = async (signal: string) => {
+      if (isShuttingDown) return;
+      isShuttingDown = true;
+
       console.log(`${signal} received. Starting graceful shutdown...`);
 
       const forceExit = setTimeout(() => {
@@ -20,9 +25,10 @@ async function startServer() {
       }, 5000);
 
       try {
-        server.close(() => {
-          console.log('HTTP server closed.');
+        await new Promise<void>((resolve, reject) => {
+          server.close((err) => (err ? reject(err) : resolve()));
         });
+        console.log('HTTP server closed.');
 
         if (mongoose.connection.readyState !== 0) {
           await mongoose.connection.close();
