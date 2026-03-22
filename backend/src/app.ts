@@ -3,7 +3,7 @@ import { config } from '#/config/config.js';
 import { db } from '#/database/database.js';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import { setupSecurity } from '#/middleware/security.js';
+import { setupSecurity } from '#/middleware/setupSecurity.js';
 import userRoutes from '#/users/routes.js';
 import postRoutes from '#/posts/routes.js';
 import authRoutes from '#/auth/routes.js';
