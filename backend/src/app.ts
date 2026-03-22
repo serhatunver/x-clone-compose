@@ -3,11 +3,11 @@ import { config } from '#/config/config.js';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import { setupSecurity } from './middleware/security.js';
-import userRoutes from './users/routes.js';
-import postRoutes from './posts/routes.js';
-import authRoutes from './auth/routes.js';
-import followsRoutes from './follows/routes.js';
+import { setupSecurity } from '#/middleware/security.js';
+import userRoutes from '#/users/routes.js';
+import postRoutes from '#/posts/routes.js';
+import authRoutes from '#/auth/routes.js';
+import followsRoutes from '#/follows/routes.js';
 
 // swagger
 import swaggerUi from 'swagger-ui-express';
