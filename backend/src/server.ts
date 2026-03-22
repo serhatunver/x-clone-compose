@@ -1,11 +1,10 @@
 import app from './app.js';
 import { config } from '#/config/config.js';
-import connectMongo from '#/db/connectMongo.js';
-import mongoose from 'mongoose';
+import { db } from '#/database/database.js';
 
 async function startServer() {
   try {
-    await connectMongo();
+    await db.connect();
 
     const server = app.listen(config.app.port, '0.0.0.0', () => {
       console.log(`Server is running on port ${config.app.port} in ${config.app.nodeEnv} mode`);
@@ -36,10 +35,7 @@ async function startServer() {
         await closePromise;
         console.log('HTTP server closed.');
 
-        if (mongoose.connection.readyState !== 0) {
-          await mongoose.connection.close();
-          console.log('MongoDB connection closed.');
-        }
+        await db.disconnect();
 
         clearTimeout(forceExit);
         console.log('Graceful shutdown completed.');

@@ -1,6 +1,6 @@
 import express from 'express';
 import { config } from '#/config/config.js';
-import mongoose from 'mongoose';
+import { db } from '#/database/database.js';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { setupSecurity } from '#/middleware/security.js';
@@ -32,10 +32,9 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerOutput));
 
 // Health check
 app.get('/health', async (req, res) => {
-  const dbState = mongoose.connection.readyState;
   res.status(200).json({
     status: 'ok',
-    db: dbState === 1 ? 'connected' : 'disconnected',
+    db: db.getDbStatus(),
     timestamp: new Date().toISOString(),
   });
 });
