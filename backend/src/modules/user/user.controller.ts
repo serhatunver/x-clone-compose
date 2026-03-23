@@ -1,7 +1,7 @@
-import { comparePassword } from '../../lib/utils/crypto.js';
 import type { Request, Response } from 'express';
-import User from './model.js';
-import Follow from '../follows/model.js';
+import { comparePassword } from '#/lib/utils/crypto.js';
+import User from './user.model.js';
+import Follow from '#/modules/follow/follow.model.js';
 
 const getUserProfile = async (req: Request, res: Response) => {
   const { username } = req.params;

@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
-import Follow from './model.js';
-import User from '../users/model.js';
+import Follow from './follow.model.js';
+import User from '#/modules/user/user.model.js';
 // import Notification from '../notifications/model.js';
 
 export const toggleFollow = async (req: Request, res: Response) => {

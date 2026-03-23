@@ -1,8 +1,8 @@
-import { config } from '#/config/config.js';
-import { comparePassword } from '../../lib/utils/crypto.js';
-import User from '../users/model.js';
 import type { Request, Response } from 'express';
-import generateToken from '../../lib/utils/generateToken.js';
+import { config } from '#/config/config.js';
+import { comparePassword } from '#/lib/utils/crypto.js';
+import User from '#/modules/user/user.model.js';
+import generateToken from '#/lib/utils/generateToken.js';
 
 const register = async (req: Request, res: Response) => {
   try {

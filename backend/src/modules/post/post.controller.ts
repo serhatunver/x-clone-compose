@@ -1,9 +1,9 @@
 import type { Request, Response } from 'express';
+import type { IPost } from './post.model.js';
 import mongoose from 'mongoose';
-import Post from './model.js';
-import type { IPost } from './model.js';
-import User from '../users/model.js';
-import Follow from '../follows/model.js';
+import Post from './post.model.js';
+import User from '#/modules/user/user.model.js';
+import Follow from '#/modules/follow/follow.model.js';
 
 import { ReasonPhrases, StatusCodes } from 'http-status-codes';
 
