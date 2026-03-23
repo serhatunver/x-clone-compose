@@ -21,8 +21,6 @@ export const setupSecurity = (app: Express) => {
     delayMs: (hits) => hits * 100, // Increase delay by 100ms for each request after the threshold
   });
 
-  app.use(speedLimiter);
-
   // 4. Rate Limiting
   // Limits the number of requests from a single IP to prevent brute-force attacks
   const limiter = rateLimit({
@@ -37,5 +35,5 @@ export const setupSecurity = (app: Express) => {
     ipv6Subnet: 56, // Treats IPv6 addresses as /56 subnets to prevent abuse from large IPv6 blocks
   });
 
-  app.use(limiter);
+  app.use(speedLimiter, limiter);
 };
