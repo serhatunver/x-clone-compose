@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { toggleFollow } from './controller.js';
-import protectRoute from '../middleware/protectRoute.js';
+import protectRoute from '../../middleware/protectRoute.js';
 
 const router = Router();
 

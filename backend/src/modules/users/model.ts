@@ -1,5 +1,5 @@
 import { Schema, model, Types } from 'mongoose';
-import { hashPassword } from '../lib/utils/crypto.js';
+import { hashPassword } from '../../lib/utils/crypto.js';
 
 interface IUser {
   _id: Types.ObjectId;

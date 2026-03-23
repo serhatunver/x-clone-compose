@@ -4,10 +4,10 @@ import { db } from '#/database/database.js';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { setupSecurity } from '#/middleware/setupSecurity.js';
-import userRoutes from '#/users/routes.js';
-import postRoutes from '#/posts/routes.js';
-import authRoutes from '#/auth/routes.js';
-import followsRoutes from '#/follows/routes.js';
+import userRoutes from '#/modules/users/routes.js';
+import postRoutes from '#/modules/posts/routes.js';
+import authRoutes from '#/modules/auth/routes.js';
+import followsRoutes from '#/modules/follows/routes.js';
 
 // swagger
 import swaggerUi from 'swagger-ui-express';

@@ -1,4 +1,4 @@
-import { comparePassword } from '../lib/utils/crypto.js';
+import { comparePassword } from '../../lib/utils/crypto.js';
 import type { Request, Response } from 'express';
 import User from './model.js';
 import Follow from '../follows/model.js';
