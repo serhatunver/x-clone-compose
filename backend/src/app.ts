@@ -4,10 +4,7 @@ import { db } from '#/database/database.js';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { setupSecurity } from '#/middleware/setupSecurity.js';
-import userRoutes from '#/modules/user/user.routes.js';
-import postRoutes from '#/modules/post/post.routes.js';
-import authRoutes from '#/modules/auth/auth.routes.js';
-import followsRoutes from '#/modules/follow/follow.routes.js';
+import v1Router from '#/modules/v1.routes.js';
 
 // swagger
 import swaggerUi from 'swagger-ui-express';
@@ -25,10 +22,7 @@ app.use(cookieParser());
 setupSecurity(app);
 
 // Routes
-app.use('/api/v1/user', userRoutes);
-app.use('/api/v1/post', postRoutes);
-app.use('/api/v1/auth', authRoutes);
-app.use('/api/v1/follows', followsRoutes);
+app.use('/api/v1', v1Router);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerOutput));
 
 // Health check
