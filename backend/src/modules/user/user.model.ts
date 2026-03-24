@@ -59,6 +59,7 @@ const userSchema = new Schema<IUser>(
   },
   {
     timestamps: true,
+    id: false,
     toJSON: {
       virtuals: true,
       transform: (_doc, ret) => {
