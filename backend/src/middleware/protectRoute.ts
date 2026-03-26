@@ -6,9 +6,7 @@ import type { JwtPayload } from 'jsonwebtoken';
 
 const protectRoute = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
-    // Bearer <token>
+    const token = req.cookies['auth.token'];
 
     if (!token) {
       return res.status(401).json({ error: 'Unauthorized: No Token Provided' });

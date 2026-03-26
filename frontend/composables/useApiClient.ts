@@ -1,16 +1,7 @@
 export const useApiClient = () => {
   const config = useRuntimeConfig();
-  const { token } = useAuth();
 
   const apiBase = config.public.apiBase;
-
-  const getHeaders = (customHeaders: HeadersInit = {}) => {
-    return {
-      Accept: 'application/json',
-      ...(token.value ? { Authorization: token.value } : {}),
-      ...customHeaders,
-    };
-  };
 
   const request = async <T>(
     endpoint: string,
@@ -18,7 +9,11 @@ export const useApiClient = () => {
   ): Promise<T> => {
     const res = await fetch(`${apiBase}${endpoint}`, {
       ...options,
-      headers: getHeaders(options.headers || {}),
+      credentials: 'include',
+      headers: {
+        Accept: 'application/json',
+        ...(options.headers || {}),
+      },
     });
 
     if (!res.ok) {

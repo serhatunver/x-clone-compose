@@ -2,7 +2,7 @@ import { ref } from 'vue';
 // https://nuxt.com/docs/api/configuration/nuxt-config
 
 export default defineNuxtConfig({
-  ssr: false, // have to be false for auth to work
+  ssr: true,
   compatibilityDate: '2024-11-01',
   devtools: { enabled: false },
   devServer: {
@@ -25,6 +25,7 @@ export default defineNuxtConfig({
   },
   auth: {
     isEnabled: true,
+    disableServerSideAuth: false,
     baseURL: process.env.NUXT_PUBLIC_API_BASE_URL + '/auth',
     provider: {
       type: 'local',
@@ -42,14 +43,14 @@ export default defineNuxtConfig({
         type: 'Bearer',
         cookieName: 'auth.token',
         headerName: 'Authorization',
-        maxAgeInSeconds: 60 * 60 * 24,
+        maxAgeInSeconds: 60 * 60,
         sameSiteAttribute: 'strict',
         cookieDomain:
           process.env.NODE_ENV === 'production'
             ? process.env.COOKIE_DOMAIN
             : 'localhost',
         secureCookieAttribute: true,
-        httpOnlyCookieAttribute: false,
+        httpOnlyCookieAttribute: true,
       },
       session: {
         dataType: {
@@ -68,7 +69,7 @@ export default defineNuxtConfig({
     },
     globalAppMiddleware: {
       isEnabled: true,
-      addDefaultCallbackUrl: false,
+      addDefaultCallbackUrl: true,
     },
   },
   components: [

@@ -4,6 +4,7 @@ import { useForm } from 'vee-validate';
 import { toTypedSchema } from '@vee-validate/zod';
 import * as z from 'zod';
 
+const route = useRoute();
 const { signIn } = useAuth();
 
 const loading = ref(false);
@@ -31,14 +32,16 @@ const onSubmit = form.handleSubmit(async (values) => {
 	authError.value = '';
 
 	try {
+		// If there's a redirect query parameter, use it; otherwise, default to '/home'
+		// Set addDefaultCallbackUrl: true in nuxt.config.ts to automatically add the current URL as the redirect parameter when accessing protected routes
+		const targetUrl = (route.query.redirect as string) || '/home';
+
 		await signIn(
 			{
 				username: values.username,
 				password: values.password,
 			},
-			{
-				callbackUrl: '/home',
-			},
+			{ callbackUrl: targetUrl },
 		);
 	} catch (error: any) {
 		console.error('Login error:', error);

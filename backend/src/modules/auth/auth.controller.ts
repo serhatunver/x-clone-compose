@@ -1,5 +1,4 @@
 import type { Request, Response } from 'express';
-import { config } from '#/config/config.js';
 import { comparePassword } from '#/lib/utils/crypto.js';
 import User from '#/modules/user/user.model.js';
 import generateToken from '#/lib/utils/generateToken.js';
@@ -66,10 +65,15 @@ const login = async (req: Request, res: Response) => {
 
     const token = await generateToken(user._id, user.username);
 
-    return res.status(200).json({
-      user,
-      token,
+    res.cookie('auth.token', token, {
+      httpOnly: true, // prevents JavaScript access to the cookie, mitigating XSS attacks
+      secure: true, //  ensures the cookie is only sent over HTTPS
+      sameSite: 'strict', // prevents the cookie from being sent in cross-site requests, mitigating CSRF attacks
+      maxAge: 60 * 60 * 1000, // 1 hour expiration time for the cookie
+      path: '/', // ensures the cookie is sent with all requests to the domain
     });
+
+    return res.status(200).json({ user, token: ' ' });
   } catch (error) {
     return res.status(500).json({
       message: 'Login error',
@@ -80,12 +84,10 @@ const login = async (req: Request, res: Response) => {
 
 const logout = async (req: Request, res: Response) => {
   try {
-    res.cookie('jwt', '', {
+    res.clearCookie('auth.token', {
       httpOnly: true,
-      secure: config.app.isProduction,
+      secure: true,
       sameSite: 'strict',
-      expires: new Date(0),
-      maxAge: 0,
     });
 
     return res.status(200).json({ message: 'Logged out successfully' });
@@ -103,13 +105,7 @@ const getMe = async (req: Request, res: Response) => {
     if (!user) {
       return res.status(400).json({ message: 'User not found' });
     }
-    // return res.status(200).json({
-    //   userId: user._id,
-    //   username: user.username,
-    //   following: user.following,
-    //   followers: user.followers,
-    //   profileImg: user.profileImg,
-    // });
+
     return res.status(200).json(user);
   } catch (error) {
     return res.status(500).json({ error: error });
