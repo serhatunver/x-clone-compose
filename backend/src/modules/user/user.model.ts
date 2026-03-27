@@ -1,5 +1,5 @@
 import { Schema, model, Types } from 'mongoose';
-import { hashPassword } from '../../lib/utils/crypto.js';
+import { hashPassword } from '#/lib/utils/crypto.js';
 
 interface IUser {
   _id: Types.ObjectId;
@@ -10,7 +10,7 @@ interface IUser {
   coverImg: string;
   bio: string;
   link: string;
-  likedPosts: Array<Types.ObjectId>;
+  likedPosts: Types.ObjectId[];
 }
 
 const userSchema = new Schema<IUser>(
@@ -63,7 +63,6 @@ const userSchema = new Schema<IUser>(
     toJSON: {
       virtuals: true,
       transform: (_doc, ret) => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { password: _password, ...userWithoutPassword } = ret;
         return userWithoutPassword;
       },

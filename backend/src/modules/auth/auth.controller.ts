@@ -5,7 +5,11 @@ import generateToken from '#/lib/utils/generateToken.js';
 
 const register = async (req: Request, res: Response) => {
   try {
-    const { username, email, password } = req.body;
+    const { username, email, password } = req.body as {
+      username: string;
+      email: string;
+      password: string;
+    };
 
     if (password.length < 6) {
       return res.status(400).json({ message: 'Password less than 6 characters' });
@@ -49,7 +53,7 @@ const register = async (req: Request, res: Response) => {
 
 const login = async (req: Request, res: Response) => {
   try {
-    const { username, password } = req.body;
+    const { username, password } = req.body as { username: string; password: string };
 
     if (!username || !password) {
       return res.status(400).json({
@@ -82,7 +86,7 @@ const login = async (req: Request, res: Response) => {
   }
 };
 
-const logout = async (req: Request, res: Response) => {
+const logout = (req: Request, res: Response) => {
   try {
     res.clearCookie('auth.token', {
       httpOnly: true,

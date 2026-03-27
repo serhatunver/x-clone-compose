@@ -36,6 +36,7 @@ export const comparePassword = async (password: string, storedHash: string): Pro
 
     return timingSafeEqual(originalHash, derivedKey);
   } catch (error) {
+    console.error('Error comparing password:', error);
     return false;
   }
 };

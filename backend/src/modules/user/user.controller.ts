@@ -34,8 +34,18 @@ const getSuggestedUsers = async (req: Request, res: Response) => {
 };
 
 const updateUserProfile = async (req: Request, res: Response) => {
-  const { email, username, currentPassword, newPassword, bio, link } = req.body;
-  const { profileImg, coverImg } = req.body;
+  const { email, username, currentPassword, newPassword, bio, link } = req.body as {
+    email?: string;
+    username?: string;
+    currentPassword?: string;
+    newPassword?: string;
+    bio?: string;
+    link?: string;
+  };
+  const { profileImg, coverImg } = req.body as {
+    profileImg?: string;
+    coverImg?: string;
+  };
 
   const userId = req.user._id;
 
@@ -75,12 +85,12 @@ const updateUserProfile = async (req: Request, res: Response) => {
     }
 
     // 2. Update other profile fields
-    user.email = email || user.email;
-    user.username = username || user.username;
-    user.bio = bio || user.bio;
-    user.link = link || user.link;
-    user.profileImg = profileImg || user.profileImg;
-    user.coverImg = coverImg || user.coverImg;
+    user.email = email ?? user.email;
+    user.username = username ?? user.username;
+    user.bio = bio ?? user.bio;
+    user.link = link ?? user.link;
+    user.profileImg = profileImg ?? user.profileImg;
+    user.coverImg = coverImg ?? user.coverImg;
 
     // 3. Save changes (triggers pre-save hook to hash password if it was changed)
     await user.save();

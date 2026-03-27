@@ -7,9 +7,9 @@ interface IPost {
   content: string;
   image: string;
   replyTo: Types.ObjectId;
-  likes: Array<Types.ObjectId>;
-  reposts: Array<Types.ObjectId>;
-  comments: Array<Types.ObjectId>;
+  likes: Types.ObjectId[];
+  reposts: Types.ObjectId[];
+  comments: Types.ObjectId[];
 }
 
 const postSchema: Schema = new Schema<IPost>(
