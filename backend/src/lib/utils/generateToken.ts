@@ -1,9 +1,16 @@
 import { config } from '#/config/config.js';
-import jwt from 'jsonwebtoken';
+import * as jose from 'jose';
 import { Types } from 'mongoose';
 
 const generateToken = async (userId: Types.ObjectId, username: string): Promise<string> => {
-  const token = jwt.sign({ userId, username }, config.auth.jwtSecret, { expiresIn: config.auth.jwtExpiresIn });
+  const secretKey = new TextEncoder().encode(config.auth.jwtSecret);
+
+  const token = await new jose.SignJWT({ username })
+    .setProtectedHeader({ alg: 'HS256' })
+    .setSubject(userId.toString())
+    .setIssuedAt()
+    .setExpirationTime(config.auth.jwtExpiresIn)
+    .sign(secretKey);
 
   return token;
 };

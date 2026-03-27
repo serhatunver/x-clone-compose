@@ -13,6 +13,7 @@ export const config = {
   auth: {
     jwtSecret: env.JWT_SECRET,
     jwtExpiresIn: env.JWT_EXPIRES_IN,
+    cookieMaxAge: env.COOKIE_MAX_AGE,
   },
   cors: {
     origin: env.CORS_ORIGIN,

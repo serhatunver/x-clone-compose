@@ -1,8 +1,7 @@
 import { config } from '#/config/config.js';
 import type { Request, Response, NextFunction } from 'express';
 import { Types } from 'mongoose';
-import jwt from 'jsonwebtoken';
-import type { JwtPayload } from 'jsonwebtoken';
+import * as jose from 'jose';
 
 const protectRoute = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -11,17 +10,28 @@ const protectRoute = async (req: Request, res: Response, next: NextFunction) => 
     if (!token) {
       return res.status(401).json({ error: 'Unauthorized: No Token Provided' });
     }
+    const secretKey = new TextEncoder().encode(config.auth.jwtSecret);
 
-    const jwt_secret = config.auth.jwtSecret;
+    const { payload } = await jose.jwtVerify(token, secretKey);
 
-    const decoded = jwt.verify(token, jwt_secret) as JwtPayload;
+    req.user = {
+      _id: new Types.ObjectId(payload.sub),
+      username: payload.username as string,
+    };
 
-    req.user = { _id: new Types.ObjectId(decoded.userId), username: decoded.username };
     return next();
   } catch (error) {
-    return res.status(500).json({
-      error: error instanceof Error ? error.message : 'An unknown error occurred',
-    });
+    if (error instanceof jose.errors.JOSEError) {
+      console.error({ error: error.message, code: error.code });
+      return res.status(401).json({
+        error: 'Unauthorized',
+        code: error.code,
+        message: 'Invalid or expired token',
+      });
+    }
+
+    console.error('Auth Error:', error);
+    return res.status(500).json({ error: 'Internal server error' });
   }
 };
 

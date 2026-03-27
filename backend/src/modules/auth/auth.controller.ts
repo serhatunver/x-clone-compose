@@ -1,4 +1,5 @@
 import type { Request, Response } from 'express';
+import { config } from '#/config/config.js';
 import { comparePassword } from '#/lib/utils/crypto.js';
 import User from '#/modules/user/user.model.js';
 import generateToken from '#/lib/utils/generateToken.js';
@@ -71,9 +72,9 @@ const login = async (req: Request, res: Response) => {
 
     res.cookie('auth.token', token, {
       httpOnly: true, // prevents JavaScript access to the cookie, mitigating XSS attacks
-      secure: true, //  ensures the cookie is only sent over HTTPS
+      secure: config.app.isProduction, // only set secure flag in production
       sameSite: 'strict', // prevents the cookie from being sent in cross-site requests, mitigating CSRF attacks
-      maxAge: 60 * 60 * 1000, // 1 hour expiration time for the cookie
+      maxAge: config.auth.cookieMaxAge, // sets the cookie to expire after the specified time
       path: '/', // ensures the cookie is sent with all requests to the domain
     });
 
