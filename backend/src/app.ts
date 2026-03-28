@@ -7,6 +7,9 @@ import cookieParser from 'cookie-parser';
 import { setupSecurity } from '#/middleware/setupSecurity.js';
 import v1Router from '#/modules/v1.routes.js';
 
+import { loggerMiddleware } from '#/middleware/logger.middleware.js';
+import { globalErrorHandler, notFoundHandler } from '#/middleware/errorHandler.js';
+
 // swagger
 import swaggerUi from 'swagger-ui-express';
 import swaggerOutput from '../swagger_output.json' with { type: 'json' };
@@ -22,6 +25,8 @@ app.use(cookieParser());
 // Security Middleware
 setupSecurity(app);
 
+app.use(loggerMiddleware);
+
 // Routes
 app.use('/api/v1', v1Router);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerOutput));
@@ -34,5 +39,8 @@ app.get('/health', (req: Request, res: Response) => {
     timestamp: new Date().toISOString(),
   });
 });
+
+app.use(notFoundHandler);
+app.use(globalErrorHandler);
 
 export default app;
