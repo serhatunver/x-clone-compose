@@ -1,10 +1,10 @@
-import { type Express } from 'express';
+import type { Application } from 'express';
 import helmet from 'helmet';
 import hpp from 'hpp';
 import { slowDown } from 'express-slow-down';
 import { rateLimit } from 'express-rate-limit';
 
-export const setupSecurity = (app: Express) => {
+export const setupSecurity = (app: Application) => {
   // 1. HTTP Headers (Security Best Practices)
   // Sets various HTTP headers to prevent common attacks like Clickjacking, XSS, etc.
   app.use(helmet());
