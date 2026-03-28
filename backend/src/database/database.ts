@@ -1,30 +1,19 @@
 import mongoose from 'mongoose';
 import { config } from '#/config/config.js';
 
-export const DB_STATES = {
-  DISCONNECTED: 0,
-  CONNECTED: 1,
-  CONNECTING: 2,
-  DISCONNECTING: 3,
-} as const;
+const { STATES } = mongoose;
 
 export const isConnected = (): boolean => {
-  return mongoose.connection.readyState === DB_STATES.CONNECTED;
+  return mongoose.connection.readyState === STATES.connected;
 };
 
 export const getDbStatus = (): string => {
-  const states: Record<number, string> = {
-    [DB_STATES.CONNECTED]: 'connected',
-    [DB_STATES.CONNECTING]: 'connecting',
-    [DB_STATES.DISCONNECTING]: 'disconnecting',
-    [DB_STATES.DISCONNECTED]: 'disconnected',
-  };
-  return states[mongoose.connection.readyState] || 'unknown';
+  return STATES[mongoose.connection.readyState] || 'unknown';
 };
 
 export const disconnect = async (): Promise<void> => {
-  if (mongoose.connection.readyState !== DB_STATES.DISCONNECTED) {
-    await mongoose.connection.close();
+  if (mongoose.connection.readyState !== STATES.disconnected) {
+    await mongoose.disconnect();
     console.log('MongoDB connection closed.');
   }
 };
