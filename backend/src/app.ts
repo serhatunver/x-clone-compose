@@ -8,7 +8,7 @@ import { setupSecurity } from '#/middleware/setupSecurity.js';
 import v1Router from '#/modules/v1.routes.js';
 
 import { loggerMiddleware } from '#/middleware/logger.middleware.js';
-import { globalErrorHandler, notFoundHandler } from '#/middleware/errorHandler.js';
+import { globalErrorHandler, notFoundHandler } from '#/middleware/error.middleware.js';
 
 // swagger
 import swaggerUi from 'swagger-ui-express';
