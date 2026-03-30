@@ -7,10 +7,11 @@ import {
   getAllPosts,
   getUserLikedPosts,
   getUserPosts,
-  likeUnlikePost,
   commentOnPost,
   deletePost,
 } from './post.controller.js';
+import { validate } from '#/middleware/validate.middleware.js';
+import { getPostSchema } from './post.validation.js';
 
 const router = Router();
 
@@ -22,13 +23,11 @@ router.get('/likes/:username', protectRoute, getUserLikedPosts);
 
 router.get('/user/:username', protectRoute, getUserPosts);
 
-router.post('/like/:postId', protectRoute, likeUnlikePost);
-
 // router.post("/repost/:postId", protectRoute, repostUndoRepostPost);
 
 router.post('/comment/:postId', protectRoute, commentOnPost);
 
-router.get('/:postId', protectRoute, getPost);
+router.get('/:postId', protectRoute, validate(getPostSchema), getPost);
 
 router.post('/', protectRoute, createPost);
 router.delete('/:postId', protectRoute, deletePost);

@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 import Post from './post.model.js';
 import User from '#/modules/user/user.model.js';
 import Follow from '#/modules/follow/follow.model.js';
+import type { GetPostInput } from './post.validation.js';
 
 import { ReasonPhrases, StatusCodes } from 'http-status-codes';
 
@@ -30,16 +31,12 @@ export const createPost = async (req: Request, res: Response) => {
   }
 };
 
-export const getPost = async (req: Request, res: Response) => {
+export const getPost = async (
+  req: Request<GetPostInput, Record<string, never>, Record<string, never>>,
+  res: Response,
+) => {
   try {
     const { postId } = req.params;
-
-    if (!mongoose.Types.ObjectId.isValid(postId)) {
-      console.log('Invalid post ID:', postId);
-      return res.status(StatusCodes.BAD_REQUEST).json({
-        error: 'Invalid post ID',
-      });
-    }
 
     const post = await Post.findById(postId).populate({
       path: 'comments',
@@ -169,38 +166,6 @@ export const getUserPosts = async (req: Request, res: Response) => {
     res.status(200).json(posts);
   } catch (error) {
     res.status(500).json({ error: error });
-  }
-};
-
-export const likeUnlikePost = async (req: Request, res: Response) => {
-  try {
-    const { postId } = req.params;
-    const userId = req.user._id;
-
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    const post = await Post.findById(postId);
-    if (!post) {
-      return res.status(404).json({ message: 'Post not found' });
-    }
-
-    const isLiked = user.likedPosts.includes(new mongoose.Types.ObjectId(postId));
-    if (isLiked) {
-      await User.findByIdAndUpdate(userId, { $pull: { likedPosts: postId } });
-      await Post.findByIdAndUpdate(postId, { $pull: { likes: userId } });
-
-      return res.status(200).json({ message: 'Post unliked successfully' });
-    } else {
-      await User.findByIdAndUpdate(userId, { $push: { likedPosts: postId } });
-      await Post.findByIdAndUpdate(postId, { $push: { likes: userId } });
-
-      return res.status(200).json({ message: 'Post liked successfully' });
-    }
-  } catch (error) {
-    return res.status(500).json({ error: error });
   }
 };
 
