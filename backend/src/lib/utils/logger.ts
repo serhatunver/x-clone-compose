@@ -1,13 +1,17 @@
 import pino from 'pino';
-import { config } from '#/config/config.js';
+
+const isProduction = process.env.NODE_ENV === 'production';
+const isDevelopment = process.env.NODE_ENV === 'development';
 
 export const logger = pino({
-  level: config.app.isProduction ? 'info' : 'debug',
-  ...(config.app.isDevelopment && {
+  level: isProduction ? 'info' : 'debug',
+  ...(isDevelopment && {
     transport: {
       target: 'pino-pretty',
       options: {
         colorize: true,
+        translateTime: 'yyyy-mm-dd HH:MM:ss',
+        ignore: 'pid,hostname,req,res',
       },
     },
   }),

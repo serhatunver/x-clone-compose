@@ -19,6 +19,10 @@ export const config = {
     origin: env.CORS_ORIGIN,
     credentials: true,
   },
+  rateLimit: {
+    windowMs: env.RATE_LIMIT_WINDOW_MS,
+    maxRequests: env.RATE_LIMIT_MAX_REQUESTS,
+  },
 } as const;
 
 export type Config = typeof config;
