@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from 'express';
 import { type ZodType, ZodError } from 'zod';
-import { AppError } from '#/lib/utils/AppError.js';
+import { ValidationError } from '#/lib/utils/error.handler.js';
 
 export const validate =
   (schema: ZodType) => async (req: Request, _res: Response, next: NextFunction) => {
@@ -20,7 +20,7 @@ export const validate =
         const message = error.issues
           .map((i) => `${i.path.slice(1).join('.')}: ${i.message}`)
           .join(', ');
-        return next(new AppError(message, 400));
+        return next(new ValidationError(message, { details: error.issues }));
       }
       next(error);
     }

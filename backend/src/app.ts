@@ -4,11 +4,11 @@ import { config } from '#/config/config.js';
 import { db } from '#/database/database.js';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import { setupSecurity } from '#/middleware/setupSecurity.js';
+import { setupSecurity } from '#/middlewares/setupSecurity.js';
 import v1Router from '#/modules/v1.routes.js';
 
-import { loggerMiddleware } from '#/middleware/logger.middleware.js';
-import { globalErrorHandler, notFoundHandler } from '#/middleware/error.middleware.js';
+import { loggerMiddleware } from '#/middlewares/logger.middleware.js';
+import { globalErrorHandler, notFoundHandler } from '#/middlewares/error.middleware.js';
 
 // swagger
 import swaggerUi from 'swagger-ui-express';
