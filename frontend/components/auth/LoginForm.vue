@@ -6,22 +6,25 @@ import * as z from 'zod';
 
 const route = useRoute();
 const { signIn } = useAuth();
+const config = useRuntimeConfig();
 
 const loading = ref(false);
 const authError = ref('');
 
 const formSchema = toTypedSchema(
 	z.object({
-		username: z.string().min(4, 'Username must be at least 4 characters'),
-		password: z.string().min(6, 'Password must be at least 6 characters'),
+		identifier: z
+			.string()
+			.min(4, 'Email or Username must be at least 4 characters'),
+		password: z.string().min(10, 'Password must be at least 10 characters'),
 	}),
 );
 
 const form = useForm({
 	validationSchema: formSchema,
 	initialValues: {
-		username: 'user1',
-		password: '123456',
+		identifier: config.public.demoUser,
+		password: config.public.demoPass,
 	},
 });
 
@@ -38,7 +41,7 @@ const onSubmit = form.handleSubmit(async (values) => {
 
 		await signIn(
 			{
-				username: values.username,
+				identifier: values.identifier,
 				password: values.password,
 			},
 			{ callbackUrl: targetUrl },
@@ -67,14 +70,14 @@ const onSubmit = form.handleSubmit(async (values) => {
 			footer-link-to="/register"
 		>
 			<template #fields>
-				<FormField v-slot="{ componentField }" name="username">
+				<FormField v-slot="{ componentField }" name="identifier">
 					<FormItem>
-						<FormLabel>Username</FormLabel>
+						<FormLabel> Email or Username </FormLabel>
 						<FormControl>
 							<Input
 								type="text"
-								placeholder="Enter your username"
-								autocomplete="username"
+								placeholder="Enter your Email or Username"
+								autocomplete="identifier"
 								:disabled="loading"
 								v-bind="componentField"
 							/>

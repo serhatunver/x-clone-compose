@@ -4,7 +4,7 @@ import { useForm } from 'vee-validate';
 import { toTypedSchema } from '@vee-validate/zod';
 import * as z from 'zod';
 
-const { signUp } = useAuth();
+const { signUp, signIn } = useAuth();
 
 const loading = ref(false);
 const authError = ref('');
@@ -13,7 +13,7 @@ const formSchema = toTypedSchema(
 	z.object({
 		username: z.string().min(4, 'Username must be at least 4 characters'),
 		email: z.string().email('Please enter a valid email address'),
-		password: z.string().min(6, 'Password must be at least 6 characters'),
+		password: z.string().min(10, 'Password must be at least 10 characters'),
 	}),
 );
 
@@ -37,6 +37,17 @@ const onSubmit = form.handleSubmit(async (values) => {
 			{
 				username: values.username,
 				email: values.email,
+				password: values.password,
+			},
+			{
+				preventLoginFlow: true, // Prevent automatic login after registration
+			},
+		);
+
+		// After successful registration, automatically log the user in and redirect to home
+		await signIn(
+			{
+				identifier: values.email,
 				password: values.password,
 			},
 			{
