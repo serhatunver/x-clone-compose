@@ -1,97 +1,94 @@
 import type { Request, Response } from 'express';
 import { config } from '#/config/config.js';
-import { comparePassword } from '#/lib/utils/crypto.js';
-import User from '#/modules/user/user.model.js';
-import generateToken from '#/lib/utils/generateToken.js';
-import type { RegisterInput, LoginInput } from './auth.validation.js';
-import { AppError } from '#/lib/utils/AppError.js';
+import { authService } from './auth.service.js';
+import type {
+  RegisterInput,
+  LoginInput,
+  ForgotPasswordInput,
+  ResetPasswordInput,
+} from './auth.validation.js';
 
-const register = async (
+/**
+ * Handle user registration
+ */
+export const register = async (
   req: Request<Record<string, never>, Record<string, never>, RegisterInput>,
   res: Response,
 ) => {
-  try {
-    const { username, email, password } = req.body;
-
-    const existingUser = await User.findOne({ username });
-    if (existingUser) {
-      return res.status(400).json({ error: 'Username is already exist.' });
-    }
-    const existingEmail = await User.findOne({ email });
-    if (existingEmail) {
-      return res.status(400).json({ error: 'Email is already exist.' });
-    }
-
-    const user = await User.create({
-      username,
-      email,
-      password,
-    });
-
-    return res.status(201).json({ message: 'User created successfully', user });
-  } catch (error) {
-    return res.status(401).json({
-      message: 'User not created',
-      error: (error as Error).message,
-    });
-  }
+  const user = await authService.register(req.body);
+  return res.status(201).json({ message: 'User created successfully', user });
 };
 
-const login = async (
+/**
+ * Handle user login and set cookie
+ */
+export const login = async (
   req: Request<Record<string, never>, Record<string, never>, LoginInput>,
   res: Response,
 ) => {
-  const { identifier, password } = req.body;
-
-  const user = await User.findOne({
-    $or: [{ username: identifier }, { email: identifier }],
-  }).select('+password');
-
-  if (!user || !(await comparePassword(password, user.password))) {
-    throw new AppError('Invalid credentials. Check your username/email and password.', 401);
-  }
-
-  const token = await generateToken(user._id, user.username);
+  const { user, token } = await authService.login(req.body);
 
   res.cookie('auth.token', token, {
-    httpOnly: true, // prevents JavaScript access to the cookie, mitigating XSS attacks
-    secure: config.app.isProduction, // only set secure flag in production
-    sameSite: 'strict', // prevents the cookie from being sent in cross-site requests, mitigating CSRF attacks
-    maxAge: config.auth.cookieMaxAge, // sets the cookie to expire after the specified time
-    path: '/', // ensures the cookie is sent with all requests to the domain
+    httpOnly: true, // Prevents JavaScript access to the cookie
+    secure: config.app.isProduction, // Only send cookie over HTTPS in production
+    sameSite: 'strict', // Prevents CSRF attacks
+    maxAge: config.auth.cookieMaxAge, // Cookie expiration time
+    path: '/', // Cookie is valid for the entire site
   });
 
-  return res.status(200).json({ user, token: ' ' });
+  return res.status(200).json({ user, token });
 };
 
-const logout = (req: Request, res: Response) => {
-  try {
-    res.clearCookie('auth.token', {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'strict',
-    });
-
-    return res.status(200).json({ message: 'Logged out successfully' });
-  } catch (error) {
-    return res.status(500).json({
-      message: 'Logout error',
-      error: error instanceof Error ? error.message : 'An unknown error occurred',
-    });
-  }
+/**
+ * Handle user logout and clear cookie
+ */
+export const logout = (_req: Request, res: Response) => {
+  res.clearCookie('auth.token', {
+    httpOnly: true,
+    secure: config.app.isProduction,
+    sameSite: 'strict',
+    path: '/',
+  });
+  return res.status(200).json({ message: 'Logged out successfully' });
 };
 
-const getMe = async (req: Request, res: Response) => {
-  try {
-    const user = await User.findById(req.user._id).populate('followingCount followersCount');
-    if (!user) {
-      return res.status(400).json({ message: 'User not found' });
-    }
+/**
+ * Get current authenticated user profile
+ */
+export const getMe = async (req: Request, res: Response) => {
+  const userId = req.user._id.toString();
+  const user = await authService.getMe(userId);
 
-    return res.status(200).json(user);
-  } catch (error) {
-    return res.status(500).json({ error: error });
-  }
+  return res.status(200).json(user);
 };
 
-export { register, login, logout, getMe };
+/**
+ * Send password reset email
+ */
+export const forgotPassword = async (
+  req: Request<Record<string, never>, Record<string, never>, ForgotPasswordInput>,
+  res: Response,
+) => {
+  const { email } = req.body;
+  const { message, debugToken } = await authService.forgotPassword(email);
+
+  const result = {
+    message,
+    debugToken,
+  };
+
+  return res.status(200).json(result);
+};
+
+/**
+ * Reset password using token
+ */
+export const resetPassword = async (
+  req: Request<{ token: string }, Record<string, never>, ResetPasswordInput>,
+  res: Response,
+) => {
+  const { token } = req.params;
+  const { password } = req.body;
+  const result = await authService.resetPassword(token, password);
+  return res.status(200).json(result);
+};
