@@ -20,8 +20,10 @@
     },
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
-    "noImplicitReturns": true
+    "noImplicitReturns": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true
   },
-  "include": ["./src/swagger-output.json", "./src/**/*"],
+  "include": ["./src/swagger-output.json", "src/**/*"],
   "exclude": ["./node_modules", "./dist"]
 }
