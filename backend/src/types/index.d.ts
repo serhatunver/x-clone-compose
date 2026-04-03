@@ -5,8 +5,8 @@ declare global {
     interface Request {
       user: Pick<IUser, '_id' | 'username'>;
       id: string;
-      cookies: {
-        'auth.token': string;
+      cookies?: {
+        'auth.token'?: string;
         [key: string]: string;
       };
     }
