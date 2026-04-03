@@ -11,6 +11,9 @@ interface IUser {
   bio: string;
   link: string;
   likedPosts: Types.ObjectId[];
+  passwordResetToken?: string;
+  passwordResetExpires?: Date;
+  passwordResetLastSentAt?: Date;
 }
 
 const userSchema = new Schema<IUser>(
@@ -60,6 +63,17 @@ const userSchema = new Schema<IUser>(
         ref: 'Post',
       },
     ],
+    passwordResetToken: {
+      type: String,
+      select: false,
+    },
+    passwordResetExpires: {
+      type: Date,
+      select: false,
+    },
+    passwordResetLastSentAt: {
+      type: Date,
+    },
   },
   {
     timestamps: true,

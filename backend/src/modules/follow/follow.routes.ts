@@ -1,9 +1,9 @@
 import { Router } from 'express';
 import { toggleFollow } from './follow.controller.js';
-import protectRoute from '#/middleware/protectRoute.js';
+import { protect } from '#/middlewares/auth.middleware.js';
 
 const router = Router();
 
-router.post('/toggle/:id', protectRoute, toggleFollow);
+router.post('/toggle/:id', protect, toggleFollow);
 
 export default router;
