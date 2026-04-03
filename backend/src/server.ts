@@ -1,56 +1,74 @@
+import { promisify } from 'node:util';
 import app from './app.js';
 import { config } from '#/config/config.js';
 import { db } from '#/database/database.js';
+import { logger } from '#/lib/utils/logger.js';
 
 async function startServer() {
   try {
+    // 1. Database Connection
     await db.connect();
 
+    // 2. Start HTTP Server
     const server = app.listen(config.app.port, '0.0.0.0', () => {
-      console.log(`Server is running on port ${config.app.port} in ${config.app.nodeEnv} mode`);
+      logger.info(`Server is running on port ${config.app.port} in ${config.app.nodeEnv} mode`);
     });
 
+    const closeServer = promisify(server.close.bind(server));
     let isShuttingDown = false;
 
+    /**
+     * Graceful Shutdown Logic
+     */
     const gracefulShutdown = async (signal: string) => {
       if (isShuttingDown) return;
       isShuttingDown = true;
 
-      console.log(`${signal} received. Starting graceful shutdown...`);
+      logger.warn(`${signal} received. Starting graceful shutdown...`);
 
+      // Force exit after 10 seconds if shutdown hangs
       const forceExit = setTimeout(() => {
-        console.error('Shutdown timed out, forcing exit.');
+        logger.error('Shutdown timed out, forcing exit.');
         process.exit(1);
-      }, 5000);
+      }, 10000);
 
       try {
-        const closePromise = new Promise<void>((resolve, reject) => {
-          server.close((err) => (err ? reject(err) : resolve()));
-        });
-
+        // Stop accepting new connections
         if (server.closeIdleConnections) {
           server.closeIdleConnections();
         }
 
-        await closePromise;
-        console.log('HTTP server closed.');
+        // Close HTTP server (Wait for current requests to finish)
+        await closeServer();
+        logger.info('HTTP server closed.');
 
+        // Disconnect from Database
         await db.disconnect();
+        logger.info('Database connection closed.');
 
         clearTimeout(forceExit);
-        console.log('Graceful shutdown completed.');
+        logger.info('Graceful shutdown completed. Goodbye!');
         process.exit(0);
-      } catch (err) {
-        console.error('Error during shutdown:', err);
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : String(err);
+        logger.error(`Error during shutdown: ${msg}`);
         process.exit(1);
       }
     };
 
     // Signal listeners
-    process.on('SIGINT', () => gracefulShutdown('SIGINT'));
-    process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
-  } catch (error) {
-    console.error('Startup Error:', error);
+    process.on('SIGINT', () => void gracefulShutdown('SIGINT'));
+    process.on('SIGTERM', () => void gracefulShutdown('SIGTERM'));
+
+    // Handle Uncaught Exceptions
+    process.on('unhandledRejection', (reason: unknown) => {
+      const msg = reason instanceof Error ? reason.message : String(reason);
+      logger.error(`Unhandled Rejection: ${msg}`);
+      void gracefulShutdown('unhandledRejection');
+    });
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : String(error);
+    logger.error(`Startup Error: ${msg}`);
     process.exit(1);
   }
 }
