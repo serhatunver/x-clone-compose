@@ -5,9 +5,9 @@ import { logger } from '#/lib/utils/logger.js';
 const argon2Async = promisify(argon2);
 
 const ARGON2_CONFIG = {
-  parallelism: 4,
-  memory: 65536, // 64 MB
-  passes: 3,
+  parallelism: 1,
+  memory: 16384, // 16 MB
+  passes: 2,
   tagLength: 32,
 } as const;
 
