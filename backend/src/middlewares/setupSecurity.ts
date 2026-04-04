@@ -5,6 +5,19 @@ import hpp from 'hpp';
 import { slowDown } from 'express-slow-down';
 import { rateLimit } from 'express-rate-limit';
 
+// Separate limiter for auth routes to allow fewer attempts
+export const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  limit: 5, // Allow only 5 attempts per 15 minutes
+  message: {
+    status: 429,
+    message: 'Too many login attempts from this IP, please try again after 15 minutes',
+  },
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
+  ipv6Subnet: 56,
+});
+
 export const setupSecurity = (app: Application) => {
   // 1. HTTP Headers (Security Best Practices)
   // Sets various HTTP headers to prevent common attacks like Clickjacking, XSS, etc.
@@ -24,7 +37,7 @@ export const setupSecurity = (app: Application) => {
 
   // 4. Rate Limiting
   // Limits the number of requests from a single IP to prevent brute-force attacks
-  const limiter = rateLimit({
+  const generalLimiter = rateLimit({
     windowMs: config.rateLimit.windowMs,
     limit: config.rateLimit.maxRequests,
     message: {
@@ -36,5 +49,5 @@ export const setupSecurity = (app: Application) => {
     ipv6Subnet: 56, // Treats IPv6 addresses as /56 subnets to prevent abuse from large IPv6 blocks
   });
 
-  app.use(speedLimiter, limiter);
+  app.use(speedLimiter, generalLimiter);
 };
