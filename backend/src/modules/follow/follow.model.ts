@@ -1,15 +1,9 @@
-import { Schema, model, Types } from 'mongoose';
+import { Schema, model, type InferSchemaType } from 'mongoose';
 
-export interface IFollow {
-  follower: Types.ObjectId; // The one who follows
-  following: Types.ObjectId; // The one being followed
-  createdAt: Date;
-}
-
-const followSchema = new Schema<IFollow>(
+const followSchema = new Schema(
   {
-    follower: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-    following: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    follower: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+    following: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
   },
   { timestamps: { createdAt: true, updatedAt: false } },
 );
@@ -17,4 +11,5 @@ const followSchema = new Schema<IFollow>(
 // Prevent duplicate follows at database level
 followSchema.index({ follower: 1, following: 1 }, { unique: true });
 
+export type IFollow = InferSchemaType<typeof followSchema>;
 export default model<IFollow>('Follow', followSchema);
