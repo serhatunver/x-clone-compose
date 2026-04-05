@@ -1,11 +1,12 @@
 import { Router } from 'express';
+import { getProfile, updateProfile } from './user.controller.js';
 import { protect } from '#/middlewares/auth.middleware.js';
-import { getUserProfile, getSuggestedUsers, updateUserProfile } from './user.controller.js';
+import { validate } from '#/middlewares/validate.middleware.js';
+import { getProfileParamsSchema, updateProfileSchema } from './user.validation.js';
 
 const router = Router();
 
-router.get('/profile/:username', protect, getUserProfile);
-router.get('/suggested', protect, getSuggestedUsers);
-router.post('/update', protect, updateUserProfile);
+router.get('/:username', protect, validate(getProfileParamsSchema), getProfile);
+router.patch('/update', protect, validate(updateProfileSchema), updateProfile);
 
 export default router;

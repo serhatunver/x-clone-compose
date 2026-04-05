@@ -1,27 +1,8 @@
-import { Schema, model, Types } from 'mongoose';
+import { Schema, model, type InferSchemaType } from 'mongoose';
 import { hashPassword } from '#/lib/utils/crypto.js';
 
-interface IUser {
-  _id: Types.ObjectId;
-  username: string;
-  password: string;
-  email: string;
-  profileImg: string;
-  coverImg: string;
-  bio: string;
-  link: string;
-  likedPosts: Types.ObjectId[];
-  passwordResetToken?: string;
-  passwordResetExpires?: Date;
-  passwordResetLastSentAt?: Date;
-}
-
-const userSchema = new Schema<IUser>(
+const userSchema = new Schema(
   {
-    _id: {
-      type: Schema.Types.ObjectId,
-      auto: true,
-    },
     username: {
       type: String,
       required: true,
@@ -41,21 +22,26 @@ const userSchema = new Schema<IUser>(
       trim: true,
       lowercase: true,
     },
-    profileImg: {
+    avatar: {
       type: String,
       default: '',
     },
-    coverImg: {
+    cover_img: {
       type: String,
       default: '',
     },
     bio: {
       type: String,
-      default: '',
     },
     link: {
       type: String,
-      default: '',
+    },
+    location: {
+      type: String,
+    },
+    isVerified: {
+      type: Boolean,
+      default: false,
     },
     likedPosts: [
       {
@@ -74,22 +60,28 @@ const userSchema = new Schema<IUser>(
     passwordResetLastSentAt: {
       type: Date,
     },
+    // tokenVersion: {
+    //   type: Number,
+    //   default: 0,
+    // },
   },
   {
     timestamps: true,
     id: false,
-    toJSON: {
-      virtuals: true,
-      transform: (_doc, ret) => {
-        const { password: _password, ...userWithoutPassword } = ret;
-        return userWithoutPassword;
-      },
-    },
     toObject: {
       virtuals: true,
     },
   },
 );
+export type IUser = InferSchemaType<typeof userSchema>;
+
+userSchema.set('toJSON', {
+  virtuals: true,
+  transform: (_doc, ret) => {
+    const { password: _password, __v, ...userWithoutPassword } = ret;
+    return userWithoutPassword;
+  },
+});
 
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
@@ -133,6 +125,4 @@ userSchema.virtual('totalPosts', {
   count: true, // And only get the number of docs
 });
 
-const User = model<IUser>('User', userSchema);
-export default User;
-export type { IUser };
+export default model<IUser>('User', userSchema);

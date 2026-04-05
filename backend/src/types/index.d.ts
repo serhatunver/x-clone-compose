@@ -1,9 +1,9 @@
 import { IUser } from '#/modules/user/user.model.js';
-
+import { Types } from 'mongoose';
 declare global {
   namespace Express {
     interface Request {
-      user: Pick<IUser, '_id' | 'username'>;
+      user: Pick<IUser, 'username'> & { _id: Types.ObjectId };
       id: string;
       cookies?: {
         'auth.token'?: string;
