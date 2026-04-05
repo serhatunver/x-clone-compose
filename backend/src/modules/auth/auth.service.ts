@@ -30,7 +30,11 @@ export const authService = {
       throw new UnauthorizedError('Invalid credentials');
     }
 
-    const token = await generateToken(user._id, user.username);
+    const token = await generateToken(
+      user._id,
+      user.username,
+      // user.tokenVersion
+    );
     return { user, token };
   },
 
@@ -45,7 +49,7 @@ export const authService = {
 
     // Security: Generic message
     const genericResponse = {
-      message: 'If an account exists with this email, a reset link has been sent.',
+      message: 'If an account exists with this email, a reset link has been sent',
     };
     if (!user) return genericResponse;
 
@@ -79,8 +83,13 @@ export const authService = {
 
     // Update password and clear reset fields
     user.password = password;
+
+    // Clear reset token fields
     user.passwordResetToken = undefined;
     user.passwordResetExpires = undefined;
+
+    // TODO Invalidate existing tokens by incrementing tokenVersion
+    // user.tokenVersion = (user.tokenVersion || 0) + 1;
 
     // Save triggers the 'pre-save' hook to hash the new password
     await user.save();

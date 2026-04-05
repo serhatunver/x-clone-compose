@@ -2,6 +2,10 @@ import User from '#/modules/user/user.model.js';
 import type { RegisterInput } from './auth.validation.js';
 
 export const authRepository = {
+  async findById(userId: string) {
+    return User.findById(userId).lean();
+  },
+
   async findByUsername(username: string) {
     return User.findOne({ username }).lean();
   },

@@ -1,8 +1,8 @@
 import type { Request, Response, NextFunction } from 'express';
-import { Types } from 'mongoose';
 import * as jose from 'jose';
 import { config } from '#/config/config.js';
 import { UnauthorizedError, InternalServerError } from '#/lib/utils/error.handler.js';
+import { authRepository } from '#/modules/auth/auth.repository.js';
 
 export const protect = async (req: Request, _res: Response, next: NextFunction) => {
   try {
@@ -14,13 +14,26 @@ export const protect = async (req: Request, _res: Response, next: NextFunction) 
     }
 
     const secretKey = new TextEncoder().encode(config.auth.jwtSecret);
-
-    // Verify token using jose
     const { payload } = await jose.jwtVerify(token, secretKey);
 
+    if (!payload.sub) {
+      throw new UnauthorizedError('Unauthorized: Invalid token payload');
+    }
+
+    const user = await authRepository.findById(payload.sub);
+
+    if (!user) {
+      throw new UnauthorizedError('Unauthorized: User Not Found');
+    }
+
+    // TODO Implement token versioning for invalidation
+    // if (payload.tokenVersion !== user.tokenVersion) {
+    //   throw new UnauthorizedError('Unauthorized: Token has been invalidated');
+    // }
+
     req.user = {
-      _id: new Types.ObjectId(payload.sub),
-      username: payload.username as string,
+      _id: user._id,
+      username: user.username,
     };
 
     return next();

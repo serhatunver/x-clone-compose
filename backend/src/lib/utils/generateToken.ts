@@ -2,10 +2,17 @@ import { config } from '#/config/config.js';
 import * as jose from 'jose';
 import { Types } from 'mongoose';
 
-const generateToken = async (userId: Types.ObjectId, username: string): Promise<string> => {
+const generateToken = async (
+  userId: Types.ObjectId,
+  username: string,
+  // tokenVersion: number
+): Promise<string> => {
   const secretKey = new TextEncoder().encode(config.auth.jwtSecret);
 
-  const token = await new jose.SignJWT({ username })
+  const token = await new jose.SignJWT({
+    username,
+    // tokenVersion,
+  })
     .setProtectedHeader({ alg: 'HS256' })
     .setSubject(userId.toString())
     .setIssuedAt()
