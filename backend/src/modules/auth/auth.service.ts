@@ -55,7 +55,7 @@ export const authService = {
       user.passwordResetLastSentAt &&
       Date.now() - user.passwordResetLastSentAt.getTime() < COOLDOWN_TIME
     ) {
-      throw new BadRequestError('Too many requests. Please wait 5 minutes.');
+      return genericResponse;
     }
 
     const resetToken = crypto.randomBytes(32).toString('hex');
@@ -67,7 +67,7 @@ export const authService = {
       lastSent: new Date(),
     });
 
-    // In production, send email here. For now, we return it for testing.
+    // sendResetEmail(user.email, resetToken); // Implement email sending logic
     return { ...genericResponse, debugToken: resetToken };
   },
 
