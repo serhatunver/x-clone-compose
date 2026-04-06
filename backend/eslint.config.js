@@ -29,7 +29,7 @@ export default defineConfig(
         ...globals.es2025,
       },
       parserOptions: {
-        projectService: true,
+        project: ['./tsconfig.json', './tsconfig.config.json'],
         tsconfigRootDir: import.meta.dirname,
       },
     },

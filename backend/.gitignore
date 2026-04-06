@@ -12,9 +12,8 @@ pids
 *.seed
 
 # Env
-.env
-.env.local
-.env.*.local
+.env*
+!.env.example
 
 # Dist
 dist
