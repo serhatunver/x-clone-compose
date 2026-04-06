@@ -1,31 +1,39 @@
 import express from 'express';
 import type { Application, Request, Response } from 'express';
-import { config } from '#/config/config.js';
-import { db } from '#/lib/database.js';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import { setupSecurity } from '#/middlewares/setupSecurity.js';
+import helmet from 'helmet';
+import hpp from 'hpp';
+
+// Config & Utils
+import { config } from '#/config/config.js';
+import { db } from '#/lib/database.js';
 import v1Router from '#/modules/v1.routes.js';
 
+// Middlewares
 import { loggerMiddleware } from '#/middlewares/logger.middleware.js';
 import { globalErrorHandler, notFoundHandler } from '#/middlewares/error.middleware.js';
+import { generalLimiter, speedLimiter } from '#/middlewares/rate-limit.middleware.js';
 
-// swagger
+// Swagger
 import swaggerUi from 'swagger-ui-express';
 import swaggerOutput from '../swagger_output.json' with { type: 'json' };
 
 const app: Application = express();
 
-// CORS, JSON parsing, URL-encoded data parsing, cookie parsing
+// Security Middlewares
+app.use(helmet());
 app.use(cors({ origin: config.app.clientUrl, credentials: true }));
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 app.use(cookieParser());
+app.use(hpp());
 
-// Security Middleware
-setupSecurity(app);
-
+// Logging & Rate Limit
 app.use(loggerMiddleware);
+if (!config.app.isDevelopment) {
+  app.use(generalLimiter, speedLimiter);
+}
 
 // Routes
 app.use('/api/v1', v1Router);
@@ -40,6 +48,7 @@ app.get('/health', (req: Request, res: Response) => {
   });
 });
 
+// Error Handling
 app.use(notFoundHandler);
 app.use(globalErrorHandler);
 

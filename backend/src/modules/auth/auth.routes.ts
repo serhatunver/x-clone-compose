@@ -15,7 +15,7 @@ import {
   resetPasswordSchema,
 } from './auth.validation.js';
 import { protect } from '#/middlewares/auth.middleware.js';
-import { authLimiter } from '#/middlewares/setupSecurity.js';
+import { authLimiter } from '#/middlewares/rate-limit.middleware.js';
 
 const router = Router();
 
