@@ -1,6 +1,6 @@
 import crypto from 'node:crypto';
 import { authRepository } from './auth.repository.js';
-import { comparePassword } from '#/lib/utils/crypto.js';
+import { comparePassword, checkNeedsRehash } from '#/lib/utils/crypto.js';
 import generateToken from '#/lib/utils/generateToken.js';
 import {
   ConflictError,
@@ -9,6 +9,7 @@ import {
   BadRequestError,
 } from '#/lib/utils/error.handler.js';
 import type { RegisterInput, LoginInput } from './auth.validation.js';
+import { logger } from '#/lib/utils/logger.js';
 
 export const authService = {
   async register(data: RegisterInput) {
@@ -27,7 +28,18 @@ export const authService = {
     const user = await authRepository.findByIdentifier(data.identifier);
 
     if (!user || !(await comparePassword(data.password, user.password))) {
+      logger.warn(`Failed login attempt for identifier: ${data.identifier}`);
       throw new UnauthorizedError('Invalid credentials');
+    }
+
+    const needsRehash = checkNeedsRehash(user.password);
+
+    if (needsRehash) {
+      logger.info(
+        `Password for user ${user.username} needs rehashing. Updating to new parameters.`,
+      );
+      user.password = data.password;
+      await user.save();
     }
 
     const token = await generateToken(
