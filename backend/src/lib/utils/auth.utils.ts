@@ -141,6 +141,8 @@ export const checkNeedsRehash = (storedHash: string): boolean => {
 
 // JWT Generation and Verification
 
+const JWT_SECRET = new TextEncoder().encode(jwtConfig.jwtSecret);
+
 /**
  * Generate a JWT token for a user * @param userId - The user's unique identifier
  * @param username - The user's username
@@ -152,8 +154,6 @@ export const generateToken = async (
   username: string,
   // tokenVersion: number
 ): Promise<string> => {
-  const secretKey = new TextEncoder().encode(jwtConfig.jwtSecret);
-
   const token = await new jose.SignJWT({
     username,
     // tokenVersion,
@@ -162,7 +162,18 @@ export const generateToken = async (
     .setSubject(userId.toString())
     .setIssuedAt()
     .setExpirationTime(jwtConfig.jwtExpiresIn)
-    .sign(secretKey);
+    .sign(JWT_SECRET);
 
   return token;
+};
+
+/**
+ * Verify a JWT token and return its payload
+ * @param token - The JWT token to verify
+ * @returns The payload of the token if valid, otherwise throws an error
+ */
+
+export const verifyToken = async (token: string) => {
+  const { payload } = await jose.jwtVerify(token, JWT_SECRET);
+  return payload;
 };

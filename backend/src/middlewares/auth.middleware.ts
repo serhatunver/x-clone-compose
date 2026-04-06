@@ -1,8 +1,8 @@
 import type { Request, Response, NextFunction } from 'express';
 import * as jose from 'jose';
-import { config } from '#/config/config.js';
 import { UnauthorizedError, InternalServerError } from '#/lib/utils/error.handler.js';
 import { authRepository } from '#/modules/auth/auth.repository.js';
+import { verifyToken } from '#/lib/utils/auth.utils.js';
 
 export const protect = async (req: Request, _res: Response, next: NextFunction) => {
   try {
@@ -13,8 +13,7 @@ export const protect = async (req: Request, _res: Response, next: NextFunction) 
       throw new UnauthorizedError('Unauthorized: No Token Provided');
     }
 
-    const secretKey = new TextEncoder().encode(config.auth.jwtSecret);
-    const { payload } = await jose.jwtVerify(token, secretKey);
+    const payload = await verifyToken(token);
 
     if (!payload.sub) {
       throw new UnauthorizedError('Unauthorized: Invalid token payload');
