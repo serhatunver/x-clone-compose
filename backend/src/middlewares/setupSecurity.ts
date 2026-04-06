@@ -30,16 +30,16 @@ export const setupSecurity = (app: Application) => {
   // 3. Slow Down
   // Slows down responses for repeated requests from the same IP to mitigate brute-force attacks
   const speedLimiter = slowDown({
-    windowMs: config.rateLimit.windowMs,
-    delayAfter: Math.floor(config.rateLimit.maxRequests / 2), // Start slowing down after half the max requests
+    windowMs: config.security.rateLimit.windowMs,
+    delayAfter: Math.floor(config.security.rateLimit.maxRequests / 2), // Start slowing down after half the max requests
     delayMs: (hits) => hits * 100, // Increase delay by 100ms for each request after the threshold
   });
 
   // 4. Rate Limiting
   // Limits the number of requests from a single IP to prevent brute-force attacks
   const generalLimiter = rateLimit({
-    windowMs: config.rateLimit.windowMs,
-    limit: config.rateLimit.maxRequests,
+    windowMs: config.security.rateLimit.windowMs,
+    limit: config.security.rateLimit.maxRequests,
     message: {
       status: 429,
       message: 'Too many requests from this IP, please try again after 15 minutes',

@@ -7,7 +7,7 @@ const envSchema = z.object({
   MONGO_URI: z
     .string()
     .regex(/^mongodb(?:\+srv)?:\/\/.+/, 'MONGO_URI must be a valid MongoDB connection string'),
-  CORS_ORIGIN: z.url(),
+  CLIENT_URL: z.url(),
   // Authentication Configurations
   JWT_SECRET: z.string().min(12, 'JWT_SECRET must be at least 12 characters long'),
   JWT_EXPIRES_IN: z.string().default('1d'),

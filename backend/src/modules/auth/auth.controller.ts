@@ -31,8 +31,8 @@ export const login = async (
   res.cookie('auth.token', token, {
     httpOnly: true, // Prevents JavaScript access to the cookie
     secure: config.app.isProduction, // Only send cookie over HTTPS in production
-    sameSite: 'strict', // Prevents CSRF attacks
-    maxAge: config.auth.cookieMaxAge, // Cookie expiration time
+    sameSite: config.security.auth.cookie.sameSite, // Prevents CSRF attacks
+    maxAge: config.security.auth.cookie.maxAge, // Cookie expiration time
     path: '/', // Cookie is valid for the entire site
   });
 
@@ -46,7 +46,7 @@ export const logout = (_req: Request, res: Response) => {
   res.clearCookie('auth.token', {
     httpOnly: true,
     secure: config.app.isProduction,
-    sameSite: 'strict',
+    sameSite: config.security.auth.cookie.sameSite,
     path: '/',
   });
   return res.status(200).json({ message: 'Logged out successfully' });

@@ -33,7 +33,7 @@ export const connect = async () => {
   });
 
   try {
-    await mongoose.connect(config.db.mongoUri);
+    await mongoose.connect(config.database.mongodb.uri);
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : String(err);
     logger.error(`Failed to connect to MongoDB on startup: ${errorMessage}`);

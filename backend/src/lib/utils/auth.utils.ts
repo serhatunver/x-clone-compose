@@ -6,7 +6,9 @@ import { config } from '#/config/config.js';
 import { logger } from '#/lib/utils/logger.js';
 
 const argon2Async = promisify(argon2);
-const { argon2: argon2Config, auth: jwtConfig } = config;
+
+const argon2Config = config.security.auth.argon2;
+const jwtConfig = config.security.auth.jwt;
 
 const BOUNDS = {
   MIN_MEMORY: 8 * 1024, // 8 MB
@@ -141,7 +143,7 @@ export const checkNeedsRehash = (storedHash: string): boolean => {
 
 // JWT Generation and Verification
 
-const JWT_SECRET = new TextEncoder().encode(jwtConfig.jwtSecret);
+const JWT_SECRET = new TextEncoder().encode(jwtConfig.secret);
 
 /**
  * Generate a JWT token for a user * @param userId - The user's unique identifier
@@ -161,7 +163,7 @@ export const generateToken = async (
     .setProtectedHeader({ alg: 'HS256' })
     .setSubject(userId.toString())
     .setIssuedAt()
-    .setExpirationTime(jwtConfig.jwtExpiresIn)
+    .setExpirationTime(jwtConfig.expiresIn)
     .sign(JWT_SECRET);
 
   return token;
