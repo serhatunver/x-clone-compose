@@ -23,6 +23,14 @@ export const config = {
     windowMs: env.RATE_LIMIT_WINDOW_MS,
     maxRequests: env.RATE_LIMIT_MAX_REQUESTS,
   },
+  argon2: {
+    memory: env.ARGON2_MEMORY,
+    passes: env.ARGON2_PASSES,
+    parallelism: env.ARGON2_PARALLELISM,
+    tagLength: env.ARGON2_TAG_LENGTH,
+    algorithm: env.ARGON2_ALGORITHM,
+    version: env.ARGON2_VERSION,
+  },
 } as const;
 
 export type Config = typeof config;
