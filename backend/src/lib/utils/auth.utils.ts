@@ -1,10 +1,12 @@
 import { argon2, randomBytes, timingSafeEqual, type Argon2Algorithm } from 'node:crypto';
 import { promisify } from 'node:util';
+import * as jose from 'jose';
+import { Types } from 'mongoose';
 import { config } from '#/config/config.js';
 import { logger } from '#/lib/utils/logger.js';
 
 const argon2Async = promisify(argon2);
-const { argon2: argon2Config } = config;
+const { argon2: argon2Config, auth: jwtConfig } = config;
 
 const BOUNDS = {
   MIN_MEMORY: 8 * 1024, // 8 MB
@@ -135,4 +137,32 @@ export const checkNeedsRehash = (storedHash: string): boolean => {
     logger.error(`Error checking if hash needs rehash: ${errMsg}`);
     return true; // If there's an error parsing the hash, assume it needs rehashing
   }
+};
+
+// JWT Generation and Verification
+
+/**
+ * Generate a JWT token for a user * @param userId - The user's unique identifier
+ * @param username - The user's username
+ * @returns A signed JWT token as a string
+ */
+
+export const generateToken = async (
+  userId: Types.ObjectId,
+  username: string,
+  // tokenVersion: number
+): Promise<string> => {
+  const secretKey = new TextEncoder().encode(jwtConfig.jwtSecret);
+
+  const token = await new jose.SignJWT({
+    username,
+    // tokenVersion,
+  })
+    .setProtectedHeader({ alg: 'HS256' })
+    .setSubject(userId.toString())
+    .setIssuedAt()
+    .setExpirationTime(jwtConfig.jwtExpiresIn)
+    .sign(secretKey);
+
+  return token;
 };

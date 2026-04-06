@@ -1,5 +1,5 @@
 import { Schema, model, type InferSchemaType } from 'mongoose';
-import { hashPassword } from '#/lib/utils/crypto.js';
+import { hashPassword } from '#/lib/utils/auth.utils.js';
 
 const userSchema = new Schema(
   {

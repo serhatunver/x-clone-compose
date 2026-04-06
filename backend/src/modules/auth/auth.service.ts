@@ -1,7 +1,6 @@
 import crypto from 'node:crypto';
 import { authRepository } from './auth.repository.js';
-import { comparePassword, checkNeedsRehash } from '#/lib/utils/crypto.js';
-import generateToken from '#/lib/utils/generateToken.js';
+import { comparePassword, checkNeedsRehash, generateToken } from '#/lib/utils/auth.utils.js';
 import {
   ConflictError,
   UnauthorizedError,
