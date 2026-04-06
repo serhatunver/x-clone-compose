@@ -1,7 +1,7 @@
 import express from 'express';
 import type { Application, Request, Response } from 'express';
 import { config } from '#/config/config.js';
-import { db } from '#/database/database.js';
+import { db } from '#/lib/database.js';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { setupSecurity } from '#/middlewares/setupSecurity.js';
