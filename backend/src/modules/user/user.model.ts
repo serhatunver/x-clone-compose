@@ -93,19 +93,10 @@ userSchema.set('toObject', {
   },
 });
 
-userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next();
+userSchema.pre('save', async function () {
+  if (!this.isModified('password')) return;
 
-  try {
-    this.password = await hashPassword(this.password);
-    next();
-  } catch (err) {
-    if (err instanceof Error) {
-      next(err);
-    } else {
-      next(new Error('An unknown error occurred while hashing the password'));
-    }
-  }
+  this.password = await hashPassword(this.password);
 });
 
 userSchema.virtual('avatarUrl').get(function () {
