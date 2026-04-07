@@ -46,6 +46,7 @@ export const authService = {
       user.username,
       // user.tokenVersion
     );
+
     return { user, token };
   },
 

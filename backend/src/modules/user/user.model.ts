@@ -5,50 +5,55 @@ const userSchema = new Schema(
   {
     username: {
       type: String,
-      required: true,
+      required: [true, 'Username is required'],
       unique: true,
       trim: true,
       lowercase: true,
-    },
-    password: {
-      type: String,
-      required: true,
-      select: false, // Don't return password by default
+      minlength: [4, 'Username must be at least 4 characters'],
+      maxlength: [15, 'Username cannot exceed 15 characters'],
+      match: [/^[a-z_][a-z0-9_]*$/, 'Invalid username format'],
     },
     email: {
       type: String,
-      required: true,
+      required: [true, 'Email is required'],
       unique: true,
       trim: true,
       lowercase: true,
+      match: [/\S+@\S+\.\S+/, 'Invalid email format'],
+      minlength: [5, 'Email too short'],
+      maxlength: [255, 'Email too long'],
+    },
+    password: {
+      type: String,
+      required: [true, 'Password is required'],
+      select: false, // Don't return password by default
     },
     avatar: {
       type: String,
-      default: '',
+      default: null,
     },
     cover_img: {
       type: String,
-      default: '',
+      default: null,
     },
     bio: {
       type: String,
+      maxlength: [160, 'Bio cannot exceed 160 characters'],
     },
     link: {
       type: String,
+      trim: true,
+      maxlength: [100, 'Link cannot exceed 100 characters'],
     },
     location: {
       type: String,
+      trim: true,
+      maxlength: [30, 'Location cannot exceed 30 characters'],
     },
     isVerified: {
       type: Boolean,
       default: false,
     },
-    likedPosts: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: 'Post',
-      },
-    ],
     passwordResetToken: {
       type: String,
       select: false,
@@ -68,14 +73,19 @@ const userSchema = new Schema(
   {
     timestamps: true,
     id: false,
-    toObject: {
-      virtuals: true,
-    },
   },
 );
 export type IUser = InferSchemaType<typeof userSchema>;
 
 userSchema.set('toJSON', {
+  virtuals: true,
+  transform: (_doc, ret) => {
+    const { password: _password, __v, ...userWithoutPassword } = ret;
+    return userWithoutPassword;
+  },
+});
+
+userSchema.set('toObject', {
   virtuals: true,
   transform: (_doc, ret) => {
     const { password: _password, __v, ...userWithoutPassword } = ret;
@@ -96,6 +106,11 @@ userSchema.pre('save', async function (next) {
       next(new Error('An unknown error occurred while hashing the password'));
     }
   }
+});
+
+userSchema.virtual('avatarUrl').get(function () {
+  if (this.avatar) return this.avatar;
+  return `https://api.dicebear.com/9.x/lorelei/svg?backgroundColor=0D8ABC&seed=${this.username}`;
 });
 
 userSchema.virtual('followersCount', {

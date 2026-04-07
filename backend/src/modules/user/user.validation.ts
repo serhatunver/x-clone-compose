@@ -6,7 +6,7 @@ export const updateProfileSchema = z.object({
     cover_img: z.string().optional(),
     bio: z.string().max(160, 'Bio can be at most 160 characters long.').optional(),
     link: z.url('Invalid URL format').max(100).optional().or(z.literal('')),
-    location: z.string().max(100).optional().or(z.literal('')),
+    location: z.string().max(30).optional().or(z.literal('')),
   }),
 });
 
