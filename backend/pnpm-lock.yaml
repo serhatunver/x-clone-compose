@@ -63,6 +63,9 @@ importers:
       '@eslint/js':
         specifier: ^10.0.1
         version: 10.0.1(eslint@10.1.0)
+      '@eslint/json':
+        specifier: ^1.2.0
+        version: 1.2.0
       '@types/cookie-parser':
         specifier: ^1.4.7
         version: 1.4.10(@types/express@5.0.6)
@@ -90,6 +93,9 @@ importers:
       eslint-config-prettier:
         specifier: ^10.1.8
         version: 10.1.8(eslint@10.1.0)
+      eslint-plugin-depend:
+        specifier: ^1.5.0
+        version: 1.5.0(eslint@10.1.0)
       globals:
         specifier: ^17.4.0
         version: 17.4.0
@@ -325,6 +331,10 @@ packages:
       eslint:
         optional: true
 
+  '@eslint/json@1.2.0':
+    resolution: {integrity: sha512-CEFEyNgvzu8zn5QwVYDg3FaG+ZKUeUsNYitFpMYJAqoAlnw68EQgNbUfheSmexZr4n0wZPrAkPLuvsLaXO6wRw==}
+    engines: {node: ^20.19.0 || ^22.13.0 || >=24}
+
   '@eslint/object-schema@3.0.3':
     resolution: {integrity: sha512-iM869Pugn9Nsxbh/YHRqYiqd23AmIbxJOcpUMOuWCVNdoQJ5ZtwL6h3t0bcZzJUlC3Dq9jCFCESBZnX0GTv7iQ==}
     engines: {node: ^20.19.0 || ^22.13.0 || >=24}
@@ -344,6 +354,10 @@ packages:
   '@humanwhocodes/module-importer@1.0.1':
     resolution: {integrity: sha512-bxveV4V8v5Yb4ncFTT3rPSgZBOpCkjfK0y4oVVVJwIuDVBRMDXrPyXRL988i5ap9m9bnyEEjWfm5WkBmtffLfA==}
     engines: {node: '>=12.22'}
+
+  '@humanwhocodes/momoa@3.3.10':
+    resolution: {integrity: sha512-KWiFQpSAqEIyrTXko3hFNLeQvSK8zXlJQzhhxsyVn58WFRYXST99b3Nqnu+ttOtjds2Pl2grUHGpe2NzhPynuQ==}
+    engines: {node: '>=18'}
 
   '@humanwhocodes/retry@0.4.3':
     resolution: {integrity: sha512-bV0Tgo9K4hfPCek+aMAn81RppFKv2ySDQeMoSZuvTASywNTnVJCArCZE2FWqpvIatKu7VMRLWlR1EazvVhDyhQ==}
@@ -793,6 +807,10 @@ packages:
   ee-first@1.1.1:
     resolution: {integrity: sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==}
 
+  empathic@2.0.0:
+    resolution: {integrity: sha512-i6UzDscO/XfAcNYD75CfICkmfLedpyPDdozrLMmQc5ORaQcdMoc21OnlEylMIqI7U8eniKrPMxxtj8k0vhmJhA==}
+    engines: {node: '>=14'}
+
   encodeurl@2.0.0:
     resolution: {integrity: sha512-Q0n9HRi4m6JuGIV1eFlmvJB7ZEVxu93IrMyiMsGC0lrMJMWzRgx6WGquyfQgZVb31vhGgXnfmPNNXmxnOkRBrg==}
     engines: {node: '>= 0.8'}
@@ -832,6 +850,11 @@ packages:
     hasBin: true
     peerDependencies:
       eslint: '>=7.0.0'
+
+  eslint-plugin-depend@1.5.0:
+    resolution: {integrity: sha512-i3UeLYmclf1Icp35+6W7CR4Bp2PIpDgBuf/mpmXK5UeLkZlvYJ21VuQKKHHAIBKRTPivPGX/gZl5JGno1o9Y0A==}
+    peerDependencies:
+      eslint: '>=8.40.0'
 
   eslint-scope@9.1.2:
     resolution: {integrity: sha512-xS90H51cKw0jltxmvmHy2Iai1LIqrfbw57b79w/J7MfvDfkIkFZ+kj6zC3BjtUwh150HsSSdxXZcsuv72miDFQ==}
@@ -1245,6 +1268,9 @@ packages:
 
   minimist@1.2.8:
     resolution: {integrity: sha512-2yyAR8qBkN3YuheJanUpWC5U3bb5osDywNB8RzDVlDwDHbocAJveqqj1u8+SVD7jkWT4yvsHCpWqqWqAxb0zCA==}
+
+  module-replacements@2.11.0:
+    resolution: {integrity: sha512-j5sNQm3VCpQQ7nTqGeOZtoJtV3uKERgCBm9QRhmGRiXiqkf7iRFOkfxdJRZWLkqYY8PNf4cDQF/WfXUYLENrRA==}
 
   mongodb-connection-string-url@7.0.1:
     resolution: {integrity: sha512-h0AZ9A7IDVwwHyMxmdMXKy+9oNlF0zFoahHiX3vQ8e3KFcSP3VmsmfvtRSuLPxmyv2vjIDxqty8smTgie/SNRQ==}
@@ -1901,6 +1927,13 @@ snapshots:
     optionalDependencies:
       eslint: 10.1.0
 
+  '@eslint/json@1.2.0':
+    dependencies:
+      '@eslint/core': 1.1.1
+      '@eslint/plugin-kit': 0.6.1
+      '@humanwhocodes/momoa': 3.3.10
+      natural-compare: 1.4.0
+
   '@eslint/object-schema@3.0.3': {}
 
   '@eslint/plugin-kit@0.6.1':
@@ -1916,6 +1949,8 @@ snapshots:
       '@humanwhocodes/retry': 0.4.3
 
   '@humanwhocodes/module-importer@1.0.1': {}
+
+  '@humanwhocodes/momoa@3.3.10': {}
 
   '@humanwhocodes/retry@0.4.3': {}
 
@@ -2344,6 +2379,8 @@ snapshots:
 
   ee-first@1.1.1: {}
 
+  empathic@2.0.0: {}
+
   encodeurl@2.0.0: {}
 
   end-of-stream@1.4.5:
@@ -2396,6 +2433,13 @@ snapshots:
   eslint-config-prettier@10.1.8(eslint@10.1.0):
     dependencies:
       eslint: 10.1.0
+
+  eslint-plugin-depend@1.5.0(eslint@10.1.0):
+    dependencies:
+      empathic: 2.0.0
+      eslint: 10.1.0
+      module-replacements: 2.11.0
+      semver: 7.7.4
 
   eslint-scope@9.1.2:
     dependencies:
@@ -2793,6 +2837,8 @@ snapshots:
       brace-expansion: 1.1.12
 
   minimist@1.2.8: {}
+
+  module-replacements@2.11.0: {}
 
   mongodb-connection-string-url@7.0.1:
     dependencies:
