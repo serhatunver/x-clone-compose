@@ -16,17 +16,23 @@ const RESERVED_USERNAMES = new Set([
   'moderator',
 ]);
 
+const UPPERCASE_REGEX = /[A-Z]/;
+const LOWERCASE_REGEX = /[a-z]/;
+const NUMBER_REGEX = /[0-9]/;
+const SPECIAL_CHAR_REGEX = /[^A-Za-z0-9]/;
+const CONSECUTIVE_CHARS_REGEX = /(.)\1{3,}/;
+
 const passwordSchema = z
   .string({ error: 'Password is required' })
   .min(10, 'Password must be at least 10 characters long.')
   .max(64, 'Password can be at most 64 characters long.')
   .refine(
     (val) => {
-      const hasUpper = /[A-Z]/.test(val);
-      const hasLower = /[a-z]/.test(val);
-      const hasNumber = /[0-9]/.test(val);
-      const hasSpecial = /[^A-Za-z0-9]/.test(val);
-      const noRepeat = !/(.)\1{3,}/.test(val);
+      const hasUpper = UPPERCASE_REGEX.test(val);
+      const hasLower = LOWERCASE_REGEX.test(val);
+      const hasNumber = NUMBER_REGEX.test(val);
+      const hasSpecial = SPECIAL_CHAR_REGEX.test(val);
+      const noRepeat = !CONSECUTIVE_CHARS_REGEX.test(val);
 
       return hasUpper && hasLower && hasNumber && hasSpecial && noRepeat;
     },

@@ -7,6 +7,9 @@ import { logger } from '#/lib/utils/logger.js';
 
 const argon2Async = promisify(argon2);
 
+const BASE64_PAD_REGEX = /=+$/;
+const ARGON2_PARAMS_REGEX = /m=(\d+),t=(\d+),p=(\d+)/;
+
 const argon2Config = config.security.auth.argon2;
 const jwtConfig = config.security.auth.jwt;
 
@@ -43,8 +46,8 @@ export const hashPassword = async (password: string): Promise<string> => {
     tagLength: argon2Config.tagLength,
   });
 
-  const nonceB64 = nonce.toString('base64').replace(/=+$/, '');
-  const hashB64 = derivedKey.toString('base64').replace(/=+$/, '');
+  const nonceB64 = nonce.toString('base64').replace(BASE64_PAD_REGEX, '');
+  const hashB64 = derivedKey.toString('base64').replace(BASE64_PAD_REGEX, '');
 
   return `$${argon2Config.algorithm}$v=${argon2Config.version}$m=${argon2Config.memory},t=${argon2Config.passes},p=${argon2Config.parallelism}$${nonceB64}$${hashB64}`;
 };
@@ -72,7 +75,7 @@ export const comparePassword = async (password: string, storedHash: string): Pro
       return false;
     }
 
-    const paramMatch = /m=(\d+),t=(\d+),p=(\d+)/.exec(params);
+    const paramMatch = ARGON2_PARAMS_REGEX.exec(params);
     if (!paramMatch) {
       logger.warn('Invalid hash parameters format');
       return false;

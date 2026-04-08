@@ -1,39 +1,45 @@
 // @ts-check
-
-import eslint from '@eslint/js';
+import { fileURLToPath } from 'node:url';
+import { includeIgnoreFile } from '@eslint/compat';
 import { defineConfig } from 'eslint/config';
-import tseslint from 'typescript-eslint';
-import prettierConfig from 'eslint-config-prettier';
+import js from '@eslint/js';
+import ts from 'typescript-eslint';
 import globals from 'globals';
+import prettierConfig from 'eslint-config-prettier';
+import e18e from '@e18e/eslint-plugin';
+import json from '@eslint/json';
+
+const gitignorePath = fileURLToPath(new URL('./.gitignore', import.meta.url));
 
 export default defineConfig(
+  includeIgnoreFile(gitignorePath),
   {
     name: 'global-ignores',
-    ignores: [
-      '**/node_modules/**',
-      '**/dist/**',
-      '**/build/**',
-      '**/coverage/**',
-      '**/fixtures/**',
-    ],
+    ignores: ['dist/**', 'node_modules/**', 'eslint.config.js'],
   },
-  eslint.configs.recommended,
-  tseslint.configs.recommendedTypeChecked,
-  tseslint.configs.stylisticTypeChecked,
-  prettierConfig,
+
   {
     name: 'base-config',
+    files: ['src/**/*.ts', 'src/**/*.js', 'src/**/*.mts'],
+    extends: [
+      js.configs.recommended,
+      ...ts.configs.recommendedTypeChecked,
+      ...ts.configs.stylisticTypeChecked,
+    ],
     languageOptions: {
-      globals: {
-        ...globals.node,
-        ...globals.es2025,
-      },
+      globals: { ...globals.node, ...globals.es2025 },
+      parser: ts.parser,
       parserOptions: {
-        project: ['./tsconfig.json', './tsconfig.config.json'],
+        projectService: true,
         tsconfigRootDir: import.meta.dirname,
       },
     },
+    plugins: {
+      e18e,
+    },
     rules: {
+      // @ts-expect-error
+      ...(e18e.configs?.recommended?.rules ?? {}),
       'no-console': 'warn',
       '@typescript-eslint/no-unused-vars': [
         'error',
@@ -43,14 +49,34 @@ export default defineConfig(
           caughtErrors: 'all',
         },
       ],
-      'no-unused-vars': 'off',
+      '@typescript-eslint/no-floating-promises': 'error',
     },
   },
+
   {
-    files: ['**/*.js', '**/*.mjs'],
-    extends: [tseslint.configs.disableTypeChecked],
+    name: 'disable-type-check-files',
+    files: ['**/*.js', '**/*.mjs', 'eslint.config.js'],
+    extends: [ts.configs.disableTypeChecked],
+    languageOptions: {
+      globals: globals.node,
+    },
     rules: {
       '@typescript-eslint/no-var-requires': 'off',
     },
   },
+
+  {
+    name: 'json-check',
+    files: ['**/*.json'],
+    language: 'json/json',
+    plugins: {
+      e18e,
+      json,
+    },
+    rules: {
+      'e18e/ban-dependencies': 'error',
+    },
+  },
+
+  prettierConfig,
 );

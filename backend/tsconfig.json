@@ -20,5 +20,5 @@
     "noFallthroughCasesInSwitch": true
   },
   "include": ["src/**/*", "./src/swagger-output.json"],
-  "exclude": ["dist", "node_modules", "src/**/*.test.ts", "src/**/*.spec.ts"]
+  "exclude": ["dist", "node_modules"]
 }
