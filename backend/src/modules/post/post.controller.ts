@@ -5,12 +5,13 @@ import Post from './post.model.js';
 import User from '#/modules/user/user.model.js';
 import Follow from '#/modules/follow/follow.model.js';
 import type { GetPostInput } from './post.validation.js';
+import { Types } from 'mongoose';
 
 import { ReasonPhrases, StatusCodes } from 'http-status-codes';
 
 export const createPost = async (req: Request, res: Response) => {
   try {
-    const { content, image } = req.body;
+    const { content, image } = req.body as { content?: string; image?: string };
     const userId: mongoose.Types.ObjectId = req.user._id;
 
     // 1. content or image is required to create a post
@@ -23,7 +24,7 @@ export const createPost = async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Text must be less than 280 characters' });
     }
 
-    const post: IPost = await Post.create({ user: userId, content, image, isPost: true });
+    const post: IPost = await Post.create({ user: userId, content, image });
 
     return res.status(201).json(post);
   } catch (error) {
@@ -118,38 +119,42 @@ export const getAllPosts = async (req: Request, res: Response) => {
   }
 };
 
-export const getUserLikedPosts = async (req: Request, res: Response) => {
-  const { username } = req.params;
-  try {
-    const user = await User.findOne({ username: username }).populate({
-      path: 'likedPosts',
-      options: { autopopulate: false },
-      populate: { path: 'user', select: 'username' },
-    });
+// export const getUserLikedPosts = async (req: Request, res: Response) => {
+//   const { username } = req.params;
+//   try {
+//     const user = await User.findOne({ username: username }).populate({
+//       path: 'likedPosts',
+//       options: { autopopulate: false },
+//       populate: { path: 'user', select: 'username' },
+//     });
 
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
+//     if (!user) {
+//       return res.status(404).json({ message: 'User not found' });
+//     }
 
-    // const likedPosts = await Post.find({ _id: { $in: user.likedPosts } }, {}, { autopopulate: false })
-    //   .populate({ path: 'user', select: 'username' })
-    //   .sort({
-    //     createdAt: -1,
-    //   });
+//     // const likedPosts = await Post.find({ _id: { $in: user.likedPosts } }, {}, { autopopulate: false })
+//     //   .populate({ path: 'user', select: 'username' })
+//     //   .sort({
+//     //     createdAt: -1,
+//     //   });
 
-    return res.status(200).json(user.likedPosts);
-  } catch (error) {
-    return res.status(500).json({ error: error });
-  }
-};
+//     return res.status(200).json(user.likedPosts);
+//   } catch (error) {
+//     return res.status(500).json({ error: error });
+//   }
+// };
 
 export const getUserPosts = async (req: Request, res: Response) => {
   try {
     const username = req.params.username;
 
-    const userId = await User.findOne({ username }).select('_id');
+    const user = await User.findOne({ username }).select('_id').lean();
 
-    const posts = await Post.find({ user: userId }).sort({ createdAt: -1 }).populate({
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const posts = await Post.find({ user: user._id }).sort({ createdAt: -1 }).populate({
       path: 'user',
       select: '-password',
     });
@@ -163,20 +168,24 @@ export const getUserPosts = async (req: Request, res: Response) => {
     //   })
     //   .populate('totalPosts');
 
-    res.status(200).json(posts);
+    return res.status(200).json(posts);
   } catch (error) {
-    res.status(500).json({ error: error });
+    return res.status(500).json({ error: error });
   }
 };
 
 export const commentOnPost = async (req: Request, res: Response) => {
   try {
-    const { postId } = req.params;
-    const { content } = req.body;
+    const { postId } = req.params as { postId: string };
+    const { content } = req.body as { content: string };
 
     const userId = req.user._id;
 
-    const comment = await Post.create({ user: userId, content, replyTo: postId, isPost: false });
+    const comment = await Post.create({
+      user: userId,
+      content,
+      replyTo: new Types.ObjectId(postId),
+    });
 
     await Post.findByIdAndUpdate(postId, { $push: { comments: comment._id } });
 

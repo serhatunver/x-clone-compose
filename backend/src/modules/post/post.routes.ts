@@ -5,7 +5,7 @@ import {
   getPost,
   getFollowingPosts,
   getAllPosts,
-  getUserLikedPosts,
+  // getUserLikedPosts,
   getUserPosts,
   commentOnPost,
   deletePost,
@@ -17,7 +17,7 @@ const router = Router();
 
 router.get('/all', protect, getAllPosts);
 router.get('/following', protect, getFollowingPosts);
-router.get('/likes/:username', protect, getUserLikedPosts);
+// router.get('/likes/:username', protect, getUserLikedPosts);
 router.get('/user/:username', protect, getUserPosts);
 // router.post("/repost/:postId", protect, repostUndoRepostPost);
 router.post('/comment/:postId', protect, commentOnPost);
