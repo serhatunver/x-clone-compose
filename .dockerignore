@@ -1,0 +1,27 @@
+# Dependencies & build output
+node_modules
+**/node_modules
+dist
+.output
+.nuxt
+.turbo
+**/.turbo
+
+# Git & tooling
+.git
+.github
+.husky
+.cursor
+mcps
+
+# Env (compose / host supplies vars)
+.env
+**/.env
+**/.env.*
+!**/.env.example
+
+# Logs & OS
+*.log
+logs
+.DS_Store
+Thumbs.db

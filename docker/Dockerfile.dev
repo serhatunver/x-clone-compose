@@ -1,0 +1,21 @@
+FROM node:24-alpine
+
+RUN apk add --no-cache libc6-compat \
+  && corepack enable
+
+WORKDIR /app
+
+ENV HUSKY=0
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
+COPY packages ./packages
+COPY apps/api/package.json ./apps/api/
+COPY apps/web/package.json ./apps/web/
+
+RUN pnpm install --frozen-lockfile
+
+COPY . .
+
+RUN touch apps/api/.env
+
+ENV NODE_ENV=development

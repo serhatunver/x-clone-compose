@@ -1,73 +1,119 @@
 services:
   mongodb:
-    image: mongo
+    image: mongo:7
     container_name: x-mongodb
     ports:
-      - 37017:27017
+      - '37017:27017'
     networks:
       - node-network
 
-  backend:
-    image: backend
+  api:
     build:
-      context: ./backend
-      dockerfile: Dockerfile.dev
+      context: .
+      dockerfile: docker/Dockerfile.dev
+    image: x-clone:dev
+    container_name: x-api
     environment:
-      - NODE_ENV=development
-      - JWT_SECRET=verysecretkey
-    container_name: x-backend
-    expose:
-      - 3000
+      NODE_ENV: development
+      PORT: '3000'
+      MONGO_URI: mongodb://mongodb:27017/x-clone
+      CLIENT_URL: http://localhost:5173
+      JWT_SECRET: dev-docker-secret-min-12-chars
+      JWT_EXPIRES_IN: '1d'
     ports:
-      - 3000:3000
-      - 9229:9229 # for debugging
-    develop:
-      watch:
-        - action: sync
-          path: ./backend/src
-          target: /app/src
-
-        - action: rebuild
-          path: ./backend/package.json
-          target: /app
-    networks:
-      - node-network
+      - '3000:3000'
+      - '9229:9229'
+    command: ['pnpm', '--filter', 'api', 'dev']
     depends_on:
       - mongodb
-    command: pnpm watch
-
-  frontend:
-    image: frontend
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile.dev
-    tmpfs: # for EADDRINUSE: address already in use bug
-      - /tmp
-    environment:
-      - NODE_ENV=development
-      - NUXT_PORT=5173
-      - PORT=5173
-    container_name: x-frontend
-    expose:
-      - 5173
-    ports:
-      - 5173:5173
-      - 24678:24678 # for nuxt hot module replacement
+    networks:
+      - node-network
     develop:
       watch:
         - action: sync
-          path: ./frontend
-          target: /app
-
+          path: ./apps/api/src
+          target: /app/apps/api/src
         - action: rebuild
-          path: ./frontend/package.json
-          target: /app
+          path: ./apps/api/package.json
+        - action: rebuild
+          path: ./pnpm-lock.yaml
+
+  web:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dev
+    image: x-clone:dev
+    container_name: x-web
+    tmpfs:
+      - /tmp
+    environment:
+      NODE_ENV: development
+      NUXT_PUBLIC_API_BASE_URL: http://localhost:3000/api/v1
+      PORT: '5173'
+      NUXT_PORT: '5173'
+    ports:
+      - '5173:5173'
+      - '24678:24678'
+    command: ['pnpm', '--filter', 'web', 'dev', '--', '--host', '0.0.0.0']
+    depends_on:
+      - api
     networks:
       - node-network
-    depends_on:
-      - backend
-    command: pnpm dev
+    develop:
+      watch:
+        - action: sync
+          path: ./apps/web
+          target: /app/apps/web
+          ignore:
+            - node_modules/
+            - .nuxt/
+            - .output/
 
 networks:
   node-network:
     driver: bridge
+
+# services:
+#   api:
+#     build:
+#       context: .
+#       dockerfile: docker/Dockerfile.dev
+#     container_name: x-api
+#     environment:
+#       NODE_ENV: development
+#       PORT: 3000
+#       MONGO_URI: ${MONGO_URI}
+#     ports:
+#       - '3000:3000'
+#       - '9229:9229'
+#     command: ['pnpm', '--filter', 'api', 'dev']
+#     develop:
+#       watch:
+#         - action: sync
+#           path: ./apps/api/src
+#           target: /app/apps/api/src
+#         - action: rebuild
+#           path: ./apps/api/package.json
+
+#   web:
+#     build:
+#       context: .
+#       dockerfile: docker/Dockerfile.dev
+#     container_name: x-web
+#     environment:
+#       NODE_ENV: development
+#       NUXT_PUBLIC_API_BASE_URL: http://localhost:3000/api/v1
+#       PORT: 5173
+#     ports:
+#       - '5173:5173'
+#     command: ['pnpm', '--filter', 'web', 'dev', '--', '--host', '0.0.0.0']
+#     depends_on:
+#       - api
+#     develop:
+#       watch:
+#         - action: sync
+#           path: ./apps/web
+#           target: /app/apps/web
+#           ignore:
+#             - node_modules/
+#             - .nuxt/
