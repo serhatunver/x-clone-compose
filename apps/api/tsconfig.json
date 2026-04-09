@@ -1,23 +1,11 @@
 {
+  "extends": "@repo/typescript-config/api.json",
   "compilerOptions": {
-    "target": "es2025",
-    "module": "nodenext",
-    "moduleResolution": "nodenext",
     "rootDir": "./src",
     "outDir": "./dist",
-    "types": ["node"],
-    "skipLibCheck": true,
-    "verbatimModuleSyntax": true,
-    "resolveJsonModule": true,
     "paths": {
       "#/*": ["./src/*"]
-    },
-    "allowJs": true,
-    "sourceMap": true,
-    "noEmit": false,
-    "allowArbitraryExtensions": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true
+    }
   },
   "include": ["src/**/*", "./src/swagger-output.json"],
   "exclude": ["dist", "node_modules"]
