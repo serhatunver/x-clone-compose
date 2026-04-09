@@ -1,5 +1,5 @@
 {
-  "name": "x-api",
+  "name": "api",
   "version": "1.0.0",
   "description": "X API Clone",
   "main": "dist/server.js",
