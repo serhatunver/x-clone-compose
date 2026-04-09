@@ -1,454 +1,180 @@
-# X Clone - Full Stack Social Media Application
+# X Clone
 
-A full-stack social media application with a RESTful API backend and a Nuxt.js frontend. The project is containerized with Docker Compose for development and deployment.
+> A full-stack, X-style social feed demo: posts, likes, threaded replies, follows, and profiles — organized as a **pnpm + Turborepo monorepo**.
+
+<p align="center">
+  <strong>API</strong> (Express · MongoDB) &nbsp;·&nbsp; <strong>Web</strong> (Nuxt 3 · Vue 3)
+</p>
 
 ## Demo
 
 https://github.com/user-attachments/assets/274fadfb-362a-4322-bf7f-c307b41ddbba
 
-## Architecture
+---
 
-- **Backend**: Express.js REST API with MongoDB
-- **Frontend**: Nuxt.js 3 SPA with Vue 3
-- **Containerization**: Docker Compose
-- **Database**: MongoDB with Mongoose ODM
-- **Authentication**: JWT-based authentication with Bearer tokens
+## Project overview
 
-## Tech Stack
+**X Clone** is an monorepo that splits the backend and frontend into **`apps/api`** and **`apps/web`**, with shared tooling in **`packages/`**.
 
-### Backend
+---
 
-- **Runtime**: Node.js 20
-- **Framework**: Express.js 4.21
-- **Language**: TypeScript 5.5
-- **Database**: MongoDB with Mongoose 8.5
-- **Authentication**: JSON Web Tokens (JWT) with bcrypt
-- **API Documentation**: Swagger/OpenAPI
-- **Package Manager**: pnpm 8.15
-- **Development Tools**: tsx for TypeScript execution
+## Tech stack
 
-### Frontend
+| Layer             | Technologies                                                                                                                                                                               |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Monorepo**      | [pnpm](https://pnpm.io/) workspaces · [Turborepo](https://turbo.build/)                                                                                                                    |
+| **`apps/api`**    | Node.js 24 · TypeScript · Express 5 · Mongoose · Zod · [jose](https://github.com/panva/jose) (JWT) · Argon2 · Swagger UI · Pino · Vitest                                                   |
+| **`apps/web`**    | Nuxt 3 · Vue 3 · TypeScript · Tailwind CSS · [shadcn-nuxt](https://www.shadcn-vue.com/) · Pinia · VeeValidate · Zod · [@sidebase/nuxt-auth](https://sidebase.io/nuxt-auth/) · Lucide icons |
+| **Quality & Git** | ESLint · Prettier · [Husky](https://typicode.github.io/husky/) · [nano-staged](https://github.com/usualoma/nano-staged) · [Commitlint](https://commitlint.js.org/) (Conventional Commits)  |
+| **Data**          | MongoDB                                                                                                                                                                                    |
+| **Containers**    | Docker Compose · `docker/Dockerfile.dev` (monorepo-aware)                                                                                                                                  |
 
-- **Framework**: Nuxt.js 3.14
-- **Language**: TypeScript 5.7
-- **UI Library**: Vue 3 with Composition API
-- **Styling**: Tailwind CSS 6.12
-- **Component Library**: shadcn-nuxt
-- **State Management**: Pinia 2.3 with persisted state plugin
-- **Form Validation**: VeeValidate with Zod schemas
-- **Authentication**: @sidebase/nuxt-auth
-- **Icons**: Lucide Vue Next
-- **Package Manager**: pnpm 10.2
+---
 
-### Infrastructure
+## Monorepo structure
 
-- **Containerization**: Docker & Docker Compose
-- **Database**: MongoDB
-- **Networking**: Docker bridge network
+| Path                         | Role                                                                                |
+| ---------------------------- | ----------------------------------------------------------------------------------- |
+| `apps/api`                   | REST API (`/api/v1`), auth, posts, users, follow relations, Swagger at `/api-docs`. |
+| `apps/web`                   | Nuxt 3 app: pages, layouts, components, Pinia stores, server middleware.            |
+| `packages/eslint-config`     | Shared ESLint presets (`api.js`, `web.js`).                                         |
+| `packages/typescript-config` | Shared `tsconfig` fragments for apps.                                               |
+| `docker/`                    | Development image used by Compose (root `pnpm install`, run via `pnpm --filter`).   |
 
-## Features
+### Directory tree
 
-### Authentication
+```text
+x-clone-compose/
+├── .husky/                    # Git hooks (pre-commit, commit-msg)
+├── apps/
+│   ├── api/
+│   │   ├── src/
+│   │   │   ├── config/        # env validation, app config
+│   │   │   ├── lib/           # db, logger, auth helpers
+│   │   │   ├── middlewares/   # auth, rate limit, errors, validation
+│   │   │   ├── modules/
+│   │   │   │   ├── auth/
+│   │   │   │   ├── follow/
+│   │   │   │   ├── notification/
+│   │   │   │   ├── post/
+│   │   │   │   └── user/
+│   │   │   ├── app.ts
+│   │   │   ├── server.ts
+│   │   │   └── swagger.ts
+│   │   └── package.json
+│   └── web/
+│       ├── assets/
+│       ├── components/
+│       ├── composables/
+│       ├── layouts/
+│       ├── middleware/
+│       ├── pages/
+│       ├── plugins/
+│       ├── server/
+│       ├── stores/
+│       ├── nuxt.config.ts
+│       └── package.json
+├── docker/
+│   └── Dockerfile.dev         # Monorepo dev image (Compose)
+├── packages/
+│   ├── eslint-config/
+│   └── typescript-config/
+├── docker-compose.yml
+├── package.json
+├── pnpm-lock.yaml
+├── pnpm-workspace.yaml
+├── turbo.json
+└── README.md
+```
 
-- User registration with email and username validation
-- Login with JWT token generation
-- Protected routes with Bearer token verification
-- Current user endpoint
+---
 
-### Posts
+## Getting started
 
-- Create, read, and delete posts
-- Like/unlike posts
-- Comment on posts (replies stored as posts with replyTo reference)
-- Feed filtering: all posts, following-only, user-specific, and liked posts
-- Post detail pages with comment threads
+### Prerequisites
 
-### User Management
+- **Node.js** 24.x (required by `apps/api`)
+- **pnpm** (version pinned in root `package.json` via `packageManager`)
+- **MongoDB** running locally _or_ use Docker Compose (includes MongoDB)
 
-- User profiles with unique usernames
-- Follow/unfollow with bidirectional relationships
-- User discovery and suggested users algorithm (not implemented yet)
-- Profile fields: bio, profile image, cover image, link
-- Follower and following counts
-
-### Notifications (not implemented yet)
-
-- Notification system infrastructure with MongoDB schema
-- Support for follow and like notification types
-- Read/unread status tracking
-- Timestamp-based notification ordering
-
-## Prerequisites
-
-- Docker Desktop (or Docker Engine + Docker Compose)
-- Git
-- pnpm (for local development without Docker)
-
-## Installation & Setup
-
-### Using Docker Compose (Recommended)
-
-1. Clone the repository:
+### 1. Clone & install
 
 ```bash
-git clone <repository-url>
+git clone <your-fork-or-repo-url>.git
 cd x-clone-compose
-```
-
-2. Start all services:
-
-```bash
-docker compose up --build
-```
-
-This starts:
-
-- MongoDB on port 37017
-- Backend API on port 3000
-- Frontend application on port 5173
-- Swagger API documentation at http://localhost:3000/api-docs
-
-3. Access the application:
-
-- Frontend: http://localhost:5173
-- Backend API: http://localhost:3000
-- API Documentation: http://localhost:3000/api-docs
-- MongoDB: localhost:37017
-
-### Local Development (Without Docker)
-
-#### Backend Setup
-
-1. Navigate to backend directory:
-
-```bash
-cd backend
-```
-
-2. Install dependencies:
-
-```bash
 pnpm install
 ```
 
-3. Set up environment variables:
-   Create a `.env` file in the backend directory:
+### 2. Environment variables
 
-```
-NODE_ENV=development
-JWT_SECRET=your-secret-key-here
-MONGODB_URI=mongodb://localhost:27017/x-clone
-```
+| App | File                            | Notes                                                                                                                       |
+| --- | ------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| API | `apps/api/.env`                 | Copy from `apps/api/.env.example`. Set `MONGO_URI`, `JWT_SECRET` (≥ 12 chars), `CLIENT_URL` (e.g. `http://localhost:5173`). |
+| Web | `apps/web/.env` or `.env.local` | Copy from `apps/web/.env.example`. Set `NUXT_PUBLIC_API_BASE_URL` (e.g. `http://localhost:3000/api/v1`).                    |
 
-4. Ensure MongoDB is running locally
+### 3. Run everything (local)
 
-5. Start the development server:
-
-```bash
-pnpm watch
-```
-
-The backend will run on http://localhost:3000
-
-#### Frontend Setup
-
-1. Navigate to frontend directory:
-
-```bash
-cd frontend
-```
-
-2. Install dependencies:
-
-```bash
-pnpm install
-```
-
-3. Start the development server:
+With MongoDB available at the URI in `apps/api/.env`:
 
 ```bash
 pnpm dev
 ```
 
-The frontend will run on http://localhost:5173
+| Service | URL                                                              |
+| ------- | ---------------------------------------------------------------- |
+| Web     | [http://localhost:5173](http://localhost:5173)                   |
+| API     | [http://localhost:3000](http://localhost:3000)                   |
+| Swagger | [http://localhost:3000/api-docs](http://localhost:3000/api-docs) |
 
-## Development
+Run a single app:
 
-### Docker Compose Development Mode
-
-The Docker Compose configuration includes hot-reload support:
-
-- **Backend**: File changes in `./backend/src` are automatically synced and trigger rebuilds
-- **Frontend**: File changes in `./frontend` are automatically synced with Nuxt HMR
-- **Package Changes**: Changes to `package.json` files trigger container rebuilds
-
-### Backend Development
-
-- **Watch Mode**: `pnpm watch` - Auto-reloads on file changes
-- **Debug Mode**: `pnpm debug` - Runs with Node.js inspector on port 9229
-- **Linting**: `pnpm lint` - Run ESLint
-- **Formatting**: `pnpm prettier` - Format code with Prettier
-
-### Frontend Development
-
-- **Development Server**: `pnpm dev` - Nuxt dev server with HMR on port 5173
-- **Build**: `pnpm build` - Production build
-- **Preview**: `pnpm preview` - Preview production build locally
-- **Formatting**: `pnpm prettier` - Format code with Prettier
-
-### API Development
-
-Swagger UI is available at `/api-docs` for API testing and documentation.
-
-API routes:
-- `/api/v1/auth` - Authentication endpoints
-- `/api/v1/user` - User management endpoints
-- `/api/v1/post` - Post management endpoints
-
-## Project Structure
-
-```
-x-clone-compose/
-├── backend/
-│   ├── src/
-│   │   ├── app.ts                 # Express app entry point
-│   │   ├── auth/                  # Authentication module
-│   │   │   ├── controller.ts      # Auth controllers
-│   │   │   └── routes.ts          # Auth routes
-│   │   ├── db/
-│   │   │   └── connectMongo.ts    # MongoDB connection
-│   │   ├── middleware/
-│   │   │   └── protectRoute.ts    # JWT authentication middleware
-│   │   ├── posts/                 # Posts module
-│   │   │   ├── controller.ts      # Post controllers
-│   │   │   ├── model.ts           # Post Mongoose model
-│   │   │   └── routes.ts          # Post routes
-│   │   ├── users/                 # Users module
-│   │   │   ├── controller.ts      # User controllers
-│   │   │   ├── model.ts           # User Mongoose model
-│   │   │   └── routes.ts          # User routes
-│   │   ├── notifications/         # Notifications module
-│   │   │   └── model.ts           # Notification model
-│   │   ├── lib/
-│   │   │   └── utils/
-│   │   │       └── generateToken.ts # JWT token generation
-│   │   ├── types/
-│   │   │   └── types.d.ts         # TypeScript type definitions
-│   │   └── swagger.ts             # Swagger configuration
-│   ├── Dockerfile.dev             # Backend Dockerfile
-│   ├── package.json
-│   ├── tsconfig.json
-│   └── eslint.config.js
-├── frontend/
-│   ├── components/                # Vue components
-│   │   ├── home/                  # Home page components
-│   │   ├── layout/                # Layout components
-│   │   ├── profile/               # Profile components
-│   │   └── ui/                    # shadcn-nuxt UI components
-│   ├── pages/                     # Nuxt pages (file-based routing)
-│   │   ├── [username]/            # Dynamic user profile routes
-│   │   ├── home.vue               # Home feed page
-│   │   ├── login.vue              # Login page
-│   │   └── register.vue           # Registration page
-│   ├── stores/                    # Pinia stores
-│   │   ├── posts.ts               # Posts state management
-│   │   └── user.ts                # User state management
-│   ├── layouts/                   # Nuxt layouts
-│   ├── assets/                    # Static assets
-│   ├── middleware/                # Nuxt middleware
-│   ├── plugins/                   # Nuxt plugins
-│   ├── nuxt.config.ts             # Nuxt configuration
-│   ├── Dockerfile.dev             # Frontend Dockerfile
-│   └── package.json
-└── docker-compose.yml              # Docker Compose configuration
+```bash
+pnpm dev:api
+pnpm dev:web
 ```
 
-## Environment Variables
+### 4. Docker Compose (optional)
 
-### Backend
+Build and start API, web, and MongoDB:
 
-Create a `.env` file in the `backend` directory:
-
-```env
-NODE_ENV=development
-JWT_SECRET=your-secret-key-change-in-production
-MONGODB_URI=mongodb://mongodb:27017/x-clone
+```bash
+docker compose up --build
 ```
 
-### Frontend
-
-Configure in `nuxt.config.ts` or via environment variables:
-
-```env
-NODE_ENV=development
-NUXT_PORT=5173
-PORT=5173
-```
-
-## Docker Configuration
-
-### Services
-
-- **mongodb**: MongoDB database
-  - Port: 37017 (host) -> 27017 (container)
-  - Network: node-network
-
-- **backend**: Express.js API
-  - Ports: 3000 (API), 9229 (debugging)
-  - Hot reload: Enabled via Docker Compose watch
-  - Depends on: mongodb
-
-- **frontend**: Nuxt.js application
-  - Ports: 5173 (app), 24678 (HMR)
-  - Hot reload: Enabled via Docker Compose watch
-  - Depends on: backend
-
-### Networks
-
-All services communicate via Docker bridge network (`node-network`).
-
-## API Endpoints
-
-### Authentication
-
-- `POST /api/v1/auth/register` - Register new user
-- `POST /api/v1/auth/login` - User login
-- `POST /api/v1/auth/logout` - User logout
-- `GET /api/v1/auth/me` - Get current user (protected)
-
-### Posts
-
-- `GET /api/v1/post/all` - Get all posts
-- `GET /api/v1/post/following` - Get posts from followed users
-- `GET /api/v1/post/user/:username` - Get user's posts
-- `GET /api/v1/post/likes/:username` - Get user's liked posts
-- `GET /api/v1/post/:postId` - Get single post with comments
-- `POST /api/v1/post` - Create new post
-- `POST /api/v1/post/like/:postId` - Like/unlike post
-- `POST /api/v1/post/comment/:postId` - Comment on post
-- `DELETE /api/v1/post/:postId` - Delete post
-
-### Users
-
-- `GET /api/v1/user/profile/:username` - Get user profile
-- `GET /api/v1/user/suggested` - Get suggested users to follow
-- `POST /api/v1/user/follow/:id` - Follow/unfollow user
-- `POST /api/v1/user/update` - Update user profile
-
-## Database Schema
-
-MongoDB with Mongoose ODM. All schemas include automatic timestamps (`createdAt`, `updatedAt`).
-
-### User Schema
-
-**Collection Name**: `users`
-
-**Fields**:
-
-- `_id`: ObjectId (auto-generated)
-- `username`: String (required, unique, indexed)
-- `password`: String (required, bcrypt hashed)
-- `email`: String (required, unique, indexed)
-- `followers`: Array of ObjectId references to User
-- `following`: Array of ObjectId references to User
-- `profileImg`: String (default: empty)
-- `coverImg`: String (default: empty)
-- `bio`: String (default: empty, max 160 characters)
-- `link`: String (default: empty)
-- `likedPosts`: Array of ObjectId references to Post
-
-**Virtual Fields**:
-
-- `followersCount`: Number (computed)
-- `followingCount`: Number (computed)
-- `posts`: Array of Post documents (computed)
-- `totalPosts`: Number (computed)
-
-**Indexes**:
-
-- Unique index on `username`
-- Unique index on `email`
-- Index on `followers` and `following` arrays
-
-### Post Schema
-
-**Collection Name**: `posts`
-
-**Fields**:
-
-- `_id`: ObjectId (auto-generated)
-- `user`: ObjectId reference to User (required, autopopulated)
-- `content`: String (required, max 280 characters)
-- `image`: String (optional)
-- `replyTo`: ObjectId reference to Post (optional, for comments)
-- `likes`: Array of ObjectId references to User
-- `reposts`: Array of ObjectId references to User
-- `comments`: Array of ObjectId references to Post
-
-**Plugins**:
-
-- `mongoose-autopopulate`: Automatically populates user and replyTo fields
-
-**Indexes**:
-
-- Index on `user` field
-- Index on `replyTo` field
-- Index on `likes` array
-- Compound index on `user` and `createdAt`
-
-**Relationships**:
-
-- One-to-Many: User → Posts
-- One-to-Many: Post → Comments (self-referential via replyTo)
-- Many-to-Many: Post ↔ Users (likes)
-
-### Notification Schema
-
-**Collection Name**: `notifications`
-
-**Fields**:
-
-- `_id`: ObjectId (auto-generated)
-- `from`: ObjectId reference to User (required)
-- `to`: ObjectId reference to User (required)
-- `type`: String (required, enum: 'follow', 'like')
-- `read`: Boolean (default: false)
-
-**Indexes**:
-
-- Index on `to` field
-- Index on `read` field
-- Compound index on `to` and `read`
-- Compound index on `to` and `createdAt`
-
-**Relationships**:
-
-- Many-to-One: Notification → User (from and to)
-
-### Database Relationships Summary
-
-```
-User ──< Post (one-to-many)
-User ──< Notification (to) (one-to-many)
-User ──< Notification (from) (one-to-many)
-User ──< User (followers) (many-to-many via arrays)
-User ──< User (following) (many-to-many via arrays)
-Post ──< Post (comments) (one-to-many, self-referential)
-Post ──< User (likes) (many-to-many via array)
-```
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Open a Pull Request
+- MongoDB is exposed on host port **37017** → container `27017`.
+- Compose injects API env vars; override `JWT_SECRET` in production.
+- **Watch mode** (Compose Watch): `docker compose watch` syncs `apps/api/src` and `apps/web` into containers for faster iteration.
 
 ---
 
-**Note**: This project is developed for educational purposes.
+## Root scripts (Turborepo)
+
+All of these run from the **repository root** and delegate to `turbo run`.
+
+| Script                              | Description                                                          |
+| ----------------------------------- | -------------------------------------------------------------------- |
+| `pnpm dev`                          | Runs `dev` in all packages/apps that define it (API + Web together). |
+| `pnpm dev:api` / `pnpm dev:web`     | `turbo run dev` filtered to `api` or `web`.                          |
+| `pnpm build`                        | Production builds for all apps (`dist/`, `.output/`, etc.).          |
+| `pnpm build:api` / `pnpm build:web` | Filtered builds.                                                     |
+| `pnpm lint`                         | ESLint across the workspace.                                         |
+| `pnpm lint:api` / `pnpm lint:web`   | Filtered lint.                                                       |
+
+---
+
+## Pre-commit hooks (Husky + nano-staged + Commitlint)
+
+| Hook           | File                | What runs                                                                                                                                                                                                                                    |
+| -------------- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **pre-commit** | `.husky/pre-commit` | `pnpm exec nano-staged` — lints **only staged** files using the mappings in root `package.json` → `nano-staged`. Staged `apps/api` TS/JS hits `turbo run lint --filter=api`; staged `apps/web` TS/JS/Vue hits `turbo run lint --filter=web`. |
+| **commit-msg** | `.husky/commit-msg` | `commitlint` with `@commitlint/config-conventional` — commit messages must follow [Conventional Commits](https://www.conventionalcommits.org/) (e.g. `feat(web): add login form`).                                                           |
+
+---
+
+## License
+
+This project is licensed under the **MIT License** — see [LICENSE](LICENSE).
+
+---
+
+**Note:** Built for learning.
