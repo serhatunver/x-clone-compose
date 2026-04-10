@@ -4,16 +4,6 @@
   "description": "X API Clone",
   "main": "dist/server.js",
   "type": "module",
-  "packageManager": "pnpm@10.32.1+sha512.a706938f0e89ac1456b6563eab4edf1d1faf3368d1191fc5c59790e96dc918e4456ab2e67d613de1043d2e8c81f87303e6b40d4ffeca9df15ef1ad567348f2be",
-  "engines": {
-    "node": "24.x"
-  },
-  "imports": {
-    "#/*": {
-      "development": "./src/*",
-      "default": "./dist/*"
-    }
-  },
   "scripts": {
     "start": "node --env-file-if-exists=.env ./dist/server.js",
     "dev": "tsx watch --env-file-if-exists=.env ./src/server.ts",
@@ -25,6 +15,12 @@
     "lint:fix": "eslint . --fix",
     "prettier": "prettier --write .",
     "test": "vitest"
+  },
+  "imports": {
+    "#/*": {
+      "development": "./src/*",
+      "default": "./dist/*"
+    }
   },
   "keywords": [],
   "author": "",
@@ -64,5 +60,9 @@
     "tsx": "^4.21.0",
     "typescript": "^6.0.2",
     "vitest": "^4.1.2"
+  },
+  "packageManager": "pnpm@10.32.1+sha512.a706938f0e89ac1456b6563eab4edf1d1faf3368d1191fc5c59790e96dc918e4456ab2e67d613de1043d2e8c81f87303e6b40d4ffeca9df15ef1ad567348f2be",
+  "engines": {
+    "node": ">=24.7.0"
   }
 }
