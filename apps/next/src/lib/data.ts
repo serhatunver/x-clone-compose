@@ -371,20 +371,20 @@ export const getUserById = (userId: string) =>
 
 // get post by id
 export const getPostById = (postId: string) =>
-  USERS.flatMap((u) => u.posts).find((p) => p._id === postId);
+  USERS.flatMap((u) => u.posts).find((p) => p?._id === postId);
 
 // get posts of a user sorted by newest
 export const getPostsByUser = (userId: string) =>
-  USERS.find((u) => u._id === userId)?.posts.sort(
+  (USERS.find((u) => u._id === userId)?.posts ?? []).sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-  ) || [];
+  );
 
 // get authenticated user's feed (posts from followed users + own posts) sorted by newest
 export const getFeedPosts = () => {
   const followedUserIds = CURRENT_USER.following;
   const feedPosts = USERS.filter(
-    (u) => followedUserIds.includes(u._id) || u._id === CURRENT_USER_ID
-  ).flatMap((u) => u.posts);
+    (u) => followedUserIds.includes(u._id) ?? u._id === CURRENT_USER_ID
+  ).flatMap((u) => u.posts ?? []);
 
   return feedPosts.sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
@@ -396,7 +396,7 @@ export const getCurrentUser = () => CURRENT_USER;
 
 // get posts sorted by newest
 export const getAllPosts = () =>
-  USERS.flatMap((u) => u.posts).sort(
+  USERS.flatMap((u) => u.posts ?? []).sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   );
 

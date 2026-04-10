@@ -5,10 +5,9 @@
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": ["dist/**", ".nuxt/**", ".output/**"]
+      "outputs": ["dist/**", ".nuxt/**", ".output/**", ".next/**"]
     },
     "lint": {
-      "dependsOn": ["^lint"],
       "cache": true
     },
     "dev": {

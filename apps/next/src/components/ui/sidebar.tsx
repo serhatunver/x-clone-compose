@@ -270,14 +270,16 @@ function SidebarTrigger({
       variant="ghost"
       size="icon"
       className={cn('', className)}
-      onClick={(event) => {
+      onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
         onClick?.(event);
         toggleSidebar();
       }}
       {...props}
     >
-      {children || <PanelLeftIcon />}
-      <span className="sr-only">Toggle Sidebar</span>
+      <>
+        {children || <PanelLeftIcon />}
+        <span className="sr-only">Toggle Sidebar</span>
+      </>
     </Button>
   );
 }
@@ -610,8 +612,10 @@ function SidebarMenuSkeleton({
   showIcon?: boolean;
 }) {
   // Random width between 50 to 90%.
-  const width = React.useMemo(() => {
-    return `${Math.floor(Math.random() * 40) + 50}%`;
+  const [width, setWidth] = React.useState('70%');
+
+  React.useEffect(() => {
+    setWidth(`${Math.floor(Math.random() * 40) + 50}%`);
   }, []);
 
   return (

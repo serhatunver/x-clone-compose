@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ImagePreview } from '@/components/image-preview';
 import { Field } from '@/components/ui/field';
 import Link from 'next/link';
-import { User } from '@/lib/data';
+import type { User } from '@/lib/data';
 
 type ProfileInfoProps = {
   user: User;

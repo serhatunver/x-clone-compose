@@ -25,7 +25,10 @@ const tabs = [
 import { type Post, getFeedPosts } from '@/lib/data';
 
 export function FeedTabs() {
-  const posts = useMemo(() => getFeedPosts(), []);
+  const posts = useMemo(
+    () => getFeedPosts().filter((post): post is Post => post !== undefined),
+    []
+  );
   const headerVisible = useSmartHeader();
 
   if (posts.length === 0) {

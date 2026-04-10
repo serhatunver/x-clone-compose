@@ -6,7 +6,7 @@ import { PostHeader } from '@/components/post-card/post-header';
 import { PostContent } from '@/components/post-card/post-content';
 import { PostFooter } from '@/components/post-card/post-footer';
 
-import { Post } from '@/lib/data';
+import type { Post } from '@/lib/data';
 import { getUserById } from '@/lib/data';
 
 import { useRouter } from 'next/navigation';

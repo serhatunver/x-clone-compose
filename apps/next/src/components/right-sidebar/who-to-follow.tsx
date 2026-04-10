@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { UserHoverCard } from '@/components/user-hover-card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
-import { User } from '@/lib/data';
+import type { User } from '@/lib/data';
 
 const recommendedUsers: User[] = [
   {

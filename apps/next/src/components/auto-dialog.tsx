@@ -12,8 +12,8 @@ import { PostCard } from '@/components/post-card/post-card';
 import { CloseButton } from '@/components/close-button';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { Post } from '@/lib/data';
-import { ReactNode } from 'react';
+import type { Post } from '@/lib/data';
+import type { ReactNode } from 'react';
 
 type DialogType = 'post' | 'reply' | 'quote';
 

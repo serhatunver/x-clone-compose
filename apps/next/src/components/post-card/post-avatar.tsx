@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { UserHoverCard } from '@/components/user-hover-card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { User } from '@/lib/data';
+import type { User } from '@/lib/data';
 
 interface PostAvatarProps {
   author: User;

@@ -13,7 +13,7 @@ const tabs = [
   { value: 'media', label: 'Media' },
 ];
 
-import { User } from '@/lib/data';
+import type { User } from '@/lib/data';
 
 export function UserTabs({ user }: { user: User }) {
   return (

@@ -1,6 +1,6 @@
 import { Button } from '@/components/animate-ui/components/buttons/button';
 import { ShareButton } from '@/components/share-button';
-import { Post } from '@/lib/data';
+import type { Post } from '@/lib/data';
 import { AutoDialog } from '@/components/auto-dialog';
 import { LikeButton } from '@/components/like-button';
 import { BookmarkButton } from '@/components/bookmark-button';

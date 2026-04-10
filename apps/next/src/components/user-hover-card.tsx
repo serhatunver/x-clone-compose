@@ -7,7 +7,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Field } from '@/components/ui/field';
-import { User } from '@/lib/data';
+import type { User } from '@/lib/data';
 
 interface UserHoverCardProps {
   user: User;

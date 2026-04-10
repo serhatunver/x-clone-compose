@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { LucideIcon } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { Button } from '@/components/animate-ui/components/buttons/button';
 import {
   Popover,

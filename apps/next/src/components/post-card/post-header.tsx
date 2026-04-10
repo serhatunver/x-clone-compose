@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { UserHoverCard } from '@/components/user-hover-card';
 import { MoreButton } from '@/components/more-button';
-import { Post } from '@/lib/data';
+import type { Post } from '@/lib/data';
 import { getUserById } from '@/lib/data';
 
 import { PostAvatar } from '@/components/post-card/post-avatar';
