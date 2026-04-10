@@ -1,6 +1,21 @@
 {
   "name": "@repo/eslint-config",
   "version": "0.0.0",
+  "type": "module",
   "private": true,
-  "type": "module"
+  "exports": {
+    "./api": "./api.js",
+    "./web": "./web.js"
+  },
+  "devDependencies": {
+    "@e18e/eslint-plugin": "^0.3.0",
+    "@eslint/compat": "^2.0.5",
+    "@eslint/js": "^10.0.1",
+    "@eslint/json": "^1.2.0",
+    "eslint": "^10.2.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-turbo": "^2.9.5",
+    "globals": "^17.4.0",
+    "typescript-eslint": "^8.58.1"
+  }
 }

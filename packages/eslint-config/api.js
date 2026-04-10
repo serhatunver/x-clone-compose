@@ -8,16 +8,16 @@ import globals from 'globals';
 import prettierConfig from 'eslint-config-prettier';
 import e18e from '@e18e/eslint-plugin';
 import json from '@eslint/json';
+import turboPlugin from 'eslint-plugin-turbo';
 
 /**
  * @param {string} dirname
  * @returns {import("eslint").Linter.Config[]}
  */
-
 export const apiConfig = (dirname) => {
   const gitignorePath = path.resolve(dirname, '.gitignore');
 
-  // @ts-expect-error
+  // @ts-expect-error - Plugin tipleri Flat Config ile bazen çatışır
   const e18eRules = e18e.configs?.recommended?.rules ?? {};
 
   return defineConfig(
@@ -25,6 +25,11 @@ export const apiConfig = (dirname) => {
     {
       name: 'global-ignores',
       ignores: ['dist/**', 'node_modules/**', 'eslint.config.js'],
+    },
+    {
+      name: 'turbo-check',
+      plugins: { turbo: turboPlugin },
+      rules: { 'turbo/no-undeclared-env-vars': 'warn' },
     },
     {
       name: 'base-config',
@@ -42,7 +47,9 @@ export const apiConfig = (dirname) => {
           tsconfigRootDir: dirname,
         },
       },
-      plugins: { e18e },
+      plugins: {
+        e18e,
+      },
       rules: {
         ...e18eRules,
         'no-console': 'warn',
