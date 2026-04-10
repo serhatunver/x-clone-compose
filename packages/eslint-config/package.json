@@ -5,7 +5,8 @@
   "private": true,
   "exports": {
     "./api": "./api.js",
-    "./web": "./web.js"
+    "./web": "./web.js",
+    "./next": "./next.js"
   },
   "devDependencies": {
     "@e18e/eslint-plugin": "^0.3.0",
@@ -13,6 +14,7 @@
     "@eslint/js": "^10.0.1",
     "@eslint/json": "^1.2.0",
     "eslint": "^10.2.0",
+    "eslint-config-next": "16.1.4",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-turbo": "^2.9.5",
     "globals": "^17.4.0",
