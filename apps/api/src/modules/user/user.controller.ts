@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 import { userService } from './user.service.js';
-import type { GetProfileParams, UpdateProfileInput } from './user.validation.js';
+import type { GetProfileParams, UpdateProfileInput } from '@repo/validators';
 
 export const getProfile = async (req: Request<GetProfileParams>, res: Response) => {
   const { username } = req.params;

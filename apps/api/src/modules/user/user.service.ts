@@ -1,6 +1,6 @@
 import { userRepository } from './user.repository.js';
 import { followRepository } from '../follow/follow.repository.js';
-import type { UpdateProfileInput } from './user.validation.js';
+import type { UpdateProfileInput } from '@repo/validators';
 import { NotFoundError } from '#/lib/utils/error.handler.js';
 
 export const userService = {

@@ -1,5 +1,5 @@
 import User from './user.model.js';
-import type { UpdateProfileInput } from './user.validation.js';
+import type { UpdateProfileInput } from '@repo/validators';
 
 export const userRepository = {
   async findByUsername(username: string) {
