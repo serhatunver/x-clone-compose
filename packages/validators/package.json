@@ -1,0 +1,28 @@
+{
+  "name": "@repo/validators",
+  "version": "0.0.0",
+  "private": true,
+  "license": "ISC",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "prebuild": "node -e \"require('fs').rmSync('./dist', { recursive: true, force: true, maxRetries: 10 })\"",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@repo/eslint-config": "workspace:*",
+    "typescript": "^6.0.2"
+  }
+}

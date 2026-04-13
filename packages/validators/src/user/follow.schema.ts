@@ -1,0 +1,11 @@
+import { z } from 'zod';
+
+const OBJECT_ID_REGEX = /^[0-9a-fA-F]{24}$/;
+
+export const followParamsSchema = z.object({
+  params: z.object({
+    id: z.string().regex(OBJECT_ID_REGEX, 'Invalid User ID format'),
+  }),
+});
+
+export type FollowParams = z.infer<typeof followParamsSchema>['params'];
