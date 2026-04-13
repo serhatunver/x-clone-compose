@@ -7,7 +7,7 @@ import {
   NotFoundError,
   BadRequestError,
 } from '#/lib/utils/error.handler.js';
-import type { RegisterInput, LoginInput } from './auth.validation.js';
+import type { RegisterInput, LoginInput } from '@repo/validators';
 import { logger } from '#/lib/utils/logger.js';
 
 export const authService = {

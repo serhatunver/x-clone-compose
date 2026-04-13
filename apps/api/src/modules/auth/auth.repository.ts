@@ -1,5 +1,5 @@
 import User from '#/modules/user/user.model.js';
-import type { RegisterInput } from './auth.validation.js';
+import type { RegisterInput } from '@repo/validators';
 
 export const authRepository = {
   async findById(userId: string) {

@@ -6,7 +6,7 @@ import type {
   LoginInput,
   ForgotPasswordInput,
   ResetPasswordInput,
-} from './auth.validation.js';
+} from '@repo/validators';
 
 /**
  * Handle user registration
