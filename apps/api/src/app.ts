@@ -4,6 +4,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import hpp from 'hpp';
+import compression from 'compression';
 
 // Config & Utils
 import { config } from '#/config/config.js';
@@ -24,6 +25,7 @@ const app: Application = express();
 // Security Middlewares
 app.use(helmet());
 app.use(cors({ origin: config.app.clientUrl, credentials: true }));
+app.use(compression());
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 app.use(cookieParser());
