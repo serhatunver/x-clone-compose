@@ -11,12 +11,17 @@ export const userService = {
       throw new NotFoundError('User not found');
     }
 
+    const isMe = user._id.toString() === currentUserId;
+
     return {
       ...user,
       avatar:
         user.avatar ??
         `https://api.dicebear.com/9.x/lorelei/svg?backgroundColor=0D8ABC&seed=${user.username}`,
-      isFollowing: await followRepository.isFollowing(currentUserId, user._id.toString()),
+      isMe,
+      isFollowing: isMe
+        ? false
+        : await followRepository.isFollowing(currentUserId, user._id.toString()),
     };
   },
 
