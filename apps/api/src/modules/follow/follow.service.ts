@@ -1,31 +1,35 @@
+import mongoose from 'mongoose';
 import { followRepository } from './follow.repository.js';
+import { userRepository } from '../user/user.repository.js';
 import { BadRequestError, NotFoundError } from '#/lib/utils/error.handler.js';
-import User from '#/modules/user/user.model.js';
 
 export const followService = {
   async toggleFollow(followerId: string, followingId: string) {
-    // 1. Cannot follow yourself
-    if (followerId === followingId) {
-      throw new BadRequestError('You cannot follow yourself');
-    }
+    if (followerId === followingId) throw new BadRequestError('You cannot follow yourself');
 
-    // 2. Check if target user exists
-    const targetUser = await User.findById(followingId);
-    if (!targetUser) {
-      throw new NotFoundError('User to follow not found');
-    }
+    const targetUser = await userRepository.findById(followingId);
+    if (!targetUser) throw new NotFoundError('User to follow not found');
 
-    // 3. Check if already following
-    const existingFollow = await followRepository.findFollow(followerId, followingId);
+    const result = await mongoose.connection.transaction(async () => {
+      const existingFollow = await followRepository.findFollow(followerId, followingId);
 
-    if (existingFollow) {
-      // Unfollow
-      await followRepository.deleteFollow(followerId, followingId);
-      return { isFollowing: false, message: 'Successfully unfollowed the user' };
-    }
+      if (existingFollow) {
+        await followRepository.deleteFollow(followerId, followingId);
 
-    // Follow
-    await followRepository.createFollow(followerId, followingId);
-    return { isFollowing: true, message: 'Successfully followed the user' };
+        await userRepository.adjustCounts(followingId, { followersCount: 'decrement' });
+        await userRepository.adjustCounts(followerId, { followingCount: 'decrement' });
+
+        return { isFollowing: false, message: 'Unfollowed' };
+      } else {
+        await followRepository.createFollow(followerId, followingId);
+
+        await userRepository.adjustCounts(followingId, { followersCount: 'increment' });
+        await userRepository.adjustCounts(followerId, { followingCount: 'increment' });
+
+        return { isFollowing: true, message: 'Followed' };
+      }
+    });
+
+    return result;
   },
 };

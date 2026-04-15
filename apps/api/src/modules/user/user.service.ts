@@ -11,13 +11,13 @@ export const userService = {
       throw new NotFoundError('User not found');
     }
 
-    // Return the profile with the isFollowing field
-    const userObj = {
-      ...user.toJSON(),
+    return {
+      ...user,
+      avatar:
+        user.avatar ??
+        `https://api.dicebear.com/9.x/lorelei/svg?backgroundColor=0D8ABC&seed=${user.username}`,
       isFollowing: await followRepository.isFollowing(currentUserId, user._id.toString()),
     };
-
-    return userObj;
   },
 
   async updateProfile(userId: string, updateData: Partial<UpdateProfileInput>) {

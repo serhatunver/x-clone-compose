@@ -2,7 +2,7 @@ import Follow from './follow.model.js';
 
 export const followRepository = {
   async findFollow(followerId: string, followingId: string) {
-    return Follow.findOne({ follower: followerId, following: followingId });
+    return Follow.findOne({ follower: followerId, following: followingId }).lean();
   },
 
   async createFollow(followerId: string, followingId: string) {

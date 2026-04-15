@@ -4,6 +4,12 @@ import { logger } from '#/lib/utils/logger.js';
 
 const { STATES } = mongoose;
 
+mongoose.set('transactionAsyncLocalStorage', true);
+
+if (config.app.isDevelopment) {
+  mongoose.set('debug', true);
+}
+
 export const isConnected = (): boolean => {
   return mongoose.connection.readyState === STATES.connected;
 };
