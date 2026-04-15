@@ -42,7 +42,7 @@ export const authRepository = {
         passwordResetExpires: data.expires,
         passwordResetLastSentAt: data.lastSent,
       },
-      { new: true, validateBeforeSave: false },
+      { returnDocument: 'after', validateBeforeSave: false },
     );
   },
 
