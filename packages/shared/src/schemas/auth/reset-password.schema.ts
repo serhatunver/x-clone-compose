@@ -1,13 +1,5 @@
 import { z } from 'zod';
-import { emailSchema, passwordSchema } from '../common/index.js';
-
-export const forgotPasswordBodySchema = z.object({
-  email: emailSchema,
-});
-
-export const forgotPasswordSchema = z.object({
-  body: forgotPasswordBodySchema,
-});
+import { passwordSchema } from '../common/primitives.js';
 
 export const resetPasswordBodySchema = z
   .object({
@@ -26,5 +18,4 @@ export const resetPasswordSchema = z.object({
   body: resetPasswordBodySchema,
 });
 
-export type ForgotPasswordInput = z.infer<typeof forgotPasswordBodySchema>;
 export type ResetPasswordInput = z.infer<typeof resetPasswordBodySchema>;

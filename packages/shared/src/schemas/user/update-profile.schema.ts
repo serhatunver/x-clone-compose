@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { usernameSchema, displayNameSchema } from '../common/index.js';
+import { displayNameSchema } from '../common/primitives.js';
 
 export const updateProfileBodySchema = z.object({
   displayName: displayNameSchema.optional(),
@@ -17,11 +17,4 @@ export const updateProfileSchema = z.object({
   body: updateProfileBodySchema,
 });
 
-export const getProfileParamsSchema = z.object({
-  params: z.object({
-    username: usernameSchema,
-  }),
-});
-
 export type UpdateProfileInput = z.infer<typeof updateProfileBodySchema>;
-export type GetProfileParams = z.infer<typeof getProfileParamsSchema>['params'];

@@ -8,4 +8,8 @@ export const followParamsSchema = z.object({
   }),
 });
 
-export type FollowParams = z.infer<typeof followParamsSchema>['params'];
+export const followSchema = z.object({
+  params: followParamsSchema,
+});
+
+export type FollowParams = z.infer<typeof followParamsSchema>;

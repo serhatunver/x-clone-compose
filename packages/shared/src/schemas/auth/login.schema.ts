@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { usernameSchema, emailSchema } from '../common/index.js';
+import { usernameSchema, emailSchema } from '../common/primitives.js';
 
 export const loginBodySchema = z
   .object({

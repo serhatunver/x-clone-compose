@@ -4,7 +4,7 @@ import {
   usernameSchema,
   emailSchema,
   passwordSchema,
-} from '../common/index.js';
+} from '../common/primitives.js';
 
 export const registerBodySchema = z.object({
   displayName: displayNameSchema,
