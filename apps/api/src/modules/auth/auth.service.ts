@@ -6,9 +6,11 @@ import {
   UnauthorizedError,
   NotFoundError,
   BadRequestError,
+  ForbiddenError,
 } from '#/lib/utils/error.handler.js';
 import { type RegisterInput, type LoginInput, ERROR_KEYS } from '@repo/shared';
 import { logger } from '#/lib/utils/logger.js';
+import User from '#/modules/user/user.model.js';
 
 export const authService = {
   async register(data: RegisterInput) {
@@ -38,17 +40,16 @@ export const authService = {
     }
 
     if (user.status === 'suspended') {
-      throw new UnauthorizedError(ERROR_KEYS.AUTH.ACCOUNT_SUSPENDED);
+      throw new ForbiddenError(ERROR_KEYS.AUTH.ACCOUNT_SUSPENDED);
     }
 
     const needsRehash = checkNeedsRehash(user.password);
 
     if (needsRehash) {
-      logger.info(
-        `Password for user ${user.username} needs rehashing. Updating to new parameters.`,
-      );
-      user.password = data.password;
-      await user.save();
+      const userDoc = User.hydrate(user);
+      userDoc.password = data.password;
+      await userDoc.save();
+      logger.info(`Rehashed password for ${user.username}`);
     }
 
     const token = await generateToken(
@@ -57,7 +58,9 @@ export const authService = {
       // user.tokenVersion
     );
 
-    return { user, token };
+    const { password: _password, ...userWithoutPassword } = user;
+
+    return { user: userWithoutPassword, token };
   },
 
   async getMe(userId: string) {

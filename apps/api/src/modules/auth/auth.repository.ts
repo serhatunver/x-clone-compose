@@ -18,7 +18,9 @@ export const authRepository = {
     return User.findOne({
       $or: [{ username: identifier }, { email: identifier }],
       status: { $ne: 'deactivated' },
-    }).select('+password');
+    })
+      .select('+password')
+      .lean();
   },
 
   async createUser(data: RegisterInput) {
