@@ -21,6 +21,7 @@ export const ERROR_KEYS = {
   AUTH: {
     UNAUTHORIZED: 'auth.unauthorized', // e.g., trying to access a protected resource without being logged in
     FORBIDDEN: 'auth.forbidden', // e.g., trying to access a resource without proper permissions
+    ACCOUNT_SUSPENDED: 'auth.account_suspended', // e.g., trying to log in to a suspended account
     INVALID_CREDENTIALS: 'auth.invalid_credentials', // e.g., wrong password or email during login
     TOKEN_EXPIRED: 'auth.token_expired', // e.g., JWT expired
     TOKEN_INVALID: 'auth.token_invalid', // e.g., JWT verification failed
@@ -37,6 +38,21 @@ export const ERROR_KEYS = {
     PROFILE_NOT_FOUND: 'user.profile_not_found', // e.g., trying to access a profile that doesn't exist
     UPDATE_FAILED: 'user.update_failed', // e.g., database error during profile update
     PERMISSION_DENIED: 'user.permission_denied', // e.g., trying to edit another user's profile
+    USER_NOT_FOUND: 'user.user_not_found', // e.g., trying to access a user that doesn't exist
+    ACCOUNT_SUSPENDED: 'user.account_suspended', // e.g., trying to preview a suspended account
+  },
+  POST: {
+    POST_NOT_FOUND: 'post.post_not_found', // e.g., trying to access a post that doesn't exist
+    CREATE_FAILED: 'post.create_failed', // e.g., database error during post creation
+    UPDATE_FAILED: 'post.update_failed', // e.g., database error during post update
+    DELETE_FAILED: 'post.delete_failed', // e.g., database error during post deletion
+    PERMISSION_DENIED: 'post.permission_denied', // e.g., trying to edit or delete another user's post
+  },
+  FOLLOW: {
+    CANNOT_FOLLOW_SELF: 'follow.cannot_follow_self', // e.g., trying to follow oneself
+    USER_NOT_FOUND: 'follow.user_not_found', // e.g., trying to follow a user that doesn't exist
+    FOLLOW_FAILED: 'follow.follow_failed', // e.g., database error during follow action
+    UNFOLLOW_FAILED: 'follow.unfollow_failed', // e.g., database error during unfollow action
   },
   FILE: {
     TOO_LARGE: 'file.too_large', // e.g., file exceeds size limit

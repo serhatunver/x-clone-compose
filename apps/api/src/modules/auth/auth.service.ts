@@ -7,7 +7,7 @@ import {
   NotFoundError,
   BadRequestError,
 } from '#/lib/utils/error.handler.js';
-import type { RegisterInput, LoginInput } from '@repo/shared';
+import { type RegisterInput, type LoginInput, ERROR_KEYS } from '@repo/shared';
 import { logger } from '#/lib/utils/logger.js';
 
 export const authService = {
@@ -17,8 +17,12 @@ export const authService = {
       authRepository.findByEmail(data.email),
     ]);
 
-    if (existingUser) throw new ConflictError('Username already exists');
-    if (existingEmail) throw new ConflictError('Email already exists');
+    if (existingUser) {
+      throw new ConflictError(ERROR_KEYS.USER.USERNAME_TAKEN, { username: data.username });
+    }
+    if (existingEmail) {
+      throw new ConflictError(ERROR_KEYS.USER.EMAIL_TAKEN, { email: data.email });
+    }
 
     return authRepository.createUser(data);
   },
@@ -28,11 +32,13 @@ export const authService = {
 
     if (!user || !(await comparePassword(data.password, user.password))) {
       logger.warn(`Failed login attempt for identifier: ${data.identifier}`);
-      throw new UnauthorizedError('Invalid credentials');
+      throw new UnauthorizedError(ERROR_KEYS.AUTH.INVALID_CREDENTIALS, {
+        identifier: data.identifier,
+      });
     }
 
     if (user.status === 'suspended') {
-      throw new UnauthorizedError('This account is suspended');
+      throw new UnauthorizedError(ERROR_KEYS.AUTH.ACCOUNT_SUSPENDED);
     }
 
     const needsRehash = checkNeedsRehash(user.password);
@@ -56,7 +62,11 @@ export const authService = {
 
   async getMe(userId: string) {
     const user = await authRepository.findById(userId);
-    if (!user) throw new NotFoundError('User not found');
+    if (!user) {
+      throw new NotFoundError(ERROR_KEYS.AUTH.USER_NOT_FOUND, {
+        userId,
+      });
+    }
     return user;
   },
 
@@ -95,7 +105,11 @@ export const authService = {
     const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
 
     const user = await authRepository.findByValidResetToken(hashedToken);
-    if (!user) throw new BadRequestError('Token is invalid or has expired');
+    if (!user) {
+      throw new BadRequestError(ERROR_KEYS.AUTH.TOKEN_INVALID, {
+        detail: 'Token is invalid or has expired',
+      });
+    }
 
     // Update password and clear reset fields
     user.password = password;
