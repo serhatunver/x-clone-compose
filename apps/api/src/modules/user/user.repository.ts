@@ -8,7 +8,7 @@ type CounterAction = 'increment' | 'decrement';
 
 export const userRepository = {
   async findByUsername(username: string) {
-    return User.findOne({ username }).lean();
+    return User.findOne({ username, status: { $ne: 'deactivated' } }).lean();
   },
 
   async findById(id: string) {

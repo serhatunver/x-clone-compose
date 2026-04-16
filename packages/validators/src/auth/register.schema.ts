@@ -1,11 +1,13 @@
 import { z } from 'zod';
 import {
+  displayNameSchema,
   usernameSchema,
   emailSchema,
   passwordSchema,
 } from '../common/index.js';
 
 export const registerBodySchema = z.object({
+  displayName: displayNameSchema,
   username: usernameSchema,
   email: emailSchema,
   password: passwordSchema,

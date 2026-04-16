@@ -17,15 +17,12 @@ export const authRepository = {
   async findByIdentifier(identifier: string) {
     return User.findOne({
       $or: [{ username: identifier }, { email: identifier }],
+      status: { $ne: 'deactivated' },
     }).select('+password');
   },
 
   async createUser(data: RegisterInput) {
     return User.create(data);
-  },
-
-  async findByIdWithCounts(userId: string) {
-    return User.findById(userId).populate('followingCount followersCount').lean();
   },
 
   /**

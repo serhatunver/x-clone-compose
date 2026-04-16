@@ -37,3 +37,14 @@ export const emailSchema = z
   .trim()
   .toLowerCase()
   .max(255, 'Email can be at most 255 characters long.');
+
+export const displayNameSchema = z
+  .string()
+  .min(1, 'Display name cannot be empty.')
+  .max(30, 'Display name can be at most 30 characters long.')
+  .trim()
+  .regex(
+    /^[a-zA-Z0-9 ]+$/,
+    'Display name can only contain letters, numbers, and spaces.'
+  )
+  .transform((val) => val.replace(/\s+/g, ' '));

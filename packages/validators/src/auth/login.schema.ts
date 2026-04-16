@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { usernameSchema, emailSchema } from '../common/index.js';
 
 export const loginBodySchema = z
   .object({
@@ -13,8 +14,8 @@ export const loginBodySchema = z
   .refine(
     (data) => {
       const isEmail = data.identifier.includes('@');
-      if (isEmail) return z.string().safeParse(data.identifier).success;
-      return data.identifier.length <= 15;
+      if (isEmail) return emailSchema.safeParse(data.identifier).success;
+      return usernameSchema.safeParse(data.identifier).success;
     },
     {
       message: 'Please enter a valid username or email address.',

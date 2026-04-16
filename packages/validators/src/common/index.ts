@@ -1,2 +1,2 @@
-export * from './password.js';
-export * from './user.js';
+export * from './password.schema.js';
+export * from './user.schema.js';

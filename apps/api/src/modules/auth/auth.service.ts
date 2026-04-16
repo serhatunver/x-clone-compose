@@ -31,6 +31,10 @@ export const authService = {
       throw new UnauthorizedError('Invalid credentials');
     }
 
+    if (user.status === 'suspended') {
+      throw new UnauthorizedError('This account is suspended');
+    }
+
     const needsRehash = checkNeedsRehash(user.password);
 
     if (needsRehash) {
@@ -51,7 +55,7 @@ export const authService = {
   },
 
   async getMe(userId: string) {
-    const user = await authRepository.findByIdWithCounts(userId);
+    const user = await authRepository.findById(userId);
     if (!user) throw new NotFoundError('User not found');
     return user;
   },

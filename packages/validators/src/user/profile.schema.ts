@@ -1,9 +1,10 @@
 import { z } from 'zod';
-import { usernameSchema } from '../common/user.js';
+import { usernameSchema, displayNameSchema } from '../common/index.js';
 
 export const updateProfileBodySchema = z.object({
+  displayName: displayNameSchema.optional(),
   avatar: z.string().optional(),
-  cover_img: z.string().optional(),
+  coverImage: z.string().optional(),
   bio: z
     .string()
     .max(160, 'Bio can be at most 160 characters long.')

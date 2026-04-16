@@ -1,7 +1,7 @@
 import { userRepository } from './user.repository.js';
 import { followRepository } from '../follow/follow.repository.js';
 import type { UpdateProfileInput } from '@repo/validators';
-import { NotFoundError } from '#/lib/utils/error.handler.js';
+import { NotFoundError, ForbiddenError } from '#/lib/utils/error.handler.js';
 
 export const userService = {
   async getProfile(username: string, currentUserId: string) {
@@ -9,6 +9,10 @@ export const userService = {
 
     if (!user) {
       throw new NotFoundError('User not found');
+    }
+
+    if (user.status === 'suspended') {
+      throw new ForbiddenError('This account is suspended');
     }
 
     const isMe = user._id.toString() === currentUserId;

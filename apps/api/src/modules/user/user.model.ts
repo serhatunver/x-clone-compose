@@ -28,6 +28,12 @@ const userSchema = new Schema(
       required: [true, 'Password is required'],
       select: false, // Don't return password by default
     },
+    displayName: {
+      type: String,
+      required: [true, 'Display name is required'],
+      trim: true,
+      maxlength: [30, 'Display name cannot exceed 30 characters'],
+    },
     avatar: {
       type: String,
       default: null,
@@ -57,6 +63,11 @@ const userSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    status: {
+      type: String,
+      enum: ['active', 'suspended', 'deactivated'],
+      default: 'active',
+    },
     passwordResetToken: {
       type: String,
       select: false,
@@ -79,7 +90,6 @@ const userSchema = new Schema(
     id: false,
   },
 );
-export type IUser = InferSchemaType<typeof userSchema>;
 
 userSchema.set('toJSON', {
   virtuals: true,
@@ -103,4 +113,5 @@ userSchema.pre('save', async function () {
   this.password = await hashPassword(this.password);
 });
 
+export type IUser = InferSchemaType<typeof userSchema>;
 export default model<IUser>('User', userSchema);
