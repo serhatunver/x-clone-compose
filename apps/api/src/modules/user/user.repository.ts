@@ -1,5 +1,5 @@
 import User, { type IUser } from './user.model.js';
-import type { UpdateProfileInput } from '@repo/validators';
+import type { UpdateProfileInput } from '@repo/shared';
 import type { UpdateQuery } from 'mongoose';
 import { BadRequestError } from '#/lib/utils/error.handler.js';
 

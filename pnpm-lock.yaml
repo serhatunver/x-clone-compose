@@ -26,9 +26,9 @@ importers:
 
   apps/api:
     dependencies:
-      '@repo/validators':
+      '@repo/shared':
         specifier: workspace:*
-        version: link:../../packages/validators
+        version: link:../../packages/shared
       compression:
         specifier: ^1.8.1
         version: 1.8.1
@@ -205,9 +205,9 @@ importers:
       '@nuxt/ui':
         specifier: ^4.6.1
         version: 4.6.1(@tiptap/extensions@3.22.3(@tiptap/core@3.22.3(@tiptap/pm@3.22.3))(@tiptap/pm@3.22.3))(@tiptap/y-tiptap@3.0.3(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.8)(y-protocols@1.0.7(yjs@13.6.30))(yjs@13.6.30))(db0@0.3.4)(embla-carousel@8.6.0)(ioredis@5.10.1)(magicast@0.5.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(tailwindcss@4.2.2)(typescript@6.0.2)(vite@7.3.2(@types/node@25.6.0)(jiti@2.6.1)(lightningcss@1.32.0)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))(vue-router@5.0.4(@vue/compiler-sfc@3.5.32)(vue@3.5.32(typescript@6.0.2)))(vue@3.5.32(typescript@6.0.2))(yjs@13.6.30)(zod@4.3.6)
-      '@repo/validators':
+      '@repo/shared':
         specifier: workspace:*
-        version: link:../../packages/validators
+        version: link:../../packages/shared
       nuxt:
         specifier: ^4.4.2
         version: 4.4.2(@babel/core@7.29.0)(@babel/plugin-syntax-jsx@7.28.6(@babel/core@7.29.0))(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)(@parcel/watcher@2.5.6)(@types/node@25.6.0)(@vue/compiler-sfc@3.5.32)(cac@6.7.14)(db0@0.3.4)(eslint@10.2.0(jiti@2.6.1))(ioredis@5.10.1)(lightningcss@1.32.0)(magicast@0.5.2)(meow@13.2.0)(optionator@0.9.4)(rollup-plugin-visualizer@7.0.1(rollup@4.60.1))(rollup@4.60.1)(terser@5.46.1)(tsx@4.21.0)(typescript@6.0.2)(vite@7.3.2(@types/node@25.6.0)(jiti@2.6.1)(lightningcss@1.32.0)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))(yaml@2.8.3)
@@ -342,9 +342,7 @@ importers:
         specifier: ^8.58.1
         version: 8.58.2(eslint@10.2.0(jiti@2.6.1))(typescript@6.0.2)
 
-  packages/typescript-config: {}
-
-  packages/validators:
+  packages/shared:
     dependencies:
       zod:
         specifier: ^4.3.6
@@ -359,6 +357,8 @@ importers:
       typescript:
         specifier: ^6.0.2
         version: 6.0.2
+
+  packages/typescript-config: {}
 
 packages:
 

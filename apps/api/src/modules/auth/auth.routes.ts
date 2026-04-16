@@ -13,7 +13,7 @@ import {
   loginSchema,
   forgotPasswordSchema,
   resetPasswordSchema,
-} from '@repo/validators';
+} from '@repo/shared';
 import { protect } from '#/middlewares/auth.middleware.js';
 import { authLimiter } from '#/middlewares/rate-limit.middleware.js';
 

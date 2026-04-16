@@ -6,7 +6,7 @@ import type {
   LoginInput,
   ForgotPasswordInput,
   ResetPasswordInput,
-} from '@repo/validators';
+} from '@repo/shared';
 
 /**
  * Handle user registration

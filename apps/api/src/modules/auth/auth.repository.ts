@@ -1,5 +1,5 @@
 import User from '#/modules/user/user.model.js';
-import type { RegisterInput } from '@repo/validators';
+import type { RegisterInput } from '@repo/shared';
 
 export const authRepository = {
   async findById(userId: string) {

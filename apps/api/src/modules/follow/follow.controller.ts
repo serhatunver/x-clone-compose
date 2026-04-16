@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 import { followService } from './follow.service.js';
-import type { FollowParams } from '@repo/validators';
+import type { FollowParams } from '@repo/shared';
 
 /**
  * Toggle follow/unfollow status for a user
