@@ -3,6 +3,7 @@ import { hashPassword } from '#/lib/utils/auth.utils.js';
 
 const userSchema = new Schema(
   {
+    _id: { type: Schema.Types.ObjectId, auto: true, required: true },
     username: {
       type: String,
       required: [true, 'Username is required'],
