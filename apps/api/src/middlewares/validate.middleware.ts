@@ -1,6 +1,7 @@
 import type { Request, Response, NextFunction } from 'express';
 import { type ZodType, ZodError } from 'zod';
 import { ValidationError } from '#/lib/utils/error.handler.js';
+import { ERROR_KEYS } from '@repo/shared';
 
 export const validate =
   (schema: ZodType) => async (req: Request, _res: Response, next: NextFunction) => {
@@ -17,10 +18,15 @@ export const validate =
       next();
     } catch (error) {
       if (error instanceof ZodError) {
-        const message = error.issues
+        const debugMessage = error.issues
           .map((i) => `${i.path.slice(1).join('.')}: ${i.message}`)
           .join(', ');
-        return next(new ValidationError(message, { details: error.issues }));
+        return next(
+          new ValidationError(ERROR_KEYS.VALIDATION.INVALID_FORMAT, {
+            details: error.issues,
+            message: debugMessage,
+          }),
+        );
       }
       next(error);
     }
