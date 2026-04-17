@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import { followRepository } from './follow.repository.js';
 import { userRepository } from '../user/user.repository.js';
 import { BadRequestError, NotFoundError } from '#/lib/utils/error.handler.js';
-import { ERROR_KEYS } from '@repo/shared';
+import { ERROR_KEYS, type FollowParams, type FollowQuery } from '@repo/shared';
 
 export const followService = {
   async toggleFollow(followerId: string, followingId: string) {
@@ -38,5 +38,19 @@ export const followService = {
     });
 
     return result;
+  },
+
+  async getFollowers(userId: FollowParams['userId'], query: FollowQuery) {
+    const { page, limit } = query;
+    const skip = (page - 1) * limit;
+    const followers = await followRepository.getFollowers(userId, limit, skip);
+    return followers.map((f) => f.follower);
+  },
+
+  async getFollowing(userId: FollowParams['userId'], query: FollowQuery) {
+    const { page, limit } = query;
+    const skip = (page - 1) * limit;
+    const following = await followRepository.getFollowing(userId, limit, skip);
+    return following.map((f) => f.following);
   },
 };

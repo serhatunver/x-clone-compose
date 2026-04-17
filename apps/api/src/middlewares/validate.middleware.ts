@@ -6,14 +6,12 @@ import { ERROR_KEYS } from '@repo/shared';
 export const validate =
   (schema: ZodType) => async (req: Request, _res: Response, next: NextFunction) => {
     try {
-      const parsed = await schema.parseAsync({
+      req.validated = await schema.parseAsync({
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         body: req.body,
         query: req.query,
         params: req.params,
       });
-
-      Object.assign(req, parsed);
 
       next();
     } catch (error) {

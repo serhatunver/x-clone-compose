@@ -42,7 +42,7 @@ export const protect = async (req: Request, _res: Response, next: NextFunction) 
     // }
 
     req.user = {
-      _id: user._id,
+      _id: user._id.toString(),
       username: user.username,
     };
 

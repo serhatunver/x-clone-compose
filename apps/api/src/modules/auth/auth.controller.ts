@@ -56,7 +56,7 @@ export const logout = (_req: Request, res: Response) => {
  * Get current authenticated user profile
  */
 export const getMe = async (req: Request, res: Response) => {
-  const userId = req.user._id.toString();
+  const userId = req.user._id;
   const user = await authService.getMe(userId);
 
   return res.status(200).json(user);
