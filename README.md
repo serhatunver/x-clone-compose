@@ -1,180 +1,202 @@
-# X Clone
+# X Clone (monorepo)
 
-> A full-stack, X-style social feed demo: posts, likes, threaded replies, follows, and profiles — organized as a **pnpm + Turborepo monorepo**.
+Full-stack X/Twitter-style clone in a **pnpm + Turborepo** workspace.
 
-<p align="center">
-  <strong>API</strong> (Express · MongoDB) &nbsp;·&nbsp; <strong>Web</strong> (Nuxt 3 · Vue 3)
-</p>
+- **Backend**: `apps/api` (Express 5 + MongoDB)
+- **Frontends**:
+  - `apps/web` (Nuxt 3 + shadcnui + sidebase auth)
+  - `apps/nuxt` (Nuxt 4 + Nuxt UI)
+  - `apps/next` (Next.js + shadcnui)
+
+---
 
 ## Demo
 
 https://github.com/user-attachments/assets/274fadfb-362a-4322-bf7f-c307b41ddbba
 
----
-
 ## Project overview
 
-**X Clone** is an monorepo that splits the backend and frontend into **`apps/api`** and **`apps/web`**, with shared tooling in **`packages/`**.
+This repository is a monorepo with:
+
+- A versioned REST API mounted at **`/api/v1`**
+- Multiple UI implementations living side-by-side
+- Shared workspace packages in `packages/`
 
 ---
 
 ## Tech stack
 
-| Layer             | Technologies                                                                                                                                                                               |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Monorepo**      | [pnpm](https://pnpm.io/) workspaces · [Turborepo](https://turbo.build/)                                                                                                                    |
-| **`apps/api`**    | Node.js 24 · TypeScript · Express 5 · Mongoose · Zod · [jose](https://github.com/panva/jose) (JWT) · Argon2 · Swagger UI · Pino · Vitest                                                   |
-| **`apps/web`**    | Nuxt 3 · Vue 3 · TypeScript · Tailwind CSS · [shadcn-nuxt](https://www.shadcn-vue.com/) · Pinia · VeeValidate · Zod · [@sidebase/nuxt-auth](https://sidebase.io/nuxt-auth/) · Lucide icons |
-| **Quality & Git** | ESLint · Prettier · [Husky](https://typicode.github.io/husky/) · [nano-staged](https://github.com/usualoma/nano-staged) · [Commitlint](https://commitlint.js.org/) (Conventional Commits)  |
-| **Data**          | MongoDB                                                                                                                                                                                    |
-| **Containers**    | Docker Compose · `docker/Dockerfile.dev` (monorepo-aware)                                                                                                                                  |
+| Area                      | What’s in this repo                                                                                                   |
+| ------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| **Monorepo**              | pnpm workspaces, Turborepo                                                                                            |
+| **API (`apps/api`)**      | Node.js (>= 24.7), TypeScript 6, Express 5, Mongoose 9, Zod 4, JWT via `jose`, Swagger UI (`/api-docs`), Pino, Vitest |
+| **Web (`apps/web`)**      | Nuxt 3, Vue 3, TypeScript, Tailwind CSS, `shadcn-nuxt`, Pinia (+ persisted state), `@sidebase/nuxt-auth`              |
+| **Alt Web (`apps/nuxt`)** | Nuxt 4, `@nuxt/ui`, Tailwind v4, Zod                                                                                  |
+| **Alt Web (`apps/next`)** | Next.js, React, Tailwind v4                                                                                           |
+| **Data**                  | MongoDB                                                                                                               |
+| **Dev tooling**           | ESLint (shared presets), Prettier, Husky, nano-staged, Commitlint                                                     |
 
 ---
 
-## Monorepo structure
+## Architecture / monorepo structure
 
-| Path                         | Role                                                                                |
+### Apps
+
+| Path        | Purpose                                                                                                                |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `apps/api`  | Express API served on `PORT` (default `8080`), mounts routes at `/api/v1`, Swagger at `/api-docs`, health at `/health` |
+| `apps/web`  | Nuxt 3 UI; expects API base at `NUXT_PUBLIC_API_BASE_URL` (e.g. `http://localhost:8080/api/v1`)                        |
+| `apps/nuxt` | Nuxt 4 UI (alternative); expects API base at `API_BASE` (defaults to `http://localhost:8080/api/v1`)                   |
+| `apps/next` | Next.js UI (alternative); currently standard Next defaults apply                                                       |
+
+### Packages
+
+| Path                         | Purpose                                                                             |
 | ---------------------------- | ----------------------------------------------------------------------------------- |
-| `apps/api`                   | REST API (`/api/v1`), auth, posts, users, follow relations, Swagger at `/api-docs`. |
-| `apps/web`                   | Nuxt 3 app: pages, layouts, components, Pinia stores, server middleware.            |
-| `packages/eslint-config`     | Shared ESLint presets (`api.js`, `web.js`).                                         |
-| `packages/typescript-config` | Shared `tsconfig` fragments for apps.                                               |
-| `docker/`                    | Development image used by Compose (root `pnpm install`, run via `pnpm --filter`).   |
+| `packages/shared`            | Shared TS build output (`@repo/shared`) used by the API and Nuxt 4 app              |
+| `packages/eslint-config`     | Shared ESLint configs (`@repo/eslint-config`) with exports for `api`, `web`, `next` |
+| `packages/typescript-config` | Shared tsconfig fragments (`@repo/typescript-config`)                               |
 
-### Directory tree
+---
+
+## Directory tree (high-level)
 
 ```text
-x-clone-compose/
+x-clone/
 ├── .husky/                    # Git hooks (pre-commit, commit-msg)
 ├── apps/
 │   ├── api/
 │   │   ├── src/
-│   │   │   ├── config/        # env validation, app config
-│   │   │   ├── lib/           # db, logger, auth helpers
-│   │   │   ├── middlewares/   # auth, rate limit, errors, validation
-│   │   │   ├── modules/
-│   │   │   │   ├── auth/
-│   │   │   │   ├── follow/
-│   │   │   │   ├── notification/
-│   │   │   │   ├── post/
-│   │   │   │   └── user/
-│   │   │   ├── app.ts
-│   │   │   ├── server.ts
-│   │   │   └── swagger.ts
-│   │   └── package.json
-│   └── web/
-│       ├── assets/
-│       ├── components/
-│       ├── composables/
-│       ├── layouts/
-│       ├── middleware/
-│       ├── pages/
-│       ├── plugins/
-│       ├── server/
-│       ├── stores/
-│       ├── nuxt.config.ts
-│       └── package.json
-├── docker/
-│   └── Dockerfile.dev         # Monorepo dev image (Compose)
+│   │   │   ├── config/       # zod-based env validation + config
+│   │   │   ├── lib/          # db + utilities
+│   │   │   ├── middlewares/  # auth, logging, rate-limit, errors, etc.
+│   │   │   └── modules/      # auth, user, post, follow...
+│   │   └── .env.example
+│   ├── web/                  # Nuxt 3 app
+│   ├── nuxt/                 # Nuxt 4 app
+│   └── next/                 # Next.js app
 ├── packages/
-│   ├── eslint-config/
-│   └── typescript-config/
+│   ├── shared/               # shared zod schemas, types, utilities
+│   ├── eslint-config/        # shared ESLint configs
+│   └── typescript-config/    # shared tsconfig
+├── docker/
+│   └── Dockerfile.dev
 ├── docker-compose.yml
-├── package.json
-├── pnpm-lock.yaml
-├── pnpm-workspace.yaml
 ├── turbo.json
+├── pnpm-workspace.yaml
 └── README.md
 ```
 
 ---
 
-## Getting started
+## Getting started (local)
 
 ### Prerequisites
 
-- **Node.js** 24.x (required by `apps/api`)
-- **pnpm** (version pinned in root `package.json` via `packageManager`)
-- **MongoDB** running locally _or_ use Docker Compose (includes MongoDB)
+- **Node.js**: `>= 24.7.0` (enforced at the workspace root)
+- **pnpm**: version is pinned in the root `package.json` (`packageManager`)
+- **MongoDB**: local install or MongoDB Atlas or Docker
 
-### 1. Clone & install
+### Install
 
 ```bash
-git clone <your-fork-or-repo-url>.git
-cd x-clone-compose
 pnpm install
 ```
 
-### 2. Environment variables
+### Environment variables
 
-| App | File                            | Notes                                                                                                                       |
-| --- | ------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| API | `apps/api/.env`                 | Copy from `apps/api/.env.example`. Set `MONGO_URI`, `JWT_SECRET` (≥ 12 chars), `CLIENT_URL` (e.g. `http://localhost:5173`). |
-| Web | `apps/web/.env` or `.env.local` | Copy from `apps/web/.env.example`. Set `NUXT_PUBLIC_API_BASE_URL` (e.g. `http://localhost:3000/api/v1`).                    |
+#### API (`apps/api`)
 
-### 3. Run everything (local)
+Create `apps/api/.env` from `apps/api/.env.example`.
 
-With MongoDB available at the URI in `apps/api/.env`:
+Required:
 
-```bash
-pnpm dev
-```
+- **`MONGO_URI`**: Mongo connection string (e.g. `mongodb://localhost:27017/x-clone`)
+- **`CLIENT_URL`**: allowed CORS origin (e.g. `http://localhost:5173`)
+- **`JWT_SECRET`**: at least 12 chars
 
-| Service | URL                                                              |
-| ------- | ---------------------------------------------------------------- |
-| Web     | [http://localhost:5173](http://localhost:5173)                   |
-| API     | [http://localhost:3000](http://localhost:3000)                   |
-| Swagger | [http://localhost:3000/api-docs](http://localhost:3000/api-docs) |
+Common:
 
-Run a single app:
+- **`PORT`**: defaults to `8080`
+- **`JWT_EXPIRES_IN`**: defaults to `1d`
+- **`COOKIE_MAX_AGE`**: defaults to 1 day (ms)
+
+Rate limiting / crypto tuning (optional; see `.env.example`):
+
+- `RATE_LIMIT_WINDOW_MS`, `RATE_LIMIT_MAX_REQUESTS`
+- `ARGON2_MEMORY`, `ARGON2_PASSES`, `ARGON2_PARALLELISM`, `ARGON2_TAG_LENGTH`, `ARGON2_ALGORITHM`, `ARGON2_VERSION`
+
+#### Web (Nuxt 3) (`apps/web`)
+
+Create `apps/web/.env` (or `.env.local`) from `apps/web/.env.example`.
+
+- **`NUXT_PUBLIC_API_BASE_URL`**: e.g. `http://localhost:8080/api/v1`
+- **`COOKIE_DOMAIN`**: used by Nuxt auth cookie config in production (dev defaults to `localhost`)
+- **`NODE_ENV`**: `development` by default
+
+#### Nuxt 4 (`apps/nuxt`) (optional)
+
+- **`API_BASE`**: API base URL (defaults to `http://localhost:8080/api/v1`)
+
+---
+
+## Running the stack
+
+### Recommended dev workflow
+
+Run the API and Nuxt 3 app explicitly:
 
 ```bash
 pnpm dev:api
 pnpm dev:web
 ```
 
-### 4. Docker Compose (optional)
+URLs (default):
 
-Build and start API, web, and MongoDB:
-
-```bash
-docker compose up --build
-```
-
-- MongoDB is exposed on host port **37017** → container `27017`.
-- Compose injects API env vars; override `JWT_SECRET` in production.
-- **Watch mode** (Compose Watch): `docker compose watch` syncs `apps/api/src` and `apps/web` into containers for faster iteration.
+- **API**: `http://localhost:8080`
+  - **Swagger**: `http://localhost:8080/api-docs`
+  - **Health**: `http://localhost:8080/health`
+- **Web (Nuxt 3)**: `http://localhost:5173`
 
 ---
 
-## Root scripts (Turborepo)
+## API overview
 
-All of these run from the **repository root** and delegate to `turbo run`.
+The API mounts under **`/api/v1`**. Current route groups registered in `apps/api/src/modules/v1.routes.ts`:
 
-| Script                              | Description                                                          |
-| ----------------------------------- | -------------------------------------------------------------------- |
-| `pnpm dev`                          | Runs `dev` in all packages/apps that define it (API + Web together). |
-| `pnpm dev:api` / `pnpm dev:web`     | `turbo run dev` filtered to `api` or `web`.                          |
-| `pnpm build`                        | Production builds for all apps (`dist/`, `.output/`, etc.).          |
-| `pnpm build:api` / `pnpm build:web` | Filtered builds.                                                     |
-| `pnpm lint`                         | ESLint across the workspace.                                         |
-| `pnpm lint:api` / `pnpm lint:web`   | Filtered lint.                                                       |
+- **`/api/v1/auth`**
+- **`/api/v1/user`**
+- **`/api/v1/post`**
+- **`/api/v1/follow`**
 
 ---
 
-## Pre-commit hooks (Husky + nano-staged + Commitlint)
+## Scripts (root)
 
-| Hook           | File                | What runs                                                                                                                                                                                                                                    |
-| -------------- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **pre-commit** | `.husky/pre-commit` | `pnpm exec nano-staged` — lints **only staged** files using the mappings in root `package.json` → `nano-staged`. Staged `apps/api` TS/JS hits `turbo run lint --filter=api`; staged `apps/web` TS/JS/Vue hits `turbo run lint --filter=web`. |
-| **commit-msg** | `.husky/commit-msg` | `commitlint` with `@commitlint/config-conventional` — commit messages must follow [Conventional Commits](https://www.conventionalcommits.org/) (e.g. `feat(web): add login form`).                                                           |
+These are the scripts currently defined in the root `package.json`:
+
+| Script           | What it does                         |
+| ---------------- | ------------------------------------ |
+| `pnpm dev`       | `turbo run dev` across the workspace |
+| `pnpm dev:api`   | `turbo run dev --filter=api`         |
+| `pnpm dev:web`   | `turbo run dev --filter=web`         |
+| `pnpm build`     | `turbo run build`                    |
+| `pnpm build:api` | `turbo run build --filter=api`       |
+| `pnpm build:web` | `turbo run build --filter=web`       |
+| `pnpm lint`      | `turbo run lint`                     |
+| `pnpm lint:api`  | `turbo run lint --filter=api`        |
+| `pnpm lint:web`  | `turbo run lint --filter=web`        |
+
+---
+
+## Dev workflow & conventions
+
+- **TypeScript**: used across apps/packages
+- **ESLint**: shared configs from `packages/eslint-config`
+- **Git hooks**: Husky + nano-staged (pre-commit) + Commitlint (commit-msg)
 
 ---
 
 ## License
 
-This project is licensed under the **MIT License** — see [LICENSE](LICENSE).
-
----
-
-**Note:** Built for learning.
+MIT — see [LICENSE](LICENSE).
