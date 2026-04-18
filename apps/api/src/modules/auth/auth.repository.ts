@@ -17,9 +17,9 @@ export const authRepository = {
   async findByIdentifier(identifier: string) {
     return User.findOne({
       $or: [{ username: identifier }, { email: identifier }],
-      status: { $ne: 'deactivated' },
+      status: { $in: ['active', 'suspended', 'deactivated'] },
     })
-      .select('+password')
+      .select('+password +status')
       .lean();
   },
 

@@ -1,6 +1,5 @@
 import type { Request, Response } from 'express';
 import type { IPost } from './post.model.js';
-import mongoose from 'mongoose';
 import Post from './post.model.js';
 import User from '#/modules/user/user.model.js';
 import Follow from '#/modules/follow/follow.model.js';
@@ -12,7 +11,7 @@ import { ReasonPhrases, StatusCodes } from 'http-status-codes';
 export const createPost = async (req: Request, res: Response) => {
   try {
     const { content, image } = req.body as { content?: string; image?: string };
-    const userId: mongoose.Types.ObjectId = req.user._id;
+    const userId = req.user._id;
 
     // 1. content or image is required to create a post
     if (!content && !image) {

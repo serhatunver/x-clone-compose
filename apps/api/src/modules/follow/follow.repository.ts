@@ -26,7 +26,10 @@ export const followRepository = {
 
   async getFollowers(userId: string, limit = 20, skip = 0) {
     return await Follow.find({ following: userId })
-      .populate('follower', 'username avatar displayName')
+      .populate({
+        path: 'follower',
+        select: 'username avatar displayName',
+      })
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
@@ -61,7 +64,10 @@ export const followRepository = {
 
   async getFollowing(userId: string, limit = 20, skip = 0) {
     return await Follow.find({ follower: userId })
-      .populate('following', 'username avatar displayName')
+      .populate({
+        path: 'following',
+        select: 'username avatar displayName',
+      })
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
@@ -73,19 +79,27 @@ export const followRepository = {
   //     .match({ follower: new Types.ObjectId(userId) })
   //     .lookup({
   //       from: 'users',
+  //       localField: 'follower',
+  //       foreignField: '_id',
+  //       as: 'owner',
+  //     })
+  //     .unwind('$owner')
+  //     .match({ 'owner.status': 'active' })
+  //     .lookup({
+  //       from: 'users',
   //       localField: 'following',
   //       foreignField: '_id',
   //       as: 'followingDetails',
   //     })
   //     .unwind('$followingDetails')
+  //     .match({ 'followingDetails.status': 'active' })
   //     .project({
-  //       _id: 1,
-  //       createdAt: 1,
   //       following: {
   //         _id: '$followingDetails._id',
   //         username: '$followingDetails.username',
   //         avatar: '$followingDetails.avatar',
   //         displayName: '$followingDetails.displayName',
+  //         status: '$followingDetails.status',
   //       },
   //     })
   //     .sort({ createdAt: -1 })

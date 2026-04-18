@@ -1,9 +1,8 @@
-import { Schema, model, type InferSchemaType } from 'mongoose';
+import { Schema, model, type InferSchemaType, type Query } from 'mongoose';
 import { hashPassword } from '#/lib/utils/auth.utils.js';
 
 const userSchema = new Schema(
   {
-    _id: { type: Schema.Types.ObjectId, auto: true, required: true },
     username: {
       type: String,
       required: [true, 'Username is required'],
@@ -64,10 +63,26 @@ const userSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    isPrivate: {
+      type: Boolean,
+      default: false,
+    },
     status: {
       type: String,
       enum: ['active', 'suspended', 'deactivated'],
       default: 'active',
+    },
+    lastLogin: {
+      type: Date,
+    },
+    lastActive: {
+      type: Date,
+    },
+    suspendedAt: {
+      type: Date,
+    },
+    deactivatedAt: {
+      type: Date,
     },
     passwordResetToken: {
       type: String,
@@ -92,6 +107,10 @@ const userSchema = new Schema(
   },
 );
 
+userSchema.index({ status: 1 });
+userSchema.index({ username: 1, status: 1 });
+userSchema.index({ email: 1, status: 1 });
+
 userSchema.set('toJSON', {
   virtuals: true,
   transform: (_doc, ret) => {
@@ -112,6 +131,14 @@ userSchema.pre('save', async function () {
   if (!this.isModified('password')) return;
 
   this.password = await hashPassword(this.password);
+});
+
+userSchema.pre(/^find/, function (this: Query<unknown, IUser>) {
+  const filter = this.getFilter();
+
+  if (filter.status == undefined) {
+    this.where({ status: 'active' });
+  }
 });
 
 export type IUser = InferSchemaType<typeof userSchema>;
