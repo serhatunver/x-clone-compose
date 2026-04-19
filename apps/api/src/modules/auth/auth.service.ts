@@ -11,6 +11,9 @@ import { type RegisterInput, type LoginInput, RESPONSE_KEYS } from '@repo/shared
 import { logger } from '#/lib/utils/logger.js';
 import User, { USER_STATUS } from '#/modules/user/user.model.js';
 import { generateHashedToken, hashToken } from '#/lib/utils/crypto.utils.js';
+import { config } from '#/config/config.js';
+
+const authConfig = config.auth;
 
 const sendVerificationEmail = (email: string, token: string) => {
   logger.info(`[MAIL MOCK] Verification email sent to ${email}. Token: ${token}`);
@@ -40,7 +43,7 @@ export const authService = {
     }
 
     const { rawToken, hashedToken } = generateHashedToken();
-    const expires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours expiry
+    const expires = new Date(Date.now() + authConfig.verificationToken.expiresIn);
     const lastSentAt = new Date();
 
     const newUser = await authRepository.createUser(data, {
@@ -130,7 +133,7 @@ export const authService = {
       throw new BadRequestError(RESPONSE_KEYS.ERROR.AUTH.USER_NOT_FOUND, { email });
     }
 
-    const COOLDOWN_TIME = 5 * 60 * 1000; // 5 minutes
+    const COOLDOWN_TIME = authConfig.verificationToken.resendCooldown;
     if (
       user.emailVerificationLastSentAt &&
       Date.now() - user.emailVerificationLastSentAt.getTime() < COOLDOWN_TIME
@@ -139,7 +142,7 @@ export const authService = {
     }
 
     const { rawToken, hashedToken } = generateHashedToken();
-    const expires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours expiry
+    const expires = new Date(Date.now() + authConfig.verificationToken.expiresIn);
     const lastSentAt = new Date();
 
     await authRepository.updateVerificationToken(user._id.toString(), {
@@ -166,8 +169,7 @@ export const authService = {
       return genericResponse;
     }
 
-    // Cooldown Check: 5 Minutes
-    const COOLDOWN_TIME = 5 * 60 * 1000;
+    const COOLDOWN_TIME = authConfig.resetToken.resendCooldown;
     if (
       user.passwordResetLastSentAt &&
       Date.now() - user.passwordResetLastSentAt.getTime() < COOLDOWN_TIME
@@ -179,7 +181,7 @@ export const authService = {
 
     await authRepository.setResetToken(user._id.toString(), {
       hashedToken,
-      expires: new Date(Date.now() + 15 * 60 * 1000), // 15 mins validity
+      expires: new Date(Date.now() + authConfig.resetToken.expiresIn),
       lastSentAt: new Date(),
     });
 

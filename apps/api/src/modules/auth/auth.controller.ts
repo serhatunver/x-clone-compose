@@ -13,6 +13,9 @@ import type {
 import { RESPONSE_KEYS, HTTP_STATUS } from '@repo/shared';
 import { sendResponse } from '#/lib/utils/response.js';
 
+const authConfig = config.auth;
+const isProduction = config.app.isProduction;
+
 /**
  * Handle user registration
  */
@@ -32,9 +35,9 @@ export const login = async (req: ValidatedRequest<typeof loginSchema>, res: Resp
 
   res.cookie('auth.token', token, {
     httpOnly: true, // Prevents JavaScript access to the cookie
-    secure: config.app.isProduction, // Only send cookie over HTTPS in production
-    sameSite: config.security.auth.cookie.sameSite, // Prevents CSRF attacks
-    maxAge: config.security.auth.cookie.maxAge, // Cookie expiration time
+    secure: isProduction, // Only send cookie over HTTPS in production
+    sameSite: authConfig.cookie.sameSite, // Prevents CSRF attacks
+    maxAge: authConfig.cookie.maxAge, // Cookie expiration time
     path: '/', // Cookie is valid for the entire site
   });
 
@@ -47,8 +50,8 @@ export const login = async (req: ValidatedRequest<typeof loginSchema>, res: Resp
 export const logout = (_req: Request, res: Response) => {
   res.clearCookie('auth.token', {
     httpOnly: true,
-    secure: config.app.isProduction,
-    sameSite: config.security.auth.cookie.sameSite,
+    secure: isProduction,
+    sameSite: authConfig.cookie.sameSite,
     path: '/',
   });
 

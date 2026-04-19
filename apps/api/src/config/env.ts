@@ -11,10 +11,16 @@ const envSchema = z.object({
   // Authentication Configurations
   JWT_SECRET: z.string().min(12, 'JWT_SECRET must be at least 12 characters long'),
   JWT_EXPIRES_IN: z.string().default('1d'),
-  COOKIE_MAX_AGE: z.coerce.number().default(24 * 60 * 60 * 1000), // 1 day in milliseconds
+  VERIFICATION_TOKEN_EXPIRES_IN: z.coerce.number().default(24 * 60 * 60 * 1000), // 24 hours
+  VERIFICATION_TOKEN_RESEND_COOLDOWN: z.coerce.number().default(5 * 60 * 1000), // 5 minutes
+  RESET_TOKEN_EXPIRES_IN: z.coerce.number().default(15 * 60 * 1000), // 15 minutes
+  RESET_TOKEN_RESEND_COOLDOWN: z.coerce.number().default(5 * 60 * 1000), // 5 minutes
+  COOKIE_MAX_AGE: z.coerce.number().default(24 * 60 * 60 * 1000), // 24 hours
   // Rate Limiting Configurations
-  RATE_LIMIT_WINDOW_MS: z.coerce.number().default(15 * 60 * 1000), // 15 minutes
-  RATE_LIMIT_MAX_REQUESTS: z.coerce.number().default(100), // Limit each IP to 100 requests per windowMs
+  RATE_LIMIT_GLOBAL_WINDOW_MS: z.coerce.number().default(15 * 60 * 1000), // 15 minutes
+  RATE_LIMIT_GLOBAL_LIMIT: z.coerce.number().default(100), // Limit each IP to 100 requests per windowMs
+  RATE_LIMIT_AUTH_WINDOW_MS: z.coerce.number().default(15 * 60 * 1000), // 15 minutes
+  RATE_LIMIT_AUTH_LIMIT: z.coerce.number().default(5), // Limit each IP to 5 auth requests per windowMs
   // Argon2 Configurations
   ARGON2_MEMORY: z.coerce
     .number()

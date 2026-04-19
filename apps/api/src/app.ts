@@ -14,7 +14,7 @@ import v1Router from '#/modules/v1.routes.js';
 // Middlewares
 import { loggerMiddleware } from '#/middlewares/logger.middleware.js';
 import { globalErrorHandler, notFoundHandler } from '#/middlewares/error.middleware.js';
-import { generalLimiter, speedLimiter } from '#/middlewares/rate-limit.middleware.js';
+import { globalLimiter, speedLimiter } from '#/middlewares/rate-limit.middleware.js';
 
 // Swagger
 import swaggerUi from 'swagger-ui-express';
@@ -34,7 +34,7 @@ app.use(hpp());
 // Logging & Rate Limit
 app.use(loggerMiddleware);
 if (!config.app.isDevelopment) {
-  app.use(generalLimiter, speedLimiter);
+  app.use(globalLimiter, speedLimiter);
 }
 
 // Routes

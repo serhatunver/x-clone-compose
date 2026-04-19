@@ -4,17 +4,17 @@ import { rateLimit } from 'express-rate-limit';
 import { config } from '#/config/config.js';
 import { HTTP_STATUS, RESPONSE_KEYS } from '@repo/shared';
 
-const { windowMs, maxRequests } = config.security.rateLimit;
+const rateLimitConfig = config.rateLimit;
 
 export const speedLimiter = slowDown({
-  windowMs: windowMs,
-  delayAfter: Math.floor(maxRequests / 2), // Start slowing down after half the max requests
+  windowMs: rateLimitConfig.global.windowMs,
+  delayAfter: Math.floor(rateLimitConfig.global.limit / 2), // Start slowing down after half the max requests
   delayMs: (hits) => hits * 100, // Increase delay by 100ms for each request after the threshold
 });
 
-export const generalLimiter = rateLimit({
-  windowMs,
-  limit: maxRequests,
+export const globalLimiter = rateLimit({
+  windowMs: rateLimitConfig.global.windowMs,
+  limit: rateLimitConfig.global.limit,
   handler: (_req: Request, res: Response) => {
     res.status(HTTP_STATUS.TOO_MANY_REQUESTS).json({
       success: false,
@@ -31,8 +31,8 @@ export const generalLimiter = rateLimit({
 
 // Separate limiter for auth routes to allow fewer attempts
 export const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  limit: 5, // Allow only 5 attempts per 15 minutes
+  windowMs: rateLimitConfig.auth.windowMs,
+  limit: rateLimitConfig.auth.limit,
   handler: (_req: Request, res: Response) => {
     res.status(HTTP_STATUS.TOO_MANY_REQUESTS).json({
       success: false,

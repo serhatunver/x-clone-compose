@@ -10,8 +10,8 @@ const argon2Async = promisify(argon2);
 const BASE64_PAD_REGEX = /=+$/;
 const ARGON2_PARAMS_REGEX = /m=(\d+),t=(\d+),p=(\d+)/;
 
-const argon2Config = config.security.auth.argon2;
-const jwtConfig = config.security.auth.jwt;
+const argon2Config = config.auth.argon2;
+const jwtConfig = config.auth.jwt;
 
 const BOUNDS = {
   MIN_MEMORY: 8 * 1024, // 8 MB

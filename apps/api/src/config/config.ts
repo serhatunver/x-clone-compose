@@ -18,30 +18,43 @@ export const config = {
     // },
   },
 
-  security: {
-    auth: {
-      jwt: {
-        secret: env.JWT_SECRET,
-        expiresIn: env.JWT_EXPIRES_IN,
-      },
-      cookie: {
-        maxAge: env.COOKIE_MAX_AGE,
-        httpOnly: true,
-        secure: env.NODE_ENV === 'production',
-        sameSite: 'strict' as const,
-      },
-      argon2: {
-        memory: env.ARGON2_MEMORY,
-        passes: env.ARGON2_PASSES,
-        parallelism: env.ARGON2_PARALLELISM,
-        tagLength: env.ARGON2_TAG_LENGTH,
-        algorithm: env.ARGON2_ALGORITHM,
-        version: env.ARGON2_VERSION,
-      },
+  auth: {
+    jwt: {
+      secret: env.JWT_SECRET,
+      expiresIn: env.JWT_EXPIRES_IN,
     },
-    rateLimit: {
-      windowMs: env.RATE_LIMIT_WINDOW_MS,
-      maxRequests: env.RATE_LIMIT_MAX_REQUESTS,
+    verificationToken: {
+      expiresIn: env.VERIFICATION_TOKEN_EXPIRES_IN,
+      resendCooldown: env.VERIFICATION_TOKEN_RESEND_COOLDOWN,
+    },
+    resetToken: {
+      expiresIn: env.RESET_TOKEN_EXPIRES_IN,
+      resendCooldown: env.RESET_TOKEN_RESEND_COOLDOWN,
+    },
+    cookie: {
+      maxAge: env.COOKIE_MAX_AGE,
+      httpOnly: true,
+      secure: env.NODE_ENV === 'production',
+      sameSite: 'strict' as const,
+    },
+    argon2: {
+      memory: env.ARGON2_MEMORY,
+      passes: env.ARGON2_PASSES,
+      parallelism: env.ARGON2_PARALLELISM,
+      tagLength: env.ARGON2_TAG_LENGTH,
+      algorithm: env.ARGON2_ALGORITHM,
+      version: env.ARGON2_VERSION,
+    },
+  },
+
+  rateLimit: {
+    global: {
+      windowMs: env.RATE_LIMIT_GLOBAL_WINDOW_MS,
+      limit: env.RATE_LIMIT_GLOBAL_LIMIT,
+    },
+    auth: {
+      windowMs: env.RATE_LIMIT_AUTH_WINDOW_MS,
+      limit: env.RATE_LIMIT_AUTH_LIMIT,
     },
   },
 
