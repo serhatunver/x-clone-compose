@@ -1,6 +1,6 @@
 // Constants
 export * from './constants/http-codes.js';
-export * from './constants/error-keys.js';
+export * from './constants/response-keys.js';
 
 // Schemas
 export * from './schemas/common/primitives.js';
@@ -52,6 +52,7 @@ export * from './schemas/user/update-profile.schema.js';
 // export * from './enums/search-type.enum.js';
 
 // // Interfaces
+export * from './interfaces/response.js';
 // export * from './interfaces/user.interface.js';
 // export * from './interfaces/post.interface.js';
 // export * from './interfaces/comment.interface.js';

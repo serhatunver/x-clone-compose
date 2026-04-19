@@ -1,5 +1,5 @@
 import { Schema, model, type InferSchemaType, type HydratedDocument } from 'mongoose';
-import { ERROR_KEYS } from '@repo/shared';
+import { RESPONSE_KEYS } from '@repo/shared';
 
 const followSchema = new Schema(
   {
@@ -16,7 +16,7 @@ followSchema.index({ following: 1, createdAt: -1 });
 
 followSchema.pre('save', function () {
   if (this.follower.equals(this.following)) {
-    throw new Error(ERROR_KEYS.FOLLOW.CANNOT_FOLLOW_SELF);
+    throw new Error(RESPONSE_KEYS.ERROR.FOLLOW.CANNOT_FOLLOW_SELF);
   }
 });
 

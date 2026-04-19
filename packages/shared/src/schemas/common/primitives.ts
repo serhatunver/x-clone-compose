@@ -1,4 +1,7 @@
 import { z } from 'zod';
+import { RESPONSE_KEYS } from '@repo/shared';
+
+const V = RESPONSE_KEYS.ERROR.VALIDATION;
 
 const UPPERCASE_REGEX = /[A-Z]/;
 const LOWERCASE_REGEX = /[a-z]/;
@@ -7,9 +10,9 @@ const SPECIAL_CHAR_REGEX = /[^A-Za-z0-9]/;
 const CONSECUTIVE_CHARS_REGEX = /(.)\1{3,}/;
 
 export const passwordSchema = z
-  .string({ error: 'Password is required' })
-  .min(10, 'Password must be at least 10 characters long.')
-  .max(64, 'Password can be at most 64 characters long.')
+  .string({ error: V.REQUIRED })
+  .min(10, V.TOO_SHORT)
+  .max(64, V.TOO_LONG)
   .refine(
     (val) => {
       const hasUpper = UPPERCASE_REGEX.test(val);
@@ -21,8 +24,8 @@ export const passwordSchema = z
       return hasUpper && hasLower && hasNumber && hasSpecial && noRepeat;
     },
     {
-      message:
-        'Password must contain at least one uppercase letter, lowercase letter, number, and special character; and must not contain too many consecutive characters.',
+      error: V.INVALID_PASSWORD_FORMAT,
+      path: ['password'],
     }
   );
 // .regex(/[A-Z]/, 'Password must contain at least one uppercase letter.')
@@ -50,34 +53,29 @@ export const RESERVED_USERNAMES = new Set([
 ]);
 
 export const usernameSchema = z
-  .string({ error: 'Username is required' })
+  .string({ error: V.REQUIRED })
   .trim()
-  .min(4, 'Username must be at least 4 characters long.')
-  .max(15, 'Username can be at most 15 characters long.')
+  .min(4, V.TOO_SHORT)
+  .max(15, V.TOO_LONG)
   // .regex(/^[a-z0-9_]+$/, 'Username can only contain lowercase letters, numbers and underscores.')
   // .regex(/^[a-z_]/, 'Username must start with a letter or underscore.')
   //merged regex to allow dots and hyphens but not at the start or end, and not consecutive
-  .regex(
-    /^[a-z_][a-z0-9_]*$/,
-    'Username must start with a letter or underscore and can only contain lowercase letters, numbers, and underscores.'
-  )
+  .regex(/^[a-z_][a-z0-9_]*$/, V.INVALID_USERNAME_FORMAT)
   .refine((val) => !RESERVED_USERNAMES.has(val.toLowerCase()), {
-    message: 'This username is reserved and cannot be used.',
+    error: V.USERNAME_RESERVED,
+    path: ['username'],
   });
 
 export const emailSchema = z
-  .email('Invalid email address')
+  .email({ error: V.INVALID_EMAIL })
   .trim()
   .toLowerCase()
-  .max(255, 'Email can be at most 255 characters long.');
+  .max(255, V.TOO_LONG);
 
 export const displayNameSchema = z
   .string()
-  .min(1, 'Display name cannot be empty.')
-  .max(30, 'Display name can be at most 30 characters long.')
+  .min(1, V.REQUIRED)
+  .max(30, V.TOO_LONG)
   .trim()
-  .regex(
-    /^[a-zA-Z0-9 ]+$/,
-    'Display name can only contain letters, numbers, and spaces.'
-  )
+  .regex(/^[a-zA-Z0-9 ]+$/, V.INVALID_DISPLAY_NAME_FORMAT)
   .transform((val) => val.replace(/\s+/g, ' '));

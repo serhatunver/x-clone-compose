@@ -1,7 +1,8 @@
+import type { Request, Response } from 'express';
 import { slowDown } from 'express-slow-down';
 import { rateLimit } from 'express-rate-limit';
 import { config } from '#/config/config.js';
-import { HTTP_STATUS, ERROR_KEYS } from '@repo/shared';
+import { HTTP_STATUS, RESPONSE_KEYS } from '@repo/shared';
 
 const { windowMs, maxRequests } = config.security.rateLimit;
 
@@ -14,9 +15,14 @@ export const speedLimiter = slowDown({
 export const generalLimiter = rateLimit({
   windowMs,
   limit: maxRequests,
-  message: {
-    status: HTTP_STATUS.TOO_MANY_REQUESTS,
-    message: ERROR_KEYS.SYSTEM.RATE_LIMIT_EXCEEDED,
+  handler: (_req: Request, res: Response) => {
+    res.status(HTTP_STATUS.TOO_MANY_REQUESTS).json({
+      success: false,
+      messageKey: RESPONSE_KEYS.ERROR.SYSTEM.RATE_LIMIT_EXCEEDED,
+      error: {
+        code: 'RateLimitExceeded',
+      },
+    });
   },
   standardHeaders: 'draft-8', // Use the latest standard for rate limit headers
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
@@ -27,9 +33,14 @@ export const generalLimiter = rateLimit({
 export const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   limit: 5, // Allow only 5 attempts per 15 minutes
-  message: {
-    status: HTTP_STATUS.TOO_MANY_REQUESTS,
-    message: ERROR_KEYS.AUTH.TOO_MANY_ATTEMPTS,
+  handler: (_req: Request, res: Response) => {
+    res.status(HTTP_STATUS.TOO_MANY_REQUESTS).json({
+      success: false,
+      messageKey: RESPONSE_KEYS.ERROR.AUTH.TOO_MANY_ATTEMPTS,
+      error: {
+        code: 'TooManyAttemptsError',
+      },
+    });
   },
   standardHeaders: 'draft-8',
   legacyHeaders: false,

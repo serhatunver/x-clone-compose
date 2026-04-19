@@ -8,7 +8,7 @@ import {
   BadRequestError,
   ForbiddenError,
 } from '#/lib/utils/error.handler.js';
-import { type RegisterInput, type LoginInput, ERROR_KEYS } from '@repo/shared';
+import { type RegisterInput, type LoginInput, RESPONSE_KEYS } from '@repo/shared';
 import { logger } from '#/lib/utils/logger.js';
 import User, { USER_STATUS } from '#/modules/user/user.model.js';
 
@@ -56,10 +56,10 @@ export const authService = {
     ]);
 
     if (existingUser) {
-      throw new ConflictError(ERROR_KEYS.USER.USERNAME_TAKEN, { username: data.username });
+      throw new ConflictError(RESPONSE_KEYS.ERROR.USER.USERNAME_TAKEN, { username: data.username });
     }
     if (existingEmail) {
-      throw new ConflictError(ERROR_KEYS.USER.EMAIL_TAKEN, { email: data.email });
+      throw new ConflictError(RESPONSE_KEYS.ERROR.USER.EMAIL_TAKEN, { email: data.email });
     }
 
     const { rawToken, hashedToken } = generateToken();
@@ -85,17 +85,17 @@ export const authService = {
 
     if (!user || !(await comparePassword(data.password, user.password))) {
       logger.warn(`Failed login attempt for identifier: ${data.identifier}`);
-      throw new UnauthorizedError(ERROR_KEYS.AUTH.INVALID_CREDENTIALS, {
+      throw new UnauthorizedError(RESPONSE_KEYS.ERROR.AUTH.INVALID_CREDENTIALS, {
         identifier: data.identifier,
       });
     }
 
     if (user.status === USER_STATUS.SUSPENDED) {
-      throw new ForbiddenError(ERROR_KEYS.AUTH.ACCOUNT_SUSPENDED);
+      throw new ForbiddenError(RESPONSE_KEYS.ERROR.AUTH.ACCOUNT_SUSPENDED);
     }
 
     if (user.status === USER_STATUS.PENDING) {
-      throw new ForbiddenError(ERROR_KEYS.AUTH.EMAIL_NOT_VERIFIED, {
+      throw new ForbiddenError(RESPONSE_KEYS.ERROR.AUTH.EMAIL_NOT_VERIFIED, {
         email: user.email,
       });
     }
@@ -123,7 +123,7 @@ export const authService = {
   async getMe(userId: string) {
     const user = await authRepository.findById(userId);
     if (!user) {
-      throw new NotFoundError(ERROR_KEYS.AUTH.USER_NOT_FOUND, {
+      throw new NotFoundError(RESPONSE_KEYS.ERROR.AUTH.USER_NOT_FOUND, {
         userId,
       });
     }
@@ -135,7 +135,7 @@ export const authService = {
     const user = await authRepository.findByVerificationToken(hashedToken);
 
     if (!user) {
-      throw new BadRequestError(ERROR_KEYS.AUTH.TOKEN_INVALID);
+      throw new BadRequestError(RESPONSE_KEYS.ERROR.AUTH.TOKEN_INVALID);
     }
 
     await authRepository.updateVerificationStatus(user._id.toString());
@@ -148,9 +148,7 @@ export const authService = {
 
     // eslint-disable-next-line @typescript-eslint/prefer-optional-chain
     if (!user || user.status !== USER_STATUS.PENDING) {
-      return {
-        message: ERROR_KEYS.AUTH.VERIFICATION_EMAIL_SENT,
-      };
+      throw new BadRequestError(RESPONSE_KEYS.ERROR.AUTH.USER_NOT_FOUND, { email });
     }
 
     const COOLDOWN_TIME = 5 * 60 * 1000; // 5 minutes
@@ -158,7 +156,7 @@ export const authService = {
       user.emailVerificationLastSentAt &&
       Date.now() - user.emailVerificationLastSentAt.getTime() < COOLDOWN_TIME
     ) {
-      throw new BadRequestError(ERROR_KEYS.AUTH.TOO_MANY_ATTEMPTS);
+      throw new BadRequestError(RESPONSE_KEYS.ERROR.AUTH.TOO_MANY_ATTEMPTS);
     }
 
     const { rawToken, hashedToken } = generateToken();
@@ -181,7 +179,7 @@ export const authService = {
 
     // Security: Generic message
     const genericResponse = {
-      message: ERROR_KEYS.AUTH.PASSWORD_RESET_EMAIL_SENT,
+      message: RESPONSE_KEYS.SUCCESS.AUTH.PASSWORD_RESET_EMAIL_SENT,
     };
     if (!user) return genericResponse;
 
@@ -215,7 +213,7 @@ export const authService = {
 
     const user = await authRepository.findByValidResetToken(hashedToken);
     if (!user) {
-      throw new BadRequestError(ERROR_KEYS.AUTH.TOKEN_INVALID, {
+      throw new BadRequestError(RESPONSE_KEYS.ERROR.AUTH.TOKEN_INVALID, {
         detail: 'Token is invalid or has expired',
       });
     }

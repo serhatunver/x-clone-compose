@@ -1,14 +1,17 @@
 import { z } from 'zod';
+import { RESPONSE_KEYS } from '@repo/shared';
+
+const V = RESPONSE_KEYS.ERROR.VALIDATION;
 
 const OBJECT_ID_REGEX = /^[0-9a-fA-F]{24}$/;
 
 export const userIdParam = z.object({
-  userId: z.string().regex(OBJECT_ID_REGEX, 'Invalid User ID format'),
+  userId: z.string().regex(OBJECT_ID_REGEX, V.INVALID_FORMAT),
 });
 
 export const paginationQuery = z.object({
   page: z.coerce.number().int().positive().default(1),
-  limit: z.coerce.number().int().positive().max(100).default(20),
+  limit: z.coerce.number().int().positive().max(100, V.TOO_LONG).default(20),
 });
 
 export const followToggleSchema = z.object({

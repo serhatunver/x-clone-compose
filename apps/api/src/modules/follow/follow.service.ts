@@ -2,12 +2,12 @@ import mongoose from 'mongoose';
 import { followRepository } from './follow.repository.js';
 import { userRepository } from '../user/user.repository.js';
 import { BadRequestError } from '#/lib/utils/error.handler.js';
-import { ERROR_KEYS, type FollowParams, type FollowQuery } from '@repo/shared';
+import { RESPONSE_KEYS, type FollowParams, type FollowQuery } from '@repo/shared';
 
 export const followService = {
   async toggleFollow(followerId: string, followingId: string) {
     if (followerId === followingId) {
-      throw new BadRequestError(ERROR_KEYS.FOLLOW.CANNOT_FOLLOW_SELF);
+      throw new BadRequestError(RESPONSE_KEYS.ERROR.FOLLOW.CANNOT_FOLLOW_SELF);
     }
 
     const result = await mongoose.connection.transaction(async () => {

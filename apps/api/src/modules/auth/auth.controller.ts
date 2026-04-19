@@ -10,6 +10,8 @@ import type {
   forgotPasswordSchema,
   resetPasswordSchema,
 } from '@repo/shared';
+import { RESPONSE_KEYS, HTTP_STATUS } from '@repo/shared';
+import { sendResponse } from '#/lib/utils/response.js';
 
 /**
  * Handle user registration
@@ -18,7 +20,7 @@ export const register = async (req: ValidatedRequest<typeof registerSchema>, res
   const registerData = req.validated.body;
   const user = await authService.register(registerData);
 
-  return res.status(201).json({ message: 'User created successfully', user });
+  return sendResponse(res, RESPONSE_KEYS.SUCCESS.AUTH.REGISTER, { user }, HTTP_STATUS.CREATED);
 };
 
 /**
@@ -36,7 +38,7 @@ export const login = async (req: ValidatedRequest<typeof loginSchema>, res: Resp
     path: '/', // Cookie is valid for the entire site
   });
 
-  return res.status(200).json({ user, token });
+  return sendResponse(res, RESPONSE_KEYS.SUCCESS.AUTH.LOGIN, { user });
 };
 
 /**
@@ -49,7 +51,8 @@ export const logout = (_req: Request, res: Response) => {
     sameSite: config.security.auth.cookie.sameSite,
     path: '/',
   });
-  return res.status(200).json({ message: 'Logged out successfully' });
+
+  return sendResponse(res, RESPONSE_KEYS.SUCCESS.AUTH.LOGOUT);
 };
 
 /**
@@ -59,7 +62,7 @@ export const getMe = async (req: Request, res: Response) => {
   const userId = req.user._id;
   const user = await authService.getMe(userId);
 
-  return res.status(200).json(user);
+  return sendResponse(res, RESPONSE_KEYS.SUCCESS.AUTH.GET_ME, { user });
 };
 
 /**
@@ -73,7 +76,8 @@ export const verifyEmail = async (
 ) => {
   const { token } = req.validated.params;
   const result = await authService.verifyEmail(token);
-  return res.status(200).json(result);
+
+  return sendResponse(res, RESPONSE_KEYS.SUCCESS.AUTH.EMAIL_VERIFIED, result);
 };
 
 // export const resendVerificationEmail = async (req: Request, res: Response) => {
@@ -88,7 +92,8 @@ export const resendVerificationEmail = async (
 ) => {
   const { email } = req.validated.body;
   const result = await authService.resendVerificationEmail(email);
-  return res.status(200).json(result);
+
+  return sendResponse(res, RESPONSE_KEYS.SUCCESS.AUTH.VERIFICATION_EMAIL_SENT, result);
 };
 
 /**
@@ -106,7 +111,7 @@ export const forgotPassword = async (
     debugToken,
   };
 
-  return res.status(200).json(result);
+  return sendResponse(res, RESPONSE_KEYS.SUCCESS.AUTH.PASSWORD_RESET_EMAIL_SENT, result);
 };
 
 /**
@@ -119,5 +124,6 @@ export const resetPassword = async (
   const { token } = req.validated.params;
   const { password } = req.validated.body;
   const result = await authService.resetPassword(token, password);
-  return res.status(200).json(result);
+
+  return sendResponse(res, RESPONSE_KEYS.SUCCESS.AUTH.PASSWORD_CHANGED, result);
 };

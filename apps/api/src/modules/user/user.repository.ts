@@ -2,7 +2,7 @@ import User, { type IUser } from './user.model.js';
 import type { UpdateProfileInput } from '@repo/shared';
 import type { UpdateQuery } from 'mongoose';
 import { BadRequestError } from '#/lib/utils/error.handler.js';
-import { ERROR_KEYS } from '@repo/shared';
+import { RESPONSE_KEYS } from '@repo/shared';
 
 type UserCounterFields = keyof Pick<IUser, 'followersCount' | 'followingCount' | 'totalPosts'>;
 type CounterAction = 'increment' | 'decrement';
@@ -26,7 +26,7 @@ export const userRepository = {
 
   async adjustCounts(userId: string, updates: Partial<Record<UserCounterFields, CounterAction>>) {
     if (!updates || Object.keys(updates).length === 0) {
-      throw new BadRequestError(ERROR_KEYS.USER.UPDATE_FAILED, {
+      throw new BadRequestError(RESPONSE_KEYS.ERROR.USER.UPDATE_FAILED, {
         reason: 'No updates provided for user counts',
       });
     }
@@ -50,7 +50,7 @@ export const userRepository = {
     ).lean();
 
     if (!updatedUser) {
-      throw new BadRequestError(ERROR_KEYS.USER.UPDATE_FAILED, {
+      throw new BadRequestError(RESPONSE_KEYS.ERROR.USER.UPDATE_FAILED, {
         reason: 'Cannot decrement count below zero or user not found',
       });
     }

@@ -1,21 +1,21 @@
-import { ERROR_KEYS, HTTP_STATUS, type ErrorKey } from '@repo/shared';
+import { RESPONSE_KEYS, HTTP_STATUS, type ErrorKey, type HttpStatus } from '@repo/shared';
 
 /**
  * Base Error Handler class that extends the built-in Error
  */
 export class ErrorHandler extends Error {
-  public readonly errorCode: ErrorKey;
-  public readonly statusCode: number;
+  public readonly messageKey: ErrorKey;
+  public readonly statusCode: HttpStatus;
   public readonly isOperational: boolean;
-  public readonly data?: Record<string, unknown>;
+  public readonly meta?: Record<string, unknown>;
 
-  constructor(errorCode: ErrorKey, statusCode: number, data?: Record<string, unknown>) {
-    super(errorCode);
-    this.name = this.constructor.name;
-    this.errorCode = errorCode;
+  constructor(messageKey: ErrorKey, statusCode: HttpStatus, meta?: Record<string, unknown>) {
+    super(messageKey);
+    this.name = this.constructor.name || 'Error';
+    this.messageKey = messageKey;
     this.statusCode = statusCode;
     this.isOperational = true; // Marks the error as a known/handled error
-    this.data = data;
+    this.meta = meta;
 
     // Maintains proper stack trace for where the error was thrown
     Error.captureStackTrace(this, this.constructor);
@@ -26,8 +26,8 @@ export class ErrorHandler extends Error {
  * 400 - Bad Request
  */
 export class BadRequestError extends ErrorHandler {
-  constructor(errorCode: ErrorKey, data?: Record<string, unknown>) {
-    super(errorCode, HTTP_STATUS.BAD_REQUEST, data);
+  constructor(messageKey: ErrorKey, meta?: Record<string, unknown>) {
+    super(messageKey, HTTP_STATUS.BAD_REQUEST, meta);
   }
 }
 
@@ -35,8 +35,11 @@ export class BadRequestError extends ErrorHandler {
  * 401 - Unauthorized
  */
 export class UnauthorizedError extends ErrorHandler {
-  constructor(errorCode: ErrorKey = ERROR_KEYS.AUTH.UNAUTHORIZED, data?: Record<string, unknown>) {
-    super(errorCode, HTTP_STATUS.UNAUTHORIZED, data);
+  constructor(
+    messageKey: ErrorKey = RESPONSE_KEYS.ERROR.AUTH.UNAUTHORIZED,
+    meta?: Record<string, unknown>,
+  ) {
+    super(messageKey, HTTP_STATUS.UNAUTHORIZED, meta);
   }
 }
 
@@ -44,8 +47,11 @@ export class UnauthorizedError extends ErrorHandler {
  * 403 - Forbidden
  */
 export class ForbiddenError extends ErrorHandler {
-  constructor(errorCode: ErrorKey = ERROR_KEYS.AUTH.FORBIDDEN, data?: Record<string, unknown>) {
-    super(errorCode, HTTP_STATUS.FORBIDDEN, data);
+  constructor(
+    messageKey: ErrorKey = RESPONSE_KEYS.ERROR.AUTH.FORBIDDEN,
+    meta?: Record<string, unknown>,
+  ) {
+    super(messageKey, HTTP_STATUS.FORBIDDEN, meta);
   }
 }
 
@@ -53,8 +59,8 @@ export class ForbiddenError extends ErrorHandler {
  * 404 - Not Found
  */
 export class NotFoundError extends ErrorHandler {
-  constructor(errorCode: ErrorKey, data?: Record<string, unknown>) {
-    super(errorCode, HTTP_STATUS.NOT_FOUND, data);
+  constructor(messageKey: ErrorKey, meta?: Record<string, unknown>) {
+    super(messageKey, HTTP_STATUS.NOT_FOUND, meta);
   }
 }
 
@@ -62,8 +68,8 @@ export class NotFoundError extends ErrorHandler {
  * 409 - Conflict (e.g. Email already exists)
  */
 export class ConflictError extends ErrorHandler {
-  constructor(errorCode: ErrorKey, data?: Record<string, unknown>) {
-    super(errorCode, HTTP_STATUS.CONFLICT, data);
+  constructor(messageKey: ErrorKey, meta?: Record<string, unknown>) {
+    super(messageKey, HTTP_STATUS.CONFLICT, meta);
   }
 }
 
@@ -71,8 +77,8 @@ export class ConflictError extends ErrorHandler {
  * 422 - Validation Error (Zod results)
  */
 export class ValidationError extends ErrorHandler {
-  constructor(errorCode: ErrorKey, data?: Record<string, unknown>) {
-    super(errorCode, HTTP_STATUS.UNPROCESSABLE_ENTITY, data);
+  constructor(messageKey: ErrorKey, meta?: Record<string, unknown>) {
+    super(messageKey, HTTP_STATUS.UNPROCESSABLE_ENTITY, meta);
   }
 }
 
@@ -81,9 +87,9 @@ export class ValidationError extends ErrorHandler {
  */
 export class InternalServerError extends ErrorHandler {
   constructor(
-    errorCode: ErrorKey = ERROR_KEYS.SYSTEM.INTERNAL_SERVER_ERROR,
-    data?: Record<string, unknown>,
+    messageKey: ErrorKey = RESPONSE_KEYS.ERROR.SYSTEM.INTERNAL_SERVER_ERROR,
+    meta?: Record<string, unknown>,
   ) {
-    super(errorCode, HTTP_STATUS.INTERNAL_SERVER_ERROR, data);
+    super(messageKey, HTTP_STATUS.INTERNAL_SERVER_ERROR, meta);
   }
 }
