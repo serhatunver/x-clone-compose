@@ -1,4 +1,3 @@
-import crypto from 'node:crypto';
 import { authRepository } from './auth.repository.js';
 import { comparePassword, checkNeedsRehash, generateAuthToken } from '#/lib/utils/auth.utils.js';
 import {
@@ -11,6 +10,7 @@ import {
 import { type RegisterInput, type LoginInput, RESPONSE_KEYS } from '@repo/shared';
 import { logger } from '#/lib/utils/logger.js';
 import User, { USER_STATUS } from '#/modules/user/user.model.js';
+import { generateHashedToken, hashToken } from '#/lib/utils/crypto.utils.js';
 
 const sendVerificationEmail = (email: string, token: string) => {
   logger.info(`[MAIL MOCK] Verification email sent to ${email}. Token: ${token}`);
@@ -18,18 +18,6 @@ const sendVerificationEmail = (email: string, token: string) => {
 
 // const sendResetEmail = async (email: string, token: string) => {
 //   logger.info(`[MAIL MOCK] Password reset email sent to ${email}. Token: ${token}`);
-// };
-
-// const generateRandomToken = () => {
-//   return crypto.randomBytes(32).toString('hex');
-// };
-
-// const hashToken = (token: string) => {
-//   return crypto.createHash('sha256').update(token).digest('hex');
-// };
-
-// const generateHashedToken = (token: string) => {
-//   return crypto.createHash('sha256').update(token).digest('hex');
 // };
 
 // const TOKEN_EXPIRY = {
@@ -41,12 +29,6 @@ const sendVerificationEmail = (email: string, token: string) => {
 //   if (!lastSentAt) return false;
 //   return Date.now() - lastSentAt.getTime() < cooldownTime;
 // };
-
-const generateToken = () => {
-  const rawToken = crypto.randomBytes(32).toString('hex');
-  const hashedToken = crypto.createHash('sha256').update(rawToken).digest('hex');
-  return { rawToken, hashedToken };
-};
 
 export const authService = {
   async register(data: RegisterInput) {
@@ -62,7 +44,7 @@ export const authService = {
       throw new ConflictError(RESPONSE_KEYS.ERROR.USER.EMAIL_TAKEN, { email: data.email });
     }
 
-    const { rawToken, hashedToken } = generateToken();
+    const { rawToken, hashedToken } = generateHashedToken();
     const expires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours expiry
     const lastSentAt = new Date();
 
@@ -84,11 +66,11 @@ export const authService = {
     const user = await authRepository.findByIdentifier(data.identifier);
 
     if (!user || !(await comparePassword(data.password, user.password))) {
-      logger.warn(`Failed login attempt for identifier: ${data.identifier}`);
-      throw new UnauthorizedError(RESPONSE_KEYS.ERROR.AUTH.INVALID_CREDENTIALS, {
-        identifier: data.identifier,
-      });
+      throw new UnauthorizedError(RESPONSE_KEYS.ERROR.AUTH.INVALID_CREDENTIALS);
     }
+
+    // TODO Check if user is suspended or pending verification and throw appropriate errors
+    // checkUserStatus(user);
 
     if (user.status === USER_STATUS.SUSPENDED) {
       throw new ForbiddenError(RESPONSE_KEYS.ERROR.AUTH.ACCOUNT_SUSPENDED);
@@ -107,6 +89,7 @@ export const authService = {
       userDoc.password = data.password;
       await userDoc.save();
       logger.info(`Rehashed password for ${user.username}`);
+      // await authRepository.updatePassword(user._id.toString(), data.password);
     }
 
     const token = await generateAuthToken(
@@ -131,7 +114,8 @@ export const authService = {
   },
 
   async verifyEmail(token: string) {
-    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+    const hashedToken = hashToken(token);
+
     const user = await authRepository.findByVerificationToken(hashedToken);
 
     if (!user) {
@@ -159,7 +143,7 @@ export const authService = {
       throw new BadRequestError(RESPONSE_KEYS.ERROR.AUTH.TOO_MANY_ATTEMPTS);
     }
 
-    const { rawToken, hashedToken } = generateToken();
+    const { rawToken, hashedToken } = generateHashedToken();
     const expires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours expiry
     const lastSentAt = new Date();
 
@@ -196,7 +180,7 @@ export const authService = {
       return genericResponse;
     }
 
-    const { rawToken, hashedToken } = generateToken();
+    const { rawToken, hashedToken } = generateHashedToken();
 
     await authRepository.setResetToken(user._id.toString(), {
       hashedToken,
@@ -209,7 +193,7 @@ export const authService = {
   },
 
   async resetPassword(token: string, password: string) {
-    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+    const hashedToken = hashToken(token);
 
     const user = await authRepository.findByValidResetToken(hashedToken);
     if (!user) {

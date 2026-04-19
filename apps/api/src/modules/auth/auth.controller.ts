@@ -66,9 +66,7 @@ export const getMe = async (req: Request, res: Response) => {
 };
 
 /**
- * Handle email verification using token
- * @param token - Email verification token sent to user's email
- * @return JSON response indicating success or failure of email verification
+ * Verify user's email using token
  */
 export const verifyEmail = async (
   req: ValidatedRequest<typeof verifyEmailSchema>,
@@ -80,12 +78,9 @@ export const verifyEmail = async (
   return sendResponse(res, RESPONSE_KEYS.SUCCESS.AUTH.EMAIL_VERIFIED, result);
 };
 
-// export const resendVerificationEmail = async (req: Request, res: Response) => {
-//   const userId = req.user._id;
-//   const result = await authService.resendVerificationEmail(userId);
-//   return res.status(200).json(result);
-// }
-
+/**
+ * Resend email verification link to user's email
+ */
 export const resendVerificationEmail = async (
   req: ValidatedRequest<typeof resendVerificationEmailSchema>,
   res: Response,
@@ -97,7 +92,7 @@ export const resendVerificationEmail = async (
 };
 
 /**
- * Send password reset email
+ * Send password reset email with token
  */
 export const forgotPassword = async (
   req: ValidatedRequest<typeof forgotPasswordSchema>,
@@ -115,7 +110,7 @@ export const forgotPassword = async (
 };
 
 /**
- * Reset password using token
+ * Reset user password using token
  */
 export const resetPassword = async (
   req: ValidatedRequest<typeof resetPasswordSchema>,

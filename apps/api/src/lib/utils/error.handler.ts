@@ -1,15 +1,15 @@
-import { RESPONSE_KEYS, HTTP_STATUS, type ErrorKey, type HttpStatus } from '@repo/shared';
+import { RESPONSE_KEYS, HTTP_STATUS, type ErrorKey } from '@repo/shared';
 
 /**
  * Base Error Handler class that extends the built-in Error
  */
 export class ErrorHandler extends Error {
   public readonly messageKey: ErrorKey;
-  public readonly statusCode: HttpStatus;
+  public readonly statusCode: number;
   public readonly isOperational: boolean;
   public readonly meta?: Record<string, unknown>;
 
-  constructor(messageKey: ErrorKey, statusCode: HttpStatus, meta?: Record<string, unknown>) {
+  constructor(messageKey: ErrorKey, statusCode: number, meta?: Record<string, unknown>) {
     super(messageKey);
     this.name = this.constructor.name || 'Error';
     this.messageKey = messageKey;
@@ -26,7 +26,10 @@ export class ErrorHandler extends Error {
  * 400 - Bad Request
  */
 export class BadRequestError extends ErrorHandler {
-  constructor(messageKey: ErrorKey, meta?: Record<string, unknown>) {
+  constructor(
+    messageKey: ErrorKey = RESPONSE_KEYS.ERROR.SYSTEM.BAD_REQUEST,
+    meta?: Record<string, unknown>,
+  ) {
     super(messageKey, HTTP_STATUS.BAD_REQUEST, meta);
   }
 }
@@ -59,7 +62,10 @@ export class ForbiddenError extends ErrorHandler {
  * 404 - Not Found
  */
 export class NotFoundError extends ErrorHandler {
-  constructor(messageKey: ErrorKey, meta?: Record<string, unknown>) {
+  constructor(
+    messageKey: ErrorKey = RESPONSE_KEYS.ERROR.SYSTEM.NOT_FOUND,
+    meta?: Record<string, unknown>,
+  ) {
     super(messageKey, HTTP_STATUS.NOT_FOUND, meta);
   }
 }
@@ -68,7 +74,10 @@ export class NotFoundError extends ErrorHandler {
  * 409 - Conflict (e.g. Email already exists)
  */
 export class ConflictError extends ErrorHandler {
-  constructor(messageKey: ErrorKey, meta?: Record<string, unknown>) {
+  constructor(
+    messageKey: ErrorKey = RESPONSE_KEYS.ERROR.SYSTEM.CONFLICT,
+    meta?: Record<string, unknown>,
+  ) {
     super(messageKey, HTTP_STATUS.CONFLICT, meta);
   }
 }
@@ -77,7 +86,10 @@ export class ConflictError extends ErrorHandler {
  * 422 - Validation Error (Zod results)
  */
 export class ValidationError extends ErrorHandler {
-  constructor(messageKey: ErrorKey, meta?: Record<string, unknown>) {
+  constructor(
+    messageKey: ErrorKey = RESPONSE_KEYS.ERROR.VALIDATION.VALIDATION_FAILED,
+    meta?: Record<string, unknown>,
+  ) {
     super(messageKey, HTTP_STATUS.UNPROCESSABLE_ENTITY, meta);
   }
 }

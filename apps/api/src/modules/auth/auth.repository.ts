@@ -14,6 +14,13 @@ export const authRepository = {
     return User.findOne({ email, status: { $in: USER_STATUS_VALUES } }).lean();
   },
 
+  async findDuplicateUser(username: string, email: string) {
+    return User.findOne({
+      $or: [{ username }, { email }],
+      status: { $in: USER_STATUS_VALUES },
+    }).lean();
+  },
+
   async findByIdentifier(identifier: string) {
     return User.findOne({
       $or: [{ username: identifier }, { email: identifier }],
@@ -46,7 +53,7 @@ export const authRepository = {
     return User.findOne({
       emailVerificationToken: hashedToken,
       emailVerificationExpires: { $gt: new Date() },
-      status: 'pending',
+      status: USER_STATUS.PENDING,
     }).select('+emailVerificationToken +emailVerificationExpires');
   },
 
@@ -55,7 +62,7 @@ export const authRepository = {
    */
   async updateVerificationStatus(userId: string) {
     return User.findOneAndUpdate(
-      { _id: userId, status: 'pending' },
+      { _id: userId, status: USER_STATUS.PENDING },
       {
         $set: { status: 'active' },
         $unset: { emailVerificationToken: 1, emailVerificationExpires: 1 },
