@@ -154,7 +154,7 @@ const JWT_SECRET = new TextEncoder().encode(jwtConfig.secret);
  * @returns A signed JWT token as a string
  */
 
-export const generateToken = async (
+export const generateAuthToken = async (
   userId: Types.ObjectId,
   username: string,
   // tokenVersion: number

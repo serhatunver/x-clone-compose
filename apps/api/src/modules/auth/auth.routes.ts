@@ -4,6 +4,8 @@ import {
   login,
   logout,
   getMe,
+  verifyEmail,
+  resendVerificationEmail,
   forgotPassword,
   resetPassword,
 } from './auth.controller.js';
@@ -11,6 +13,8 @@ import { validate } from '#/middlewares/validate.middleware.js';
 import {
   registerSchema,
   loginSchema,
+  verifyEmailSchema,
+  resendVerificationEmailSchema,
   forgotPasswordSchema,
   resetPasswordSchema,
 } from '@repo/shared';
@@ -23,6 +27,12 @@ router.post('/register', authLimiter, validate(registerSchema), register);
 router.post('/login', authLimiter, validate(loginSchema), login);
 router.post('/logout', logout);
 router.get('/me', protect, getMe);
+router.get('/verify-email/:token', validate(verifyEmailSchema), verifyEmail);
+router.post(
+  '/resend-verification-email',
+  validate(resendVerificationEmailSchema),
+  resendVerificationEmail,
+);
 router.post('/forgot-password', validate(forgotPasswordSchema), forgotPassword);
 router.patch('/reset-password/:token', validate(resetPasswordSchema), resetPassword);
 

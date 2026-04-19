@@ -7,6 +7,8 @@ export * from './schemas/common/primitives.js';
 
 export * from './schemas/auth/login.schema.js';
 export * from './schemas/auth/register.schema.js';
+export * from './schemas/auth/verify-email.schema.js';
+export * from './schemas/auth/resend-verification-email.schema.js';
 export * from './schemas/auth/forgot-password.schema.js';
 export * from './schemas/auth/reset-password.schema.js';
 

@@ -6,6 +6,7 @@ export const ERROR_KEYS = {
     SERVICE_UNAVAILABLE: 'system.service_unavailable', // e.g., database down, third-party API failure
     MAINTENANCE: 'system.maintenance', // e.g., for scheduled downtime
     UNKNOWN_ERROR: 'system.unknown_error', // e.g., for unhandled exceptions
+    RATE_LIMIT_EXCEEDED: 'system.rate_limit_exceeded', // e.g., when a user exceeds the allowed number of requests
   },
   VALIDATION: {
     REQUIRED: 'validation.required', // e.g., username is required
@@ -21,24 +22,28 @@ export const ERROR_KEYS = {
   AUTH: {
     UNAUTHORIZED: 'auth.unauthorized', // e.g., trying to access a protected resource without being logged in
     FORBIDDEN: 'auth.forbidden', // e.g., trying to access a resource without proper permissions
-    ACCOUNT_SUSPENDED: 'auth.account_suspended', // e.g., trying to log in to a suspended account
     INVALID_CREDENTIALS: 'auth.invalid_credentials', // e.g., wrong password or email during login
     TOKEN_EXPIRED: 'auth.token_expired', // e.g., JWT expired
     TOKEN_INVALID: 'auth.token_invalid', // e.g., JWT verification failed
+    SESSION_EXPIRED: 'auth.session_expired', // e.g., session cookie expired
     USER_NOT_FOUND: 'auth.user_not_found', // e.g., during login or password reset
     USER_ALREADY_EXISTS: 'auth.user_already_exists', // e.g., during registration
     EMAIL_NOT_VERIFIED: 'auth.email_not_verified', // e.g., trying to log in without verifying email
-    PASSWORD_TOO_WEAK: 'auth.password_too_weak', // e.g., during registration or password change
-    PASSWORD_NO_MATCH: 'auth.password_no_match', // e.g., during password reset confirmation
-    TOO_MANY_ATTEMPTS: 'auth.too_many_attempts', // e.g., after multiple failed login attempts
+    EMAIL_ALREADY_VERIFIED: 'auth.email_already_verified', // e.g., trying to verify an already verified email
+    ACCOUNT_SUSPENDED: 'auth.account_suspended', // e.g., trying to log in to a suspended account
+    ACCOUNT_DEACTIVATED: 'auth.account_deactivated', // e.g., trying to interact with a deactivated account
+    VERIFICATION_EMAIL_SENT: 'auth.verification_email_sent', // e.g., after resending verification email
+    PASSWORD_RESET_EMAIL_SENT: 'auth.password_reset_email_sent', // e.g., after requesting password reset
+    TOO_MANY_ATTEMPTS: 'auth.too_many_attempts', // e.g., after exceeding login attempts
+    INVALID_TOKEN: 'auth.invalid_token', // e.g., during email verification or password reset
   },
   USER: {
+    USER_NOT_FOUND: 'user.user_not_found', // e.g., trying to access a user that doesn't exist
     USERNAME_TAKEN: 'user.username_taken', // e.g., during registration or username update
     EMAIL_TAKEN: 'user.email_taken', // e.g., during registration or email update
-    PROFILE_NOT_FOUND: 'user.profile_not_found', // e.g., trying to access a profile that doesn't exist
     UPDATE_FAILED: 'user.update_failed', // e.g., database error during profile update
+    PROFILE_NOT_FOUND: 'user.profile_not_found', // e.g., trying to access a profile that doesn't exist
     PERMISSION_DENIED: 'user.permission_denied', // e.g., trying to edit another user's profile
-    USER_NOT_FOUND: 'user.user_not_found', // e.g., trying to access a user that doesn't exist
     ACCOUNT_SUSPENDED: 'user.account_suspended', // e.g., trying to preview a suspended account
   },
   POST: {

@@ -1,4 +1,4 @@
-import User from '#/modules/user/user.model.js';
+import User, { USER_STATUS_VALUES, USER_STATUS } from '#/modules/user/user.model.js';
 import type { RegisterInput } from '@repo/shared';
 
 export const authRepository = {
@@ -7,24 +7,80 @@ export const authRepository = {
   },
 
   async findByUsername(username: string) {
-    return User.findOne({ username }).lean();
+    return User.findOne({ username, status: { $in: USER_STATUS_VALUES } }).lean();
   },
 
   async findByEmail(email: string) {
-    return User.findOne({ email }).lean();
+    return User.findOne({ email, status: { $in: USER_STATUS_VALUES } }).lean();
   },
 
   async findByIdentifier(identifier: string) {
     return User.findOne({
       $or: [{ username: identifier }, { email: identifier }],
-      status: { $in: ['active', 'suspended', 'deactivated'] },
+      status: { $in: USER_STATUS_VALUES },
     })
-      .select('+password +status')
+      .select('+password')
       .lean();
   },
 
-  async createUser(data: RegisterInput) {
-    return User.create(data);
+  async createUser(
+    data: RegisterInput,
+    verificatonFields: {
+      hashedToken: string;
+      expires: Date;
+      lastSentAt: Date;
+    },
+  ) {
+    return User.create({
+      ...data,
+      emailVerificationToken: verificatonFields.hashedToken,
+      emailVerificationExpires: verificatonFields.expires,
+      emailVerificationLastSentAt: verificatonFields.lastSentAt,
+    });
+  },
+
+  /**
+   * Find user by valid email verification token (for email verification process)
+   */
+  async findByVerificationToken(hashedToken: string) {
+    return User.findOne({
+      emailVerificationToken: hashedToken,
+      emailVerificationExpires: { $gt: new Date() },
+      status: 'pending',
+    }).select('+emailVerificationToken +emailVerificationExpires');
+  },
+
+  /**
+   * Update user status to active and remove verification token fields after successful email verification
+   */
+  async updateVerificationStatus(userId: string) {
+    return User.findOneAndUpdate(
+      { _id: userId, status: 'pending' },
+      {
+        $set: { status: 'active' },
+        $unset: { emailVerificationToken: 1, emailVerificationExpires: 1 },
+      },
+      { returnDocument: 'after' },
+    );
+  },
+
+  /**
+   * Update user with new verification token and expiry (for resending verification email)
+   */
+  async updateVerificationToken(
+    userId: string,
+    data: { hashedToken: string; expires: Date; lastSentAt: Date },
+  ) {
+    return User.findOneAndUpdate(
+      { _id: userId, status: USER_STATUS.PENDING },
+      {
+        $set: {
+          emailVerificationToken: data.hashedToken,
+          emailVerificationExpires: data.expires,
+          emailVerificationLastSentAt: data.lastSentAt,
+        },
+      },
+    );
   },
 
   /**
@@ -32,14 +88,16 @@ export const authRepository = {
    */
   async setResetToken(
     userId: string,
-    data: { hashedToken: string; expires: Date; lastSent: Date },
+    data: { hashedToken: string; expires: Date; lastSentAt: Date },
   ) {
     return User.findByIdAndUpdate(
       userId,
       {
-        passwordResetToken: data.hashedToken,
-        passwordResetExpires: data.expires,
-        passwordResetLastSentAt: data.lastSent,
+        $set: {
+          passwordResetToken: data.hashedToken,
+          passwordResetExpires: data.expires,
+          passwordResetLastSentAt: data.lastSentAt,
+        },
       },
       { returnDocument: 'after', validateBeforeSave: false },
     );

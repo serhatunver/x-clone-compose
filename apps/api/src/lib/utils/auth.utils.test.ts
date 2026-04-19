@@ -4,7 +4,7 @@ import {
   hashPassword,
   comparePassword,
   checkNeedsRehash,
-  generateToken,
+  generateAuthToken,
   verifyToken,
 } from './auth.utils.js';
 
@@ -68,7 +68,7 @@ describe('Auth Utilities', () => {
 
   describe('JWT Operations', () => {
     it('should sign and successfully verify a token', async () => {
-      const token = await generateToken(MOCK_USER_ID, MOCK_USERNAME);
+      const token = await generateAuthToken(MOCK_USER_ID, MOCK_USERNAME);
       const payload = await verifyToken(token);
 
       expect(payload.sub).toBe(MOCK_USER_ID.toString());
@@ -76,7 +76,7 @@ describe('Auth Utilities', () => {
     });
 
     it('should fail verification for tampered tokens', async () => {
-      const token = await generateToken(MOCK_USER_ID, MOCK_USERNAME);
+      const token = await generateAuthToken(MOCK_USER_ID, MOCK_USERNAME);
       const tamperedToken = token + 'manipulated';
 
       await expect(verifyToken(tamperedToken)).rejects.toThrow();

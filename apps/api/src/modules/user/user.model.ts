@@ -1,6 +1,16 @@
 import { Schema, model, type InferSchemaType, type Query } from 'mongoose';
 import { hashPassword } from '#/lib/utils/auth.utils.js';
 
+export const USER_STATUS = {
+  PENDING: 'pending',
+  ACTIVE: 'active',
+  SUSPENDED: 'suspended',
+  DEACTIVATED: 'deactivated',
+} as const;
+
+export type UserStatus = (typeof USER_STATUS)[keyof typeof USER_STATUS];
+export const USER_STATUS_VALUES = Object.values(USER_STATUS);
+
 const userSchema = new Schema(
   {
     username: {
@@ -69,8 +79,8 @@ const userSchema = new Schema(
     },
     status: {
       type: String,
-      enum: ['active', 'suspended', 'deactivated'],
-      default: 'active',
+      enum: Object.values(USER_STATUS),
+      default: USER_STATUS.PENDING,
     },
     lastLogin: {
       type: Date,
@@ -82,6 +92,17 @@ const userSchema = new Schema(
       type: Date,
     },
     deactivatedAt: {
+      type: Date,
+    },
+    emailVerificationToken: {
+      type: String,
+      select: false,
+    },
+    emailVerificationExpires: {
+      type: Date,
+      select: false,
+    },
+    emailVerificationLastSentAt: {
       type: Date,
     },
     passwordResetToken: {
