@@ -25,23 +25,18 @@ const sendVerificationEmail = (email: string, token: string) => {
 //   RESET: 15 * 60 * 1000, // 15 minutes
 // };
 
-// const isInCooldown = (lastSentAt: Date | undefined, cooldownTime: number) => {
-//   if (!lastSentAt) return false;
-//   return Date.now() - lastSentAt.getTime() < cooldownTime;
-// };
-
 export const authService = {
   async register(data: RegisterInput) {
-    const [existingUser, existingEmail] = await Promise.all([
-      authRepository.findByUsername(data.username),
-      authRepository.findByEmail(data.email),
-    ]);
+    const existing = await authRepository.findDuplicateUser(data.username, data.email);
+    if (existing) {
+      const isEmailConflict = existing.email === data.email;
 
-    if (existingUser) {
-      throw new ConflictError(RESPONSE_KEYS.ERROR.USER.USERNAME_TAKEN, { username: data.username });
-    }
-    if (existingEmail) {
-      throw new ConflictError(RESPONSE_KEYS.ERROR.USER.EMAIL_TAKEN, { email: data.email });
+      throw new ConflictError(
+        isEmailConflict
+          ? RESPONSE_KEYS.ERROR.USER.EMAIL_TAKEN
+          : RESPONSE_KEYS.ERROR.USER.USERNAME_TAKEN,
+        { field: isEmailConflict ? 'email' : 'username' },
+      );
     }
 
     const { rawToken, hashedToken } = generateHashedToken();
