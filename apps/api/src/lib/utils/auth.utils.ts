@@ -3,7 +3,9 @@ import { promisify } from 'node:util';
 import * as jose from 'jose';
 import { config } from '#/config/config.js';
 import { logger } from '#/lib/utils/logger.js';
-import type { UserDocument } from '#/modules/user/user.model.js';
+import { type UserDocument, USER_STATUS } from '#/modules/user/user.model.js';
+import { ForbiddenError } from '#/lib/utils/error.handler.js';
+import { RESPONSE_KEYS } from '@repo/shared';
 
 const argon2Async = promisify(argon2);
 
@@ -209,4 +211,37 @@ export const sanitizeUser = (user: UserDocument) => {
   } = cleanUser;
 
   return safeUser;
+};
+
+/**
+ * Check if a cooldown period has passed since the last action
+ * @param lastSentAt - The date when the action was last performed
+ * @param cooldownTime - The cooldown duration in milliseconds
+ * @returns A boolean indicating if the cooldown period is still active
+ */
+
+export const isInCooldown = (
+  lastSentAt: Date | null | undefined,
+  cooldownTime: number,
+): boolean => {
+  if (!lastSentAt) return false;
+  return Date.now() - lastSentAt.getTime() < cooldownTime;
+};
+
+/** * Check a user's account status and throw appropriate errors if the account is not active
+ * @param status - The user's account status
+ * @param email - The user's email (optional, used for error messages)
+ * @throws ForbiddenError if the account is suspended or pending verification
+ */
+
+export const checkUserStatus = (status: string, email?: string) => {
+  if (status === USER_STATUS.SUSPENDED) {
+    throw new ForbiddenError(RESPONSE_KEYS.ERROR.AUTH.ACCOUNT_SUSPENDED);
+  }
+
+  if (status === USER_STATUS.PENDING) {
+    throw new ForbiddenError(RESPONSE_KEYS.ERROR.AUTH.EMAIL_NOT_VERIFIED, {
+      email: email,
+    });
+  }
 };

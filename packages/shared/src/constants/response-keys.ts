@@ -13,6 +13,9 @@ export const RESPONSE_KEYS = {
       PASSWORD_CHANGED: 'success.auth.password_changed',
       EMAIL_VERIFIED: 'success.auth.email_verified',
       SESSION_REFRESHED: 'success.auth.session_refreshed',
+      ACCOUNT_DELETED: 'success.auth.account_deleted',
+      ACCOUNT_SUSPENDED: 'success.auth.account_suspended',
+      ACCOUNT_REACTIVATED: 'success.auth.account_reactivated',
     },
     USER: {
       FETCHED: 'success.user.fetched',
@@ -81,6 +84,7 @@ export const RESPONSE_KEYS = {
       ACCOUNT_DEACTIVATED: 'error.auth.account_deactivated',
       TOO_MANY_ATTEMPTS: 'error.auth.too_many_attempts',
       INVALID_TOKEN: 'error.auth.invalid_token',
+      PASSWORD_RESET_FAILED: 'error.auth.password_reset_failed',
     },
     USER: {
       USER_NOT_FOUND: 'error.user.user_not_found',

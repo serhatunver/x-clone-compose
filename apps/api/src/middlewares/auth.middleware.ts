@@ -2,7 +2,7 @@ import type { NextFunction, Request, Response } from 'express';
 import * as jose from 'jose';
 import { RESPONSE_KEYS } from '@repo/shared';
 import { InternalServerError, UnauthorizedError } from '#/lib/utils/error.handler.js';
-import { verifyAuthToken } from '#/lib/utils/auth.utils.js';
+import { verifyAuthToken, checkUserStatus } from '#/lib/utils/auth.utils.js';
 import { authRepository } from '#/modules/auth/auth.repository.js';
 
 export const protect = async (req: Request, _res: Response, next: NextFunction) => {
@@ -25,14 +25,13 @@ export const protect = async (req: Request, _res: Response, next: NextFunction) 
     }
 
     const user = await authRepository.findById(payload.sub);
-
     if (!user) {
-      if (!user) {
-        throw new UnauthorizedError(RESPONSE_KEYS.ERROR.AUTH.USER_NOT_FOUND, {
-          detail: 'User not found in database',
-        });
-      }
+      throw new UnauthorizedError(RESPONSE_KEYS.ERROR.AUTH.USER_NOT_FOUND, {
+        detail: 'User not found in database',
+      });
     }
+
+    checkUserStatus(user.status, user.email);
 
     // TODO Implement token versioning for invalidation
     // if (payload.tokenVersion !== user.tokenVersion) {

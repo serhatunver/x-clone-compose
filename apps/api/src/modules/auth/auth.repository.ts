@@ -3,7 +3,9 @@ import type { RegisterInput } from '@repo/shared';
 
 export const authRepository = {
   async findById(userId: string) {
-    return User.findById(userId).lean();
+    return User.findById(userId)
+      .where({ status: { $in: USER_STATUS_VALUES } })
+      .lean();
   },
 
   async findByUsername(username: string) {
@@ -90,13 +92,50 @@ export const authRepository = {
     );
   },
 
+  /**
+   * Update user's password and clear reset token fields after successful password reset
+   */
   async updatePassword(userId: string, newPassword: string) {
     const user = await User.findById(userId);
-    if (!user) {
-      return null;
-    }
+    if (!user) return null;
+
     user.password = newPassword;
+
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+
+    // user.tokenVersion = (user.tokenVersion || 0) + 1;
+
+    let wasDeactivated = false;
+    if (user.status === USER_STATUS.DEACTIVATED) {
+      user.status = USER_STATUS.ACTIVE;
+      user.deactivatedAt = undefined;
+      wasDeactivated = true;
+    }
+
+    await user.save();
+
+    return { user, wasDeactivated };
+  },
+
+  async rehashUserPassword(userId: string, plainPassword: string) {
+    const user = await User.findById(userId);
+    if (!user) return null;
+
+    user.password = plainPassword;
+
     return user.save();
+  },
+
+  /**
+   * Activate a deactivated user account (used when a deactivated user logs in successfully)
+   */
+  async activateUser(userId: string) {
+    return User.findOne(
+      { _id: userId, status: USER_STATUS.DEACTIVATED },
+      { $set: { status: USER_STATUS.ACTIVE }, $unset: { deactivatedAt: 1 } },
+      { returnDocument: 'after' },
+    );
   },
 
   /**

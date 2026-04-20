@@ -1,15 +1,21 @@
 import { authRepository } from './auth.repository.js';
-import { comparePassword, checkNeedsRehash, generateAuthToken } from '#/lib/utils/auth.utils.js';
+import {
+  comparePassword,
+  checkNeedsRehash,
+  generateAuthToken,
+  isInCooldown,
+  sanitizeUser,
+  checkUserStatus,
+} from '#/lib/utils/auth.utils.js';
 import {
   ConflictError,
   UnauthorizedError,
   NotFoundError,
   BadRequestError,
-  ForbiddenError,
 } from '#/lib/utils/error.handler.js';
 import { type RegisterInput, type LoginInput, RESPONSE_KEYS } from '@repo/shared';
 import { logger } from '#/lib/utils/logger.js';
-import User, { USER_STATUS } from '#/modules/user/user.model.js';
+import { USER_STATUS } from '#/modules/user/user.model.js';
 import { generateHashedToken, hashToken } from '#/lib/utils/crypto.utils.js';
 import { config } from '#/config/config.js';
 
@@ -62,27 +68,20 @@ export const authService = {
       throw new UnauthorizedError(RESPONSE_KEYS.ERROR.AUTH.INVALID_CREDENTIALS);
     }
 
-    // TODO Check if user is suspended or pending verification and throw appropriate errors
-    // checkUserStatus(user);
+    checkUserStatus(user.status, user.email);
 
-    if (user.status === USER_STATUS.SUSPENDED) {
-      throw new ForbiddenError(RESPONSE_KEYS.ERROR.AUTH.ACCOUNT_SUSPENDED);
-    }
-
-    if (user.status === USER_STATUS.PENDING) {
-      throw new ForbiddenError(RESPONSE_KEYS.ERROR.AUTH.EMAIL_NOT_VERIFIED, {
-        email: user.email,
-      });
+    let accountReactivated = false;
+    if (user.status === USER_STATUS.DEACTIVATED) {
+      await authRepository.activateUser(user._id.toString());
+      user.deactivatedAt = undefined;
+      user.status = USER_STATUS.ACTIVE;
+      accountReactivated = true;
     }
 
     const needsRehash = checkNeedsRehash(user.password);
 
     if (needsRehash) {
-      const userDoc = User.hydrate(user);
-      userDoc.password = data.password;
-      await userDoc.save();
-      logger.info(`Rehashed password for ${user.username}`);
-      // await authRepository.updatePassword(user._id.toString(), data.password);
+      await authRepository.rehashUserPassword(user._id.toString(), data.password);
     }
 
     const token = await generateAuthToken(
@@ -91,9 +90,11 @@ export const authService = {
       // user.tokenVersion
     );
 
-    const { password: _password, ...userWithoutPassword } = user;
+    const responseMessage = accountReactivated
+      ? RESPONSE_KEYS.SUCCESS.AUTH.ACCOUNT_REACTIVATED
+      : RESPONSE_KEYS.SUCCESS.AUTH.LOGIN;
 
-    return { user: userWithoutPassword, token };
+    return { token, user: sanitizeUser(user), message: responseMessage };
   },
 
   async getMe(userId: string) {
@@ -128,11 +129,12 @@ export const authService = {
       throw new BadRequestError(RESPONSE_KEYS.ERROR.AUTH.USER_NOT_FOUND, { email });
     }
 
-    const COOLDOWN_TIME = authConfig.verificationToken.resendCooldown;
-    if (
-      user.emailVerificationLastSentAt &&
-      Date.now() - user.emailVerificationLastSentAt.getTime() < COOLDOWN_TIME
-    ) {
+    const isCoolingDown = isInCooldown(
+      user.emailVerificationLastSentAt,
+      authConfig.verificationToken.resendCooldown,
+    );
+
+    if (isCoolingDown) {
       throw new BadRequestError(RESPONSE_KEYS.ERROR.AUTH.TOO_MANY_ATTEMPTS);
     }
 
@@ -160,15 +162,16 @@ export const authService = {
     };
     if (!user) return genericResponse;
 
-    if (user.status !== 'active') {
+    if (user.status !== USER_STATUS.ACTIVE) {
       return genericResponse;
     }
 
-    const COOLDOWN_TIME = authConfig.resetToken.resendCooldown;
-    if (
-      user.passwordResetLastSentAt &&
-      Date.now() - user.passwordResetLastSentAt.getTime() < COOLDOWN_TIME
-    ) {
+    const isCoolingDown = isInCooldown(
+      user.passwordResetLastSentAt,
+      authConfig.resetToken.resendCooldown,
+    );
+
+    if (isCoolingDown) {
       return genericResponse;
     }
 
@@ -194,23 +197,25 @@ export const authService = {
       });
     }
 
-    // Update password and clear reset fields
-    user.password = password;
+    let accountReactivated = false;
 
-    // Clear reset token fields
-    user.passwordResetToken = undefined;
-    user.passwordResetExpires = undefined;
+    const result = await authRepository.updatePassword(user._id.toString(), password);
+    if (!result) {
+      throw new BadRequestError(RESPONSE_KEYS.ERROR.AUTH.PASSWORD_RESET_FAILED, {
+        detail: 'Failed to reset password',
+      });
+    }
 
-    // TODO Invalidate existing tokens by incrementing tokenVersion
-    // user.tokenVersion = (user.tokenVersion || 0) + 1;
+    const { user: updatedUser, wasDeactivated } = result;
 
-    // if (user.status == USER_STATUS.DEACTIVATED) {
-    //   user.status = USER_STATUS.ACTIVE;
-    // }
+    if (wasDeactivated) {
+      accountReactivated = true;
+    }
 
-    // Save triggers the 'pre-save' hook to hash the new password
-    await user.save();
+    const responseMessage = accountReactivated
+      ? RESPONSE_KEYS.SUCCESS.AUTH.ACCOUNT_REACTIVATED
+      : RESPONSE_KEYS.SUCCESS.AUTH.PASSWORD_CHANGED;
 
-    return { message: 'Password reset successful' };
+    return { message: responseMessage, user: sanitizeUser(updatedUser) };
   },
 };
