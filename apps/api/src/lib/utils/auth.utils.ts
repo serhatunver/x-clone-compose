@@ -1,9 +1,9 @@
 import { argon2, randomBytes, timingSafeEqual, type Argon2Algorithm } from 'node:crypto';
 import { promisify } from 'node:util';
 import * as jose from 'jose';
-import { Types } from 'mongoose';
 import { config } from '#/config/config.js';
 import { logger } from '#/lib/utils/logger.js';
+import type { UserDocument } from '#/modules/user/user.model.js';
 
 const argon2Async = promisify(argon2);
 
@@ -23,6 +23,12 @@ const BOUNDS = {
 const { MIN_MEMORY, MAX_MEMORY, MAX_PASSES, MAX_PARALLELISM } = BOUNDS;
 
 const SUPPORTED_ALGORITHMS = ['argon2id', 'argon2i', 'argon2d'] as const;
+
+/**
+ * Type guard to check if a given string is a supported Argon2 algorithm
+ * @param value - The string to check
+ * @returns True if the value is a supported algorithm, false otherwise
+ */
 
 const isArgon2Algorithm = (value: string): value is Argon2Algorithm => {
   return (SUPPORTED_ALGORITHMS as readonly string[]).includes(value);
@@ -155,7 +161,7 @@ const JWT_SECRET = new TextEncoder().encode(jwtConfig.secret);
  */
 
 export const generateAuthToken = async (
-  userId: Types.ObjectId,
+  userId: string,
   username: string,
   // tokenVersion: number
 ): Promise<string> => {
@@ -164,7 +170,7 @@ export const generateAuthToken = async (
     // tokenVersion,
   })
     .setProtectedHeader({ alg: 'HS256' })
-    .setSubject(userId.toString())
+    .setSubject(userId)
     .setIssuedAt()
     .setExpirationTime(jwtConfig.expiresIn)
     .sign(JWT_SECRET);
@@ -178,7 +184,29 @@ export const generateAuthToken = async (
  * @returns The payload of the token if valid, otherwise throws an error
  */
 
-export const verifyToken = async (token: string) => {
+export const verifyAuthToken = async (token: string) => {
   const { payload } = await jose.jwtVerify(token, JWT_SECRET);
   return payload;
+};
+
+/**
+ * Sanitize a user object by removing sensitive fields before sending it in a response
+ * @param user - The user document to sanitize
+ * @returns A sanitized user object with sensitive fields removed
+ */
+
+export const sanitizeUser = (user: UserDocument) => {
+  const cleanUser = user && typeof user.toObject === 'function' ? user.toObject() : user;
+
+  const {
+    password: _password,
+    emailVerificationToken: _emailVerificationToken,
+    emailVerificationExpires: _emailVerificationExpires,
+    passwordResetToken: _passwordResetToken,
+    passwordResetExpires: _passwordResetExpires,
+    __v: _v,
+    ...safeUser
+  } = cleanUser;
+
+  return safeUser;
 };

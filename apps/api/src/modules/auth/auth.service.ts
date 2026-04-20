@@ -23,11 +23,6 @@ const sendVerificationEmail = (email: string, token: string) => {
 //   logger.info(`[MAIL MOCK] Password reset email sent to ${email}. Token: ${token}`);
 // };
 
-// const TOKEN_EXPIRY = {
-//   VERIFICATION: 24 * 60 * 60 * 1000, // 24 hours
-//   RESET: 15 * 60 * 1000, // 15 minutes
-// };
-
 export const authService = {
   async register(data: RegisterInput) {
     const existing = await authRepository.findDuplicateUser(data.username, data.email);
@@ -91,7 +86,7 @@ export const authService = {
     }
 
     const token = await generateAuthToken(
-      user._id,
+      user._id.toString(),
       user.username,
       // user.tokenVersion
     );

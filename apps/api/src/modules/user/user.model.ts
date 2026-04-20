@@ -1,4 +1,4 @@
-import { Schema, model, type InferSchemaType, type Query } from 'mongoose';
+import { Schema, model, type InferSchemaType, type HydratedDocument, type Query } from 'mongoose';
 import { hashPassword } from '#/lib/utils/auth.utils.js';
 
 export const USER_STATUS = {
@@ -163,4 +163,5 @@ userSchema.pre(/^find/, function (this: Query<unknown, IUser>) {
 });
 
 export type IUser = InferSchemaType<typeof userSchema>;
+export type UserDocument = HydratedDocument<IUser>;
 export default model<IUser>('User', userSchema);

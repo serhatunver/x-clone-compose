@@ -90,6 +90,15 @@ export const authRepository = {
     );
   },
 
+  async updatePassword(userId: string, newPassword: string) {
+    const user = await User.findById(userId);
+    if (!user) {
+      return null;
+    }
+    user.password = newPassword;
+    return user.save();
+  },
+
   /**
    * Update user with reset password tokens
    */

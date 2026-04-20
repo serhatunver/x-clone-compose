@@ -2,7 +2,7 @@ import type { NextFunction, Request, Response } from 'express';
 import * as jose from 'jose';
 import { RESPONSE_KEYS } from '@repo/shared';
 import { InternalServerError, UnauthorizedError } from '#/lib/utils/error.handler.js';
-import { verifyToken } from '#/lib/utils/auth.utils.js';
+import { verifyAuthToken } from '#/lib/utils/auth.utils.js';
 import { authRepository } from '#/modules/auth/auth.repository.js';
 
 export const protect = async (req: Request, _res: Response, next: NextFunction) => {
@@ -16,7 +16,7 @@ export const protect = async (req: Request, _res: Response, next: NextFunction) 
       });
     }
 
-    const payload = await verifyToken(token);
+    const payload = await verifyAuthToken(token);
 
     if (!payload.sub) {
       throw new UnauthorizedError(RESPONSE_KEYS.ERROR.AUTH.TOKEN_INVALID, {
