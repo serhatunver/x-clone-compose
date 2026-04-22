@@ -1,7 +1,7 @@
 import { promisify } from 'node:util';
 import app from './app.js';
 import { config } from '#/config/config.js';
-import { db } from '#/lib/database.js';
+import { db } from '#/lib/db/mongoose.js';
 import { logger } from '#/lib/utils/logger.js';
 
 async function startServer() {

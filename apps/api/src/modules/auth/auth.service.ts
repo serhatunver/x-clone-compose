@@ -3,20 +3,21 @@ import {
   comparePassword,
   checkNeedsRehash,
   generateAuthToken,
+  generateHashedToken,
+  hashToken,
   isInCooldown,
   sanitizeUser,
   checkUserStatus,
-} from '#/lib/utils/auth.utils.js';
+} from '#/lib/utils/index.js';
 import {
   ConflictError,
   UnauthorizedError,
   NotFoundError,
   BadRequestError,
-} from '#/lib/utils/error.handler.js';
+} from '#/lib/errors/index.js';
 import { type RegisterInput, type LoginInput, RESPONSE_KEYS } from '@repo/shared';
 import { logger } from '#/lib/utils/logger.js';
 import { USER_STATUS } from '#/modules/user/user.model.js';
-import { generateHashedToken, hashToken } from '#/lib/utils/crypto.utils.js';
 import { config } from '#/config/config.js';
 
 const authConfig = config.auth;
@@ -68,18 +69,18 @@ export const authService = {
       throw new UnauthorizedError(RESPONSE_KEYS.ERROR.AUTH.INVALID_CREDENTIALS);
     }
 
-    checkUserStatus(user.status, user.email);
-
-    let accountReactivated = false;
+    let responseMessage: string = RESPONSE_KEYS.SUCCESS.AUTH.LOGIN;
     if (user.status === USER_STATUS.DEACTIVATED) {
-      await authRepository.activateUser(user._id.toString());
-      user.deactivatedAt = undefined;
-      user.status = USER_STATUS.ACTIVE;
-      accountReactivated = true;
+      const updatedUser = await authRepository.activateUser(user._id.toString());
+      if (updatedUser) {
+        Object.assign(user, updatedUser);
+        responseMessage = RESPONSE_KEYS.SUCCESS.AUTH.ACCOUNT_REACTIVATED;
+      }
     }
 
-    const needsRehash = checkNeedsRehash(user.password);
+    checkUserStatus(user.status, user.email);
 
+    const needsRehash = checkNeedsRehash(user.password);
     if (needsRehash) {
       await authRepository.rehashUserPassword(user._id.toString(), data.password);
     }
@@ -89,10 +90,6 @@ export const authService = {
       user.username,
       // user.tokenVersion
     );
-
-    const responseMessage = accountReactivated
-      ? RESPONSE_KEYS.SUCCESS.AUTH.ACCOUNT_REACTIVATED
-      : RESPONSE_KEYS.SUCCESS.AUTH.LOGIN;
 
     return { token, user: sanitizeUser(user), message: responseMessage };
   },

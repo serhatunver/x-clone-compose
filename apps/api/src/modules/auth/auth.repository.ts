@@ -9,25 +9,26 @@ export const authRepository = {
   },
 
   async findByUsername(username: string) {
-    return User.findOne({ username, status: { $in: USER_STATUS_VALUES } }).lean();
+    return User.findOne({ username }).setOptions({ allStatus: true }).lean();
   },
 
   async findByEmail(email: string) {
-    return User.findOne({ email, status: { $in: USER_STATUS_VALUES } }).lean();
+    return User.findOne({ email }).setOptions({ allStatus: true }).lean();
   },
 
   async findDuplicateUser(username: string, email: string) {
     return User.findOne({
       $or: [{ username }, { email }],
-      status: { $in: USER_STATUS_VALUES },
-    }).lean();
+    })
+      .setOptions({ allStatus: true })
+      .lean();
   },
 
   async findByIdentifier(identifier: string) {
     return User.findOne({
       $or: [{ username: identifier }, { email: identifier }],
-      status: { $in: USER_STATUS_VALUES },
     })
+      .setOptions({ allStatus: true })
       .select('+password')
       .lean();
   },
@@ -131,11 +132,11 @@ export const authRepository = {
    * Activate a deactivated user account (used when a deactivated user logs in successfully)
    */
   async activateUser(userId: string) {
-    return User.findOne(
+    return User.findOneAndUpdate(
       { _id: userId, status: USER_STATUS.DEACTIVATED },
       { $set: { status: USER_STATUS.ACTIVE }, $unset: { deactivatedAt: 1 } },
       { returnDocument: 'after' },
-    );
+    ).lean();
   },
 
   /**

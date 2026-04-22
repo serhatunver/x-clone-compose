@@ -82,6 +82,7 @@ export const RESPONSE_KEYS = {
       EMAIL_ALREADY_VERIFIED: 'error.auth.email_already_verified',
       ACCOUNT_SUSPENDED: 'error.auth.account_suspended',
       ACCOUNT_DEACTIVATED: 'error.auth.account_deactivated',
+      INVALID_ACCOUNT_STATUS: 'error.auth.invalid_account_status',
       TOO_MANY_ATTEMPTS: 'error.auth.too_many_attempts',
       INVALID_TOKEN: 'error.auth.invalid_token',
       PASSWORD_RESET_FAILED: 'error.auth.password_reset_failed',

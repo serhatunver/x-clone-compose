@@ -8,7 +8,7 @@ import compression from 'compression';
 
 // Config & Utils
 import { config } from '#/config/config.js';
-import { db } from '#/lib/database.js';
+import { db } from '#/lib/db/mongoose.js';
 import v1Router from '#/modules/v1.routes.js';
 
 // Middlewares

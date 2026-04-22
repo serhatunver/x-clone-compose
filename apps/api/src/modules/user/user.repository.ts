@@ -1,7 +1,7 @@
 import User, { type IUser } from './user.model.js';
 import type { UpdateProfileInput } from '@repo/shared';
 import type { UpdateQuery } from 'mongoose';
-import { BadRequestError } from '#/lib/utils/error.handler.js';
+import { BadRequestError } from '#/lib/errors/index.js';
 import { RESPONSE_KEYS } from '@repo/shared';
 
 type UserCounterFields = keyof Pick<IUser, 'followersCount' | 'followingCount' | 'totalPosts'>;

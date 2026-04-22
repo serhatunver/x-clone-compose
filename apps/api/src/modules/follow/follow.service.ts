@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import { followRepository } from './follow.repository.js';
 import { userRepository } from '../user/user.repository.js';
-import { BadRequestError } from '#/lib/utils/error.handler.js';
+import { BadRequestError } from '#/lib/errors/index.js';
 import { RESPONSE_KEYS, type FollowParams, type FollowQuery } from '@repo/shared';
 
 export const followService = {

@@ -1,5 +1,5 @@
 import { Schema, model, type InferSchemaType, type HydratedDocument, type Query } from 'mongoose';
-import { hashPassword } from '#/lib/utils/auth.utils.js';
+import { hashPassword } from '#/lib/utils/index.js';
 
 export const USER_STATUS = {
   PENDING: 'pending',
@@ -124,7 +124,6 @@ const userSchema = new Schema(
   },
   {
     timestamps: true,
-    id: false,
   },
 );
 
@@ -133,7 +132,6 @@ userSchema.index({ username: 1, status: 1 });
 userSchema.index({ email: 1, status: 1 });
 
 userSchema.set('toJSON', {
-  virtuals: true,
   transform: (_doc, ret) => {
     const { password: _password, ...userWithoutPassword } = ret;
     return userWithoutPassword;
@@ -141,7 +139,6 @@ userSchema.set('toJSON', {
 });
 
 userSchema.set('toObject', {
-  virtuals: true,
   transform: (_doc, ret) => {
     const { password: _password, ...userWithoutPassword } = ret;
     return userWithoutPassword;
@@ -155,10 +152,8 @@ userSchema.pre('save', async function () {
 });
 
 userSchema.pre(/^find/, function (this: Query<unknown, IUser>) {
-  const filter = this.getFilter();
-
-  if (filter.status == undefined) {
-    this.where({ status: 'active' });
+  if (!this.getOptions().allStatus && this.getFilter().status === undefined) {
+    this.where({ status: USER_STATUS.ACTIVE });
   }
 });
 

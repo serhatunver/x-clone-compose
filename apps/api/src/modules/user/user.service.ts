@@ -1,7 +1,7 @@
 import { userRepository } from './user.repository.js';
 import { followRepository } from '../follow/follow.repository.js';
 import type { UpdateProfileInput } from '@repo/shared';
-import { NotFoundError, ForbiddenError } from '#/lib/utils/error.handler.js';
+import { NotFoundError, ForbiddenError } from '#/lib/errors/index.js';
 import { RESPONSE_KEYS } from '@repo/shared';
 
 export const userService = {

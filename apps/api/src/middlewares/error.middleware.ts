@@ -1,5 +1,5 @@
 import { config } from '#/config/config.js';
-import { ErrorHandler, NotFoundError } from '#/lib/utils/error.handler.js';
+import { ErrorHandler, NotFoundError } from '#/lib/errors/index.js';
 import { RESPONSE_KEYS, HTTP_STATUS, type ErrorKey } from '@repo/shared';
 import type { Request, Response, NextFunction, ErrorRequestHandler } from 'express';
 

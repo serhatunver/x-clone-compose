@@ -1,8 +1,8 @@
 import type { NextFunction, Request, Response } from 'express';
 import * as jose from 'jose';
 import { RESPONSE_KEYS } from '@repo/shared';
-import { InternalServerError, UnauthorizedError } from '#/lib/utils/error.handler.js';
-import { verifyAuthToken, checkUserStatus } from '#/lib/utils/auth.utils.js';
+import { InternalServerError, UnauthorizedError } from '#/lib/errors/index.js';
+import { verifyAuthToken, checkUserStatus } from '#/lib/utils/index.js';
 import { authRepository } from '#/modules/auth/auth.repository.js';
 
 export const protect = async (req: Request, _res: Response, next: NextFunction) => {

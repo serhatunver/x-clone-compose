@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from 'express';
 import { type ZodType, ZodError } from 'zod';
-import { ValidationError } from '#/lib/utils/error.handler.js';
+import { ValidationError } from '#/lib/errors/index.js';
 import { RESPONSE_KEYS } from '@repo/shared';
 
 export const validate =

@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from 'express';
 import { RESPONSE_KEYS } from '@repo/shared';
-import { NotFoundError } from '#/lib/utils/error.handler.js';
+import { NotFoundError } from '#/lib/errors/index.js';
 import { userRepository } from '#/modules/user/user.repository.js';
 
 export const ensureTargetUserIsActive = async (

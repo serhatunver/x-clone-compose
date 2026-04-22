@@ -11,7 +11,7 @@ import type {
   resetPasswordSchema,
 } from '@repo/shared';
 import { RESPONSE_KEYS, HTTP_STATUS } from '@repo/shared';
-import { sendResponse } from '#/lib/utils/response.js';
+import { sendResponse } from '#/lib/http/response.js';
 
 const authConfig = config.auth;
 const isProduction = config.app.isProduction;
@@ -31,7 +31,7 @@ export const register = async (req: ValidatedRequest<typeof registerSchema>, res
  */
 export const login = async (req: ValidatedRequest<typeof loginSchema>, res: Response) => {
   const loginData = req.validated.body;
-  const { user, token } = await authService.login(loginData);
+  const { user, token, message } = await authService.login(loginData);
 
   res.cookie('auth.token', token, {
     httpOnly: true, // Prevents JavaScript access to the cookie
@@ -41,7 +41,7 @@ export const login = async (req: ValidatedRequest<typeof loginSchema>, res: Resp
     path: '/', // Cookie is valid for the entire site
   });
 
-  return sendResponse(res, RESPONSE_KEYS.SUCCESS.AUTH.LOGIN, { user });
+  return sendResponse(res, message, { user, token });
 };
 
 /**
