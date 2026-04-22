@@ -97,14 +97,16 @@ export const authRepository = {
    * Update user's password and clear reset token fields after successful password reset
    */
   async updatePassword(userId: string, newPassword: string) {
-    const user = await User.findById(userId);
+    const user = await User.findOne({
+      _id: userId,
+      status: { $in: [USER_STATUS.ACTIVE, USER_STATUS.DEACTIVATED] },
+    });
+
     if (!user) return null;
 
     user.password = newPassword;
-
     user.passwordResetToken = undefined;
     user.passwordResetExpires = undefined;
-
     user.tokenVersion = (user.tokenVersion || 0) + 1;
 
     let wasDeactivated = false;
@@ -115,7 +117,6 @@ export const authRepository = {
     }
 
     await user.save();
-
     return { user, wasDeactivated };
   },
 
@@ -146,8 +147,8 @@ export const authRepository = {
     userId: string,
     data: { hashedToken: string; expires: Date; lastSentAt: Date },
   ) {
-    return User.findByIdAndUpdate(
-      userId,
+    return User.findOneAndUpdate(
+      { _id: userId, status: { $in: [USER_STATUS.ACTIVE, USER_STATUS.DEACTIVATED] } },
       {
         $set: {
           passwordResetToken: data.hashedToken,
@@ -156,7 +157,7 @@ export const authRepository = {
         },
       },
       { returnDocument: 'after', validateBeforeSave: false },
-    );
+    ).lean();
   },
 
   /**
@@ -166,6 +167,7 @@ export const authRepository = {
     return User.findOne({
       passwordResetToken: hashedToken,
       passwordResetExpires: { $gt: new Date() }, // Check if not expired
-    });
+      status: { $in: [USER_STATUS.ACTIVE, USER_STATUS.DEACTIVATED] },
+    }).lean();
   },
 };

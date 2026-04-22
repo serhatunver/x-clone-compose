@@ -17,7 +17,7 @@ import {
 } from '#/lib/errors/index.js';
 import { type RegisterInput, type LoginInput, RESPONSE_KEYS } from '@repo/shared';
 import { logger } from '#/lib/utils/logger.js';
-import { USER_STATUS } from '#/modules/user/user.model.js';
+import { USER_STATUS, type UserStatus } from '#/modules/user/user.model.js';
 import { config } from '#/config/config.js';
 
 const authConfig = config.auth;
@@ -155,7 +155,12 @@ export const authService = {
     };
     if (!user) return genericResponse;
 
-    if (user.status !== USER_STATUS.ACTIVE) {
+    const ALLOWED_STATUSES_FOR_RESET: readonly UserStatus[] = [
+      USER_STATUS.ACTIVE,
+      USER_STATUS.DEACTIVATED,
+    ];
+
+    if (!ALLOWED_STATUSES_FOR_RESET.includes(user.status)) {
       return genericResponse;
     }
 

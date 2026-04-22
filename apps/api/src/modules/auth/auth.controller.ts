@@ -104,12 +104,7 @@ export const forgotPassword = async (
   const { email } = req.validated.body;
   const { message, debugToken } = await authService.forgotPassword(email);
 
-  const result = {
-    message,
-    debugToken,
-  };
-
-  return sendResponse(res, RESPONSE_KEYS.SUCCESS.AUTH.PASSWORD_RESET_EMAIL_SENT, result);
+  return sendResponse(res, message, { debugToken });
 };
 
 /**
@@ -121,7 +116,7 @@ export const resetPassword = async (
 ) => {
   const { token } = req.validated.params;
   const { password } = req.validated.body;
-  const result = await authService.resetPassword(token, password);
+  const { user, message } = await authService.resetPassword(token, password);
 
-  return sendResponse(res, RESPONSE_KEYS.SUCCESS.AUTH.PASSWORD_CHANGED, result);
+  return sendResponse(res, message, { user });
 };
