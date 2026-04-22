@@ -85,11 +85,7 @@ export const authService = {
       await authRepository.rehashUserPassword(user._id.toString(), data.password);
     }
 
-    const token = await generateAuthToken(
-      user._id.toString(),
-      user.username,
-      // user.tokenVersion
-    );
+    const token = await generateAuthToken(user._id.toString(), user.username, user.tokenVersion);
 
     return { token, user: sanitizeUser(user), message: responseMessage };
   },

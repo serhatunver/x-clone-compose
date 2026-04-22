@@ -14,11 +14,11 @@ const JWT_SECRET = new TextEncoder().encode(jwtConfig.secret);
 export const generateAuthToken = async (
   userId: string,
   username: string,
-  // tokenVersion: number
+  tokenVersion: number,
 ): Promise<string> => {
   const token = await new jose.SignJWT({
     username,
-    // tokenVersion,
+    tokenVersion,
   })
     .setProtectedHeader({ alg: 'HS256' })
     .setSubject(userId)

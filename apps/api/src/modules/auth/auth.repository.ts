@@ -105,7 +105,7 @@ export const authRepository = {
     user.passwordResetToken = undefined;
     user.passwordResetExpires = undefined;
 
-    // user.tokenVersion = (user.tokenVersion || 0) + 1;
+    user.tokenVersion = (user.tokenVersion || 0) + 1;
 
     let wasDeactivated = false;
     if (user.status === USER_STATUS.DEACTIVATED) {

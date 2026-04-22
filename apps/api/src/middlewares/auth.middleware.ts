@@ -33,12 +33,11 @@ export const protect = async (req: Request, _res: Response, next: NextFunction) 
 
     checkUserStatus(user.status, user.email);
 
-    // TODO Implement token versioning for invalidation
-    // if (payload.tokenVersion !== user.tokenVersion) {
-    //   throw new UnauthorizedError(RESPONSE_KEYS.ERROR.AUTH.TOKEN_INVALID, {
-    //     detail: 'Token has been invalidated',
-    //   });
-    // }
+    if (payload.tokenVersion !== user.tokenVersion) {
+      throw new UnauthorizedError(RESPONSE_KEYS.ERROR.AUTH.TOKEN_INVALID, {
+        detail: 'Token has been invalidated',
+      });
+    }
 
     req.user = {
       _id: user._id.toString(),

@@ -116,10 +116,10 @@ const userSchema = new Schema(
     passwordResetLastSentAt: {
       type: Date,
     },
-    // tokenVersion: {
-    //   type: Number,
-    //   default: 0,
-    // },
+    tokenVersion: {
+      type: Number,
+      default: 0,
+    },
     __v: { type: Number, select: false },
   },
   {
