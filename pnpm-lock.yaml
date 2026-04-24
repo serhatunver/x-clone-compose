@@ -56,6 +56,9 @@ importers:
       http-status-codes:
         specifier: ^2.3.0
         version: 2.3.0
+      ioredis:
+        specifier: ^5.10.1
+        version: 5.10.1
       jose:
         specifier: ^6.2.2
         version: 6.2.2

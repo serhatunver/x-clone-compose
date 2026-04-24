@@ -13,15 +13,21 @@ export const config = {
     mongodb: {
       uri: env.MONGO_URI,
     },
-    // redis: {
-    //   uri: env.REDIS_URI, // Future Redis config for rate limiting and queues
-    // },
+    redis: {
+      uri: env.REDIS_URI,
+    },
   },
 
   auth: {
     jwt: {
-      secret: env.JWT_SECRET,
-      expiresIn: env.JWT_EXPIRES_IN,
+      access: {
+        secret: env.JWT_ACCESS_SECRET,
+        expiresIn: env.JWT_ACCESS_EXPIRES_IN,
+      },
+      refresh: {
+        secret: env.JWT_REFRESH_SECRET,
+        expiresIn: env.JWT_REFRESH_EXPIRES_IN,
+      },
     },
     verificationToken: {
       expiresIn: env.VERIFICATION_TOKEN_EXPIRES_IN,

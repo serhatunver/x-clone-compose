@@ -154,10 +154,10 @@ export const checkNeedsRehash = (storedHash: string): boolean => {
 };
 
 /**
- * Generate a secure random token and its hashed version
+ * Generate a secure random token pair consisting of a raw token and its hashed version
  * @returns An object containing the raw token and its hashed version
  */
-export const generateHashedToken = () => {
+export const generateTokenPair = (): { rawToken: string; hashedToken: string } => {
   const rawToken = randomBytes(32).toString('hex');
   const hashedToken = createHash('sha256').update(rawToken).digest('hex');
   return { rawToken, hashedToken };

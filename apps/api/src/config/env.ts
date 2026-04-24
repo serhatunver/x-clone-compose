@@ -4,23 +4,39 @@ import { logger } from '#/lib/utils/logger.js';
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   PORT: z.coerce.number().default(8080),
+
+  // Client Configuration
+  CLIENT_URL: z.url(),
+
+  // Database Configuration
   MONGO_URI: z
     .string()
     .regex(/^mongodb(?:\+srv)?:\/\/.+/, 'MONGO_URI must be a valid MongoDB connection string'),
-  CLIENT_URL: z.url(),
-  // Authentication Configurations
-  JWT_SECRET: z.string().min(12, 'JWT_SECRET must be at least 12 characters long'),
-  JWT_EXPIRES_IN: z.string().default('1d'),
+  REDIS_URI: z.string(),
+
+  // JWT Configurations
+  JWT_ACCESS_SECRET: z.string().min(12, 'JWT_ACCESS_SECRET must be at least 12 characters long'),
+  JWT_ACCESS_EXPIRES_IN: z.string().default('15m'), // Access tokens expire in 15 minutes
+  JWT_REFRESH_SECRET: z
+    .string()
+    .min(12, 'JWT_SECRET JWT_REFRESH_SECRET be at least 12 characters long'),
+  JWT_REFRESH_EXPIRES_IN: z.string().default('7d'), // Refresh tokens expire in 7 days
+
+  // Verification and Reset Token Configurations
   VERIFICATION_TOKEN_EXPIRES_IN: z.coerce.number().default(24 * 60 * 60 * 1000), // 24 hours
   VERIFICATION_TOKEN_RESEND_COOLDOWN: z.coerce.number().default(5 * 60 * 1000), // 5 minutes
   RESET_TOKEN_EXPIRES_IN: z.coerce.number().default(15 * 60 * 1000), // 15 minutes
   RESET_TOKEN_RESEND_COOLDOWN: z.coerce.number().default(5 * 60 * 1000), // 5 minutes
+
+  // Cookie Configurations
   COOKIE_MAX_AGE: z.coerce.number().default(24 * 60 * 60 * 1000), // 24 hours
+
   // Rate Limiting Configurations
   RATE_LIMIT_GLOBAL_WINDOW_MS: z.coerce.number().default(15 * 60 * 1000), // 15 minutes
   RATE_LIMIT_GLOBAL_LIMIT: z.coerce.number().default(100), // Limit each IP to 100 requests per windowMs
   RATE_LIMIT_AUTH_WINDOW_MS: z.coerce.number().default(15 * 60 * 1000), // 15 minutes
   RATE_LIMIT_AUTH_LIMIT: z.coerce.number().default(5), // Limit each IP to 5 auth requests per windowMs
+
   // Argon2 Configurations
   ARGON2_MEMORY: z.coerce
     .number()

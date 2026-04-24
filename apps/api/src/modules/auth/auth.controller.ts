@@ -31,9 +31,9 @@ export const register = async (req: ValidatedRequest<typeof registerSchema>, res
  */
 export const login = async (req: ValidatedRequest<typeof loginSchema>, res: Response) => {
   const loginData = req.validated.body;
-  const { user, token, message } = await authService.login(loginData);
+  const { user, accessToken, message } = await authService.login(loginData);
 
-  res.cookie('auth.token', token, {
+  res.cookie('auth.token', accessToken, {
     httpOnly: true, // Prevents JavaScript access to the cookie
     secure: isProduction, // Only send cookie over HTTPS in production
     sameSite: authConfig.cookie.sameSite, // Prevents CSRF attacks
@@ -41,7 +41,7 @@ export const login = async (req: ValidatedRequest<typeof loginSchema>, res: Resp
     path: '/', // Cookie is valid for the entire site
   });
 
-  return sendResponse(res, message, { user, token });
+  return sendResponse(res, message, { user, token: accessToken });
 };
 
 /**

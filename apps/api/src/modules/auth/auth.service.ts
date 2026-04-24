@@ -2,8 +2,8 @@ import { authRepository } from './auth.repository.js';
 import {
   comparePassword,
   checkNeedsRehash,
-  generateAuthToken,
-  generateHashedToken,
+  generateAuthTokens,
+  generateTokenPair,
   hashToken,
   isInCooldown,
   sanitizeUser,
@@ -44,7 +44,7 @@ export const authService = {
       );
     }
 
-    const { rawToken, hashedToken } = generateHashedToken();
+    const { rawToken, hashedToken } = generateTokenPair();
     const expires = new Date(Date.now() + authConfig.verificationToken.expiresIn);
     const lastSentAt = new Date();
 
@@ -85,9 +85,13 @@ export const authService = {
       await authRepository.rehashUserPassword(user._id.toString(), data.password);
     }
 
-    const token = await generateAuthToken(user._id.toString(), user.username, user.tokenVersion);
+    const { accessToken } = await generateAuthTokens(
+      user._id.toString(),
+      user.username,
+      user.tokenVersion,
+    );
 
-    return { token, user: sanitizeUser(user), message: responseMessage };
+    return { accessToken, user: sanitizeUser(user), message: responseMessage };
   },
 
   async getMe(userId: string) {
@@ -131,7 +135,7 @@ export const authService = {
       throw new BadRequestError(RESPONSE_KEYS.ERROR.AUTH.TOO_MANY_ATTEMPTS);
     }
 
-    const { rawToken, hashedToken } = generateHashedToken();
+    const { rawToken, hashedToken } = generateTokenPair();
     const expires = new Date(Date.now() + authConfig.verificationToken.expiresIn);
     const lastSentAt = new Date();
 
@@ -173,7 +177,7 @@ export const authService = {
       return genericResponse;
     }
 
-    const { rawToken, hashedToken } = generateHashedToken();
+    const { rawToken, hashedToken } = generateTokenPair();
 
     await authRepository.setResetToken(user._id.toString(), {
       hashedToken,
