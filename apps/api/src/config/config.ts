@@ -38,10 +38,25 @@ export const config = {
       resendCooldown: env.RESET_TOKEN_RESEND_COOLDOWN,
     },
     cookie: {
-      maxAge: env.COOKIE_MAX_AGE,
-      httpOnly: true,
-      secure: env.NODE_ENV === 'production',
-      sameSite: 'strict' as const,
+      baseOptions: {
+        httpOnly: true,
+        secure: env.NODE_ENV === 'production',
+        sameSite: 'strict' as const,
+        path: '/',
+      },
+      getAccessOptions() {
+        return {
+          ...this.baseOptions,
+          maxAge: env.JWT_ACCESS_EXPIRES_IN * 1000, // Convert to milliseconds
+        };
+      },
+      getRefreshOptions() {
+        return {
+          ...this.baseOptions,
+          maxAge: env.JWT_REFRESH_EXPIRES_IN * 1000, // Convert to milliseconds
+          path: '/api/v1/auth/refresh', // Refresh token is only sent to the refresh endpoint
+        };
+      },
     },
     argon2: {
       memory: env.ARGON2_MEMORY,

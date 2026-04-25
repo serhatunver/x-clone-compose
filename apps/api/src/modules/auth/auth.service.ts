@@ -8,6 +8,7 @@ import {
   isInCooldown,
   sanitizeUser,
   checkUserStatus,
+  verifyRefreshToken,
 } from '#/lib/utils/index.js';
 import {
   ConflictError,
@@ -19,6 +20,8 @@ import { type RegisterInput, type LoginInput, RESPONSE_KEYS } from '@repo/shared
 import { logger } from '#/lib/utils/logger.js';
 import { USER_STATUS, type UserStatus } from '#/modules/user/user.model.js';
 import { config } from '#/config/config.js';
+
+import { randomUUID } from 'node:crypto';
 
 const authConfig = config.auth;
 
@@ -85,13 +88,26 @@ export const authService = {
       await authRepository.rehashUserPassword(user._id.toString(), data.password);
     }
 
-    const { accessToken } = await generateAuthTokens(
+    const jti = randomUUID();
+    const rtid = randomUUID();
+    const { accessToken, refreshToken } = await generateAuthTokens(
       user._id.toString(),
       user.username,
       user.tokenVersion,
+      jti,
+      rtid,
     );
 
-    return { accessToken, user: sanitizeUser(user), message: responseMessage };
+    // await authRepository.saveSession(jti, rtid, authConfig.sessionExpiresIn);
+    await authRepository.saveSession(jti, rtid, 7 * 24 * 60 * 60);
+
+    return { accessToken, refreshToken, user: sanitizeUser(user), message: responseMessage };
+  },
+
+  async logout(jti: string, exp: number) {
+    await authRepository.blacklistToken(jti, exp);
+
+    await authRepository.deleteSession(jti);
   },
 
   async getMe(userId: string) {
@@ -102,6 +118,58 @@ export const authService = {
       });
     }
     return user;
+  },
+
+  async refreshTokens(refreshTokenStr: string) {
+    const payload = await verifyRefreshToken(refreshTokenStr);
+
+    const userId = payload.sub;
+    const jti = payload.jti;
+    const rtid = payload.rtid;
+
+    if (!userId || !jti || !rtid) {
+      throw new UnauthorizedError(RESPONSE_KEYS.ERROR.AUTH.TOKEN_INVALID);
+    }
+
+    const storedRtid = await authRepository.getSession(jti);
+    if (!storedRtid) {
+      throw new UnauthorizedError(RESPONSE_KEYS.ERROR.AUTH.TOKEN_INVALID, {
+        detail: 'Session not found or expired',
+      });
+    }
+
+    // Token reuse detected - invalidate all sessions for the user
+    if (storedRtid !== rtid) {
+      await authRepository.incrementTokenVersion(userId);
+      await authRepository.deleteSession(jti);
+
+      logger.warn(
+        `[SECURITY] Refresh token reuse detected for user ${userId}. All sessions revoked.`,
+      );
+      throw new UnauthorizedError(RESPONSE_KEYS.ERROR.AUTH.TOKEN_INVALID, {
+        detail: 'Refresh token reuse detected. Session invalidated.',
+      });
+    }
+
+    const user = await authRepository.findById(userId);
+    if (!user) {
+      throw new UnauthorizedError(RESPONSE_KEYS.ERROR.AUTH.USER_NOT_FOUND);
+    }
+
+    checkUserStatus(user.status, user.email);
+
+    const newRtid = randomUUID();
+    const { accessToken, refreshToken } = await generateAuthTokens(
+      user._id.toString(),
+      user.username,
+      user.tokenVersion,
+      jti,
+      newRtid,
+    );
+
+    await authRepository.saveSession(jti, newRtid, 7 * 24 * 60 * 60);
+
+    return { accessToken, refreshToken };
   },
 
   async verifyEmail(token: string) {

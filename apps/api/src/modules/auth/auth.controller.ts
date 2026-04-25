@@ -12,9 +12,9 @@ import type {
 } from '@repo/shared';
 import { RESPONSE_KEYS, HTTP_STATUS } from '@repo/shared';
 import { sendResponse } from '#/lib/http/response.js';
+import { UnauthorizedError } from '#/lib/errors/index.js';
 
 const authConfig = config.auth;
-const isProduction = config.app.isProduction;
 
 /**
  * Handle user registration
@@ -31,15 +31,10 @@ export const register = async (req: ValidatedRequest<typeof registerSchema>, res
  */
 export const login = async (req: ValidatedRequest<typeof loginSchema>, res: Response) => {
   const loginData = req.validated.body;
-  const { user, accessToken, message } = await authService.login(loginData);
+  const { user, accessToken, refreshToken, message } = await authService.login(loginData);
 
-  res.cookie('auth.token', accessToken, {
-    httpOnly: true, // Prevents JavaScript access to the cookie
-    secure: isProduction, // Only send cookie over HTTPS in production
-    sameSite: authConfig.cookie.sameSite, // Prevents CSRF attacks
-    maxAge: authConfig.cookie.maxAge, // Cookie expiration time
-    path: '/', // Cookie is valid for the entire site
-  });
+  res.cookie('auth.token', accessToken, authConfig.cookie.getAccessOptions());
+  res.cookie('auth.refresh_token', refreshToken, authConfig.cookie.getRefreshOptions());
 
   return sendResponse(res, message, { user, token: accessToken });
 };
@@ -47,13 +42,13 @@ export const login = async (req: ValidatedRequest<typeof loginSchema>, res: Resp
 /**
  * Handle user logout and clear cookie
  */
-export const logout = (_req: Request, res: Response) => {
-  res.clearCookie('auth.token', {
-    httpOnly: true,
-    secure: isProduction,
-    sameSite: authConfig.cookie.sameSite,
-    path: '/',
-  });
+export const logout = async (req: Request, res: Response) => {
+  const { jti, exp } = req.user;
+
+  await authService.logout(jti, exp);
+
+  res.clearCookie('auth.token', authConfig.cookie.getAccessOptions());
+  res.clearCookie('auth.refresh_token', authConfig.cookie.getRefreshOptions());
 
   return sendResponse(res, RESPONSE_KEYS.SUCCESS.AUTH.LOGOUT);
 };
@@ -66,6 +61,23 @@ export const getMe = async (req: Request, res: Response) => {
   const user = await authService.getMe(userId);
 
   return sendResponse(res, RESPONSE_KEYS.SUCCESS.AUTH.GET_ME, { user });
+};
+
+export const refresh = async (req: Request, res: Response) => {
+  const cookies = req.cookies as Record<string, string | undefined>;
+  const refreshToken = cookies['auth.refresh_token'];
+
+  if (!refreshToken) {
+    throw new UnauthorizedError();
+  }
+
+  const { accessToken, refreshToken: newRefreshToken } =
+    await authService.refreshTokens(refreshToken);
+
+  res.cookie('auth.token', accessToken, authConfig.cookie.getAccessOptions());
+  res.cookie('auth.refresh_token', newRefreshToken, authConfig.cookie.getRefreshOptions());
+
+  return sendResponse(res, RESPONSE_KEYS.SUCCESS.AUTH.TOKEN_REFRESHED);
 };
 
 /**

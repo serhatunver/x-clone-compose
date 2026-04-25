@@ -5,6 +5,10 @@ const isDevelopment = process.env.NODE_ENV === 'development';
 
 export const logger = pino({
   level: isProduction ? 'info' : 'debug',
+  serializers: {
+    err: pino.stdSerializers.err,
+    error: pino.stdSerializers.err,
+  },
   ...(isDevelopment && {
     transport: {
       target: 'pino-pretty',

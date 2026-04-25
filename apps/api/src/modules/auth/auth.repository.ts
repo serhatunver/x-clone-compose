@@ -1,5 +1,13 @@
-import User, { USER_STATUS_VALUES, USER_STATUS } from '#/modules/user/user.model.js';
+import { config } from '#/config/config.js';
+import User, {
+  USER_STATUS_VALUES,
+  USER_STATUS,
+  type UserStatus,
+} from '#/modules/user/user.model.js';
 import type { RegisterInput } from '@repo/shared';
+import { redis, redisDb } from '#/lib/db/redis.js';
+
+const authConfig = config.auth;
 
 export const authRepository = {
   async findById(userId: string) {
@@ -169,5 +177,47 @@ export const authRepository = {
       passwordResetExpires: { $gt: new Date() }, // Check if not expired
       status: { $in: [USER_STATUS.ACTIVE, USER_STATUS.DEACTIVATED] },
     }).lean();
+  },
+
+  /**
+   * Increment user's token version to invalidate all existing tokens (used for logout all devices and token reuse detection)
+   */
+  async incrementTokenVersion(userId: string) {
+    return User.findByIdAndUpdate(userId, { $inc: { tokenVersion: 1 } }).lean();
+  },
+
+  async blacklistToken(jti: string, exp: number) {
+    const now = Math.floor(Date.now() / 1000);
+    const ttl = exp - now;
+    if (ttl > 0) {
+      await redis.set(`bl:${jti}`, 'true', 'EX', ttl);
+    }
+  },
+
+  async isTokenBlacklisted(jti: string) {
+    const result = await redis.get(`bl:${jti}`);
+    return result === 'true';
+  },
+
+  async saveSession(jti: string, rtid: string, ttl: number) {
+    return await redis.set(`session:${jti}`, rtid, 'EX', ttl);
+  },
+
+  async getSession(jti: string) {
+    return await redis.get(`session:${jti}`);
+  },
+
+  async deleteSession(jti: string) {
+    return await redis.del(`session:${jti}`);
+  },
+
+  async getCachedAuthUser(userId: string) {
+    const cacheKey = `user:auth:${userId}`;
+    return await redisDb.getJson<{ v: number; s: UserStatus }>(cacheKey);
+  },
+
+  async setCachedAuthUser(userId: string, data: { v: number; s: string }) {
+    const cacheKey = `user:auth:${userId}`;
+    return await redisDb.setJson(cacheKey, data, authConfig.jwt.access.expiresIn);
   },
 };

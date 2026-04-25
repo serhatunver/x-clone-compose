@@ -12,7 +12,7 @@ export const RESPONSE_KEYS = {
       PASSWORD_RESET_EMAIL_SENT: 'success.auth.password_reset_email_sent',
       PASSWORD_CHANGED: 'success.auth.password_changed',
       EMAIL_VERIFIED: 'success.auth.email_verified',
-      SESSION_REFRESHED: 'success.auth.session_refreshed',
+      TOKEN_REFRESHED: 'success.auth.token_refreshed',
       ACCOUNT_DELETED: 'success.auth.account_deleted',
       ACCOUNT_SUSPENDED: 'success.auth.account_suspended',
       ACCOUNT_REACTIVATED: 'success.auth.account_reactivated',

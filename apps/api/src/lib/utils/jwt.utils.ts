@@ -1,4 +1,4 @@
-import { randomUUID } from 'node:crypto';
+// import { randomUUID } from 'node:crypto';
 import { SignJWT, jwtVerify, type JWTPayload } from 'jose';
 import { config } from '#/config/config.js';
 
@@ -6,7 +6,7 @@ const { access, refresh } = config.auth.jwt;
 const ACCESS_SECRET = new TextEncoder().encode(access.secret);
 const REFRESH_SECRET = new TextEncoder().encode(refresh.secret);
 
-interface AuthTokenPayload extends JWTPayload {
+interface AccessTokenPayload extends JWTPayload {
   username: string;
   tokenVersion: number;
 }
@@ -21,15 +21,19 @@ export const generateAccessToken = async (
   userId: string,
   username: string,
   tokenVersion: number,
+  jti: string,
 ): Promise<string> => {
-  const jti = randomUUID();
+  const payload: AccessTokenPayload = {
+    username,
+    tokenVersion,
+  };
 
-  return await new SignJWT({ username, tokenVersion })
+  return await new SignJWT(payload)
     .setProtectedHeader({ alg: 'HS256' })
     .setSubject(userId)
     .setJti(jti)
     .setIssuedAt()
-    .setExpirationTime(access.expiresIn)
+    .setExpirationTime(Math.floor(Date.now() / 1000) + access.expiresIn)
     .sign(ACCESS_SECRET);
 };
 
@@ -37,15 +41,17 @@ export const generateAccessToken = async (
  * @param userId - The user's unique identifier
  * @returns A signed JWT refresh token as a string
  */
-export const generateRefreshToken = async (userId: string): Promise<string> => {
-  const jti = randomUUID();
-
-  return await new SignJWT({})
+export const generateRefreshToken = async (
+  userId: string,
+  jti: string,
+  rtid: string,
+): Promise<string> => {
+  return await new SignJWT({ rtid })
     .setProtectedHeader({ alg: 'HS256' })
     .setSubject(userId)
     .setJti(jti)
     .setIssuedAt()
-    .setExpirationTime(refresh.expiresIn)
+    .setExpirationTime(Math.floor(Date.now() / 1000) + refresh.expiresIn)
     .sign(REFRESH_SECRET);
 };
 
@@ -58,10 +64,12 @@ export const generateAuthTokens = async (
   userId: string,
   username: string,
   tokenVersion: number,
+  jti: string,
+  rtid: string,
 ): Promise<{ accessToken: string; refreshToken: string }> => {
   const [accessToken, refreshToken] = await Promise.all([
-    generateAccessToken(userId, username, tokenVersion),
-    generateRefreshToken(userId),
+    generateAccessToken(userId, username, tokenVersion, jti),
+    generateRefreshToken(userId, jti, rtid),
   ]);
 
   return { accessToken, refreshToken };
@@ -72,9 +80,9 @@ export const generateAuthTokens = async (
  * @returns The decoded payload of the token if valid
  * @throws An error if the token is invalid or expired
  */
-export const verifyAccessToken = async (token: string): Promise<AuthTokenPayload> => {
+export const verifyAccessToken = async (token: string): Promise<AccessTokenPayload> => {
   const { payload } = await jwtVerify(token, ACCESS_SECRET);
-  return payload as AuthTokenPayload;
+  return payload as AccessTokenPayload;
 };
 
 /** Verify a JWT refresh token and return its payload

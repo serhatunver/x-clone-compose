@@ -2,12 +2,14 @@ import { promisify } from 'node:util';
 import app from './app.js';
 import { config } from '#/config/config.js';
 import { db } from '#/lib/db/mongoose.js';
+import { redisDb } from '#/lib/db/redis.js';
 import { logger } from '#/lib/utils/logger.js';
 
 async function startServer() {
   try {
     // 1. Database Connection
     await db.connect();
+    await redisDb.connect();
 
     // 2. Start HTTP Server
     const server = app.listen(config.app.port, '0.0.0.0', () => {
@@ -44,7 +46,7 @@ async function startServer() {
 
         // Disconnect from Database
         await db.disconnect();
-        logger.info('Database connection closed.');
+        await redisDb.disconnect();
 
         clearTimeout(forceExit);
         logger.info('Graceful shutdown completed. Goodbye!');
