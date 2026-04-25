@@ -1,4 +1,6 @@
+import { randomUUID } from 'node:crypto';
 import { authRepository } from './auth.repository.js';
+import { sessionRepository } from './session.repository.js';
 import {
   comparePassword,
   checkNeedsRehash,
@@ -20,8 +22,6 @@ import { type RegisterInput, type LoginInput, RESPONSE_KEYS } from '@repo/shared
 import { logger } from '#/lib/utils/logger.js';
 import { USER_STATUS, type UserStatus } from '#/modules/user/user.model.js';
 import { config } from '#/config/config.js';
-
-import { randomUUID } from 'node:crypto';
 
 const authConfig = config.auth;
 
@@ -98,16 +98,15 @@ export const authService = {
       rtid,
     );
 
-    // await authRepository.saveSession(jti, rtid, authConfig.sessionExpiresIn);
-    await authRepository.saveSession(jti, rtid, 7 * 24 * 60 * 60);
+    await sessionRepository.saveSession(jti, rtid, authConfig.jwt.refresh.expiresIn);
 
     return { accessToken, refreshToken, user: sanitizeUser(user), message: responseMessage };
   },
 
   async logout(jti: string, exp: number) {
-    await authRepository.blacklistToken(jti, exp);
+    await sessionRepository.blacklistToken(jti, exp);
 
-    await authRepository.deleteSession(jti);
+    await sessionRepository.deleteSession(jti);
   },
 
   async getMe(userId: string) {
@@ -131,7 +130,7 @@ export const authService = {
       throw new UnauthorizedError(RESPONSE_KEYS.ERROR.AUTH.TOKEN_INVALID);
     }
 
-    const storedRtid = await authRepository.getSession(jti);
+    const storedRtid = await sessionRepository.getSession(jti);
     if (!storedRtid) {
       throw new UnauthorizedError(RESPONSE_KEYS.ERROR.AUTH.TOKEN_INVALID, {
         detail: 'Session not found or expired',
@@ -141,7 +140,8 @@ export const authService = {
     // Token reuse detected - invalidate all sessions for the user
     if (storedRtid !== rtid) {
       await authRepository.incrementTokenVersion(userId);
-      await authRepository.deleteSession(jti);
+      await sessionRepository.deleteSession(jti);
+      await sessionRepository.deleteCachedAuthUser(userId);
 
       logger.warn(
         `[SECURITY] Refresh token reuse detected for user ${userId}. All sessions revoked.`,
@@ -167,7 +167,7 @@ export const authService = {
       newRtid,
     );
 
-    await authRepository.saveSession(jti, newRtid, 7 * 24 * 60 * 60);
+    await sessionRepository.saveSession(jti, newRtid, authConfig.jwt.refresh.expiresIn);
 
     return { accessToken, refreshToken };
   },
@@ -275,6 +275,8 @@ export const authService = {
         detail: 'Failed to reset password',
       });
     }
+
+    await sessionRepository.deleteCachedAuthUser(user._id.toString());
 
     const { user: updatedUser, wasDeactivated } = result;
 

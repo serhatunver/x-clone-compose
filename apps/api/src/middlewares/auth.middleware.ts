@@ -4,6 +4,7 @@ import { RESPONSE_KEYS } from '@repo/shared';
 import { InternalServerError, UnauthorizedError } from '#/lib/errors/index.js';
 import { verifyAccessToken, checkUserStatus } from '#/lib/utils/index.js';
 import { authRepository } from '#/modules/auth/auth.repository.js';
+import { sessionRepository } from '#/modules/auth/session.repository.js';
 
 export const protect = async (req: Request, _res: Response, next: NextFunction) => {
   try {
@@ -23,12 +24,12 @@ export const protect = async (req: Request, _res: Response, next: NextFunction) 
       throw new UnauthorizedError(RESPONSE_KEYS.ERROR.AUTH.TOKEN_INVALID);
     }
 
-    const isBlacklisted = await authRepository.isTokenBlacklisted(jti);
+    const isBlacklisted = await sessionRepository.isTokenBlacklisted(jti);
     if (isBlacklisted) {
       throw new UnauthorizedError(RESPONSE_KEYS.ERROR.AUTH.TOKEN_INVALID);
     }
 
-    let cachedUser = await authRepository.getCachedAuthUser(userId);
+    let cachedUser = await sessionRepository.getCachedAuthUser(userId);
 
     if (!cachedUser) {
       const user = await authRepository.findById(userId);
@@ -37,7 +38,7 @@ export const protect = async (req: Request, _res: Response, next: NextFunction) 
       }
 
       cachedUser = { v: user.tokenVersion, s: user.status };
-      await authRepository.setCachedAuthUser(userId, cachedUser);
+      await sessionRepository.setCachedAuthUser(userId, cachedUser);
     }
 
     checkUserStatus(cachedUser.s);
