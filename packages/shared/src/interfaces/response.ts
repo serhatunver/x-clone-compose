@@ -1,3 +1,9 @@
+export interface IApiValidationErrorDetail {
+  field: string;
+  messageKey: string;
+  [key: string]: any;
+}
+
 export interface IApiResponse<T = any> {
   success: boolean;
   messageKey: string;
@@ -5,6 +11,6 @@ export interface IApiResponse<T = any> {
   error?: {
     code: string;
     meta?: any;
-    details?: any[];
+    details?: IApiValidationErrorDetail[];
   };
 }

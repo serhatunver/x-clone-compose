@@ -79,11 +79,16 @@ export const config = {
     },
   },
 
-  // services: {
-  //   email: {
-  //     resendApiKey: env.RESEND_API_KEY,
-  //   },
-  // },
+  services: {
+    email: {
+      // resendApiKey: env.RESEND_API_KEY,
+      fromEmail: env.EMAIL_FROM,
+      host: env.EMAIL_HOST,
+      port: env.EMAIL_PORT,
+      user: env.EMAIL_USER,
+      pass: env.EMAIL_PASS,
+    },
+  },
 } as const;
 
 export type Config = typeof config;

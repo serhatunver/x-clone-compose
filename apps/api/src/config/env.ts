@@ -14,6 +14,14 @@ const envSchema = z.object({
     .regex(/^mongodb(?:\+srv)?:\/\/.+/, 'MONGO_URI must be a valid MongoDB connection string'),
   REDIS_URI: z.string(),
 
+  //Services Configuration
+  // RESEND_API_KEY: z.string().min(1, 'RESEND_API_KEY is required for sending emails'),
+  EMAIL_HOST: z.string().min(1, 'EMAIL_HOST is required for sending emails'),
+  EMAIL_PORT: z.coerce.number().default(587),
+  EMAIL_USER: z.string().min(1, 'EMAIL_USER is required for sending emails'),
+  EMAIL_PASS: z.string().min(1, 'EMAIL_PASS is required for sending emails'),
+  EMAIL_FROM: z.email().default('noreply@xclone.com'),
+
   // JWT Configurations
   JWT_ACCESS_SECRET: z.string().min(12, 'JWT_ACCESS_SECRET must be at least 12 characters long'),
   JWT_ACCESS_EXPIRES_IN: z.coerce.number().default(15 * 60), // Access tokens expire in 15 minutes (in seconds)

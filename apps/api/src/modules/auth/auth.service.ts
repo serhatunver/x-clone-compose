@@ -22,16 +22,9 @@ import { type RegisterInput, type LoginInput, RESPONSE_KEYS } from '@repo/shared
 import { logger } from '#/lib/utils/logger.js';
 import { USER_STATUS, type UserStatus } from '#/modules/user/user.model.js';
 import { config } from '#/config/config.js';
+import { emailService } from '#/lib/services/email.service.js';
 
 const authConfig = config.auth;
-
-const sendVerificationEmail = (email: string, token: string) => {
-  logger.info(`[MAIL MOCK] Verification email sent to ${email}. Token: ${token}`);
-};
-
-// const sendResetEmail = async (email: string, token: string) => {
-//   logger.info(`[MAIL MOCK] Password reset email sent to ${email}. Token: ${token}`);
-// };
 
 export const authService = {
   async register(data: RegisterInput) {
@@ -57,7 +50,7 @@ export const authService = {
       lastSentAt,
     });
 
-    sendVerificationEmail(newUser.email, rawToken);
+    await emailService.sendVerificationEmail(newUser.email, rawToken);
 
     return {
       user: newUser,
@@ -213,7 +206,7 @@ export const authService = {
       lastSentAt,
     });
 
-    sendVerificationEmail(user.email, rawToken);
+    await emailService.sendVerificationEmail(user.email, rawToken);
 
     return { message: 'Verification email resent successfully', debugToken: rawToken };
   },
@@ -253,7 +246,7 @@ export const authService = {
       lastSentAt: new Date(),
     });
 
-    // sendResetEmail(user.email, resetToken); // Implement email sending logic
+    await emailService.sendResetPasswordEmail(user.email, rawToken);
     return { ...genericResponse, debugToken: rawToken };
   },
 
