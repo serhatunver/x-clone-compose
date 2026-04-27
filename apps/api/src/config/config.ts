@@ -89,6 +89,30 @@ export const config = {
       pass: env.EMAIL_PASS,
     },
   },
+  queues: {
+    email: {
+      name: 'email-queue',
+      worker: {
+        concurrency: env.EMAIL_QUEUE_CONCURRENCY,
+        drainDelay: env.EMAIL_QUEUE_DRAIN_DELAY,
+        stalledInterval: env.EMAIL_QUEUE_STALLED_INTERVAL,
+        maxStalledCount: 3,
+        limiter: {
+          max: 100,
+          duration: 10000,
+        },
+      },
+      defaultJobOptions: {
+        attempts: 3,
+        backoff: {
+          type: 'exponential',
+          delay: 5000,
+        },
+        removeOnComplete: true,
+        removeOnFail: { age: 24 * 3600 },
+      },
+    },
+  },
 } as const;
 
 export type Config = typeof config;

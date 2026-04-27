@@ -1,6 +1,7 @@
 import nodemailer from 'nodemailer';
 import { config } from '#/config/config.js';
 import { logger } from '#/lib/utils/logger.js';
+import { emailQueue } from '#/lib/queues/email.queue.js';
 import { verificationTemplate, resetPasswordTemplate } from './email-templates.js';
 
 const transporter = nodemailer.createTransport({
@@ -13,6 +14,10 @@ const transporter = nodemailer.createTransport({
 });
 
 export const emailService = {
+  async queueEmail(data: { to: string; subject: string; html: string }) {
+    await emailQueue.add('send-email', data);
+  },
+
   async sendEmail({ to, subject, html }: { to: string; subject: string; html: string }) {
     const from = `X Clone <${config.services.email.fromEmail || 'noreply@xclone.com'}>`;
 
@@ -31,7 +36,7 @@ export const emailService = {
       return info;
     } catch (err) {
       logger.error({ err, to, subject }, 'Email sending failed');
-      return null;
+      throw err;
     }
   },
 
@@ -44,7 +49,7 @@ export const emailService = {
   async sendVerificationEmail(email: string, token: string) {
     const verificationUrl = `${config.app.clientUrl}/verify-email?token=${token}`;
 
-    return this.sendEmail({
+    return this.queueEmail({
       to: email,
       subject: 'Verify your account - X Clone',
       html: verificationTemplate(verificationUrl),
@@ -60,7 +65,7 @@ export const emailService = {
   async sendResetPasswordEmail(email: string, token: string) {
     const resetUrl = `${config.app.clientUrl}/reset-password?token=${token}`;
 
-    return this.sendEmail({
+    return this.queueEmail({
       to: email,
       subject: 'Reset your password - X Clone',
       html: resetPasswordTemplate(resetUrl),

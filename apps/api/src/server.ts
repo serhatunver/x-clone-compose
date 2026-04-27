@@ -3,6 +3,7 @@ import app from './app.js';
 import { config } from '#/config/config.js';
 import { db } from '#/lib/db/mongoose.js';
 import { redisDb } from '#/lib/db/redis.js';
+import '#/lib/queues/email.worker.js';
 import { logger } from '#/lib/utils/logger.js';
 
 async function startServer() {

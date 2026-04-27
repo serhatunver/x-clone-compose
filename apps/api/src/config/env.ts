@@ -68,6 +68,11 @@ const envSchema = z.object({
     .string()
     .pipe(z.enum(['19']))
     .default('19'), // Argon2 version (19 is the current stable version)
+
+  // Queue Configurations
+  EMAIL_QUEUE_CONCURRENCY: z.coerce.number().default(5), // Number of concurrent workers for processing email jobs
+  EMAIL_QUEUE_DRAIN_DELAY: z.coerce.number().default(60), // Delay in seconds before checking for new jobs when the queue is empty (60 seconds)
+  EMAIL_QUEUE_STALLED_INTERVAL: z.coerce.number().default(300000), // Time in milliseconds to check for stalled jobs (5 minutes)
 });
 
 const _env = envSchema.safeParse(process.env);
