@@ -31,6 +31,8 @@ app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 app.use(cookieParser());
 app.use(hpp());
 
+app.set('trust proxy', 1);
+
 // Logging & Rate Limit
 app.use(loggerMiddleware);
 if (!config.app.isDevelopment) {
